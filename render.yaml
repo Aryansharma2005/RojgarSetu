@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: rojgar-setu
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "daphne -b 0.0.0.0 -p $PORT rojgar_setu.asgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.0"
+      - key: DEBUG
+        value: "False"
