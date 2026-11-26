@@ -34,7 +34,7 @@
         {% endif %}
     </div>
 
-    {% if is_owner and job.status == 'draft' or not job.is_active and is_owner %}
+    {% if is_owner and job.status == 'draft' %}
     <!-- Draft Alert Banner for Employer -->
     <div class="mb-6 p-5 sm:p-6 rounded-3xl bg-amber-50/90 border border-amber-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
         <div class="space-y-1">
@@ -65,6 +65,27 @@
             </a>
         </div>
     </div>
+    {% elif is_owner and job.status == 'closed' or is_owner and not job.is_active %}
+    <!-- Closed Opening Banner for Employer -->
+    <div class="mb-6 p-5 sm:p-6 rounded-3xl bg-rose-50/80 border border-rose-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+        <div class="space-y-1">
+            <div class="flex items-center gap-2 text-rose-950 font-bold text-sm">
+                <i data-lucide="lock" class="w-4 h-4 text-rose-600"></i>
+                <span>This Job Opening is Closed</span>
+            </div>
+            <p class="text-xs text-rose-800 leading-relaxed max-w-2xl">
+                This opening is hidden from the worker feed and no new workers can apply. You can still message existing applicants or reopen it anytime.
+            </p>
+        </div>
+        <form method="POST" action="{% url 'job_toggle_status' job.id %}" class="flex-shrink-0">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" class="inline-flex items-center gap-2 bg-emerald-950 hover:bg-emerald-900 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-full transition shadow-sm cursor-pointer">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                <span>Reopen Job Opening</span>
+            </button>
+        </form>
+    </div>
     {% endif %}
 
     <!-- 2-Column Editorial Layout -->
@@ -88,9 +109,13 @@
                         <span class="text-xs font-bold text-neutral-950 bg-neutral-100 px-3 py-1 rounded-full border border-neutral-200">
                             {{ job.category }}
                         </span>
-                        {% if job.status == 'draft' or not job.is_active %}
+                        {% if job.status == 'draft' %}
                         <span class="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
                             Draft • Signature Pending
+                        </span>
+                        {% elif job.status == 'closed' or not job.is_active %}
+                        <span class="text-xs font-bold text-rose-700 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+                            Closed • Not Accepting Applicants
                         </span>
                         {% else %}
                         <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/70">
@@ -328,17 +353,51 @@
                             </p>
                         </form>
                         {% endif %}
+                    {% elif current_user and current_user.role == 'worker' and not job.is_active %}
+                        <div class="p-4 rounded-2xl bg-rose-50/80 border border-rose-200 text-center space-y-2.5">
+                            <div class="text-xs font-bold text-rose-800 flex items-center justify-center gap-1.5">
+                                <i data-lucide="lock" class="w-4 h-4 text-rose-600"></i>
+                                <span>Opening Closed by Employer</span>
+                            </div>
+                            <p class="text-[11px] text-rose-700">New worker applications are no longer accepted for this job.</p>
+                            {% if has_applied and application.chat_room %}
+                            <a href="{% url 'chat_room_detail' application.chat_room.id %}" class="w-full inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs px-4 py-3 rounded-full transition shadow-xs">
+                                <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                                <span>Open Existing Chat</span>
+                            </a>
+                            {% endif %}
+                        </div>
                     {% elif is_owner %}
-                        {% if job.is_active %}
-                        <a href="{% url 'job_applicants' job.id %}" class="w-full inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold py-3.5 px-6 rounded-full transition shadow-sm text-xs sm:text-sm">
-                            <i data-lucide="users" class="w-4 h-4"></i>
-                            <span>Review Applicants</span>
-                        </a>
-                        {% elif agreement %}
-                        <a href="{% url 'agreement_employer_review' agreement.id %}" class="w-full inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold py-3.5 px-6 rounded-full transition shadow-sm text-xs sm:text-sm">
-                            <i data-lucide="file-signature" class="w-4 h-4"></i>
-                            <span>Sign to Publish Job</span>
-                        </a>
+                        {% if job.status == 'draft' %}
+                            {% if agreement %}
+                            <a href="{% url 'agreement_employer_review' agreement.id %}" class="w-full inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold py-3.5 px-6 rounded-full transition shadow-sm text-xs sm:text-sm">
+                                <i data-lucide="file-signature" class="w-4 h-4"></i>
+                                <span>Sign to Publish Job</span>
+                            </a>
+                            {% endif %}
+                        {% else %}
+                        <div class="space-y-2.5">
+                            <a href="{% url 'job_applicants' job.id %}" class="w-full inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold py-3.5 px-6 rounded-full transition shadow-sm text-xs sm:text-sm">
+                                <i data-lucide="users" class="w-4 h-4"></i>
+                                <span>Review Applicants</span>
+                            </a>
+                            <form method="POST" action="{% url 'job_toggle_status' job.id %}"
+                                  {% if job.is_active and job.status == 'active' %}onsubmit="return confirm('Close this job opening? Workers will no longer be able to apply.');"{% endif %}>
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                {% if job.is_active and job.status == 'active' %}
+                                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold py-3 px-6 rounded-full transition text-xs cursor-pointer">
+                                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                                    <span>Close Job Opening</span>
+                                </button>
+                                {% else %}
+                                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold py-3 px-6 rounded-full transition text-xs cursor-pointer">
+                                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                    <span>Reopen Job Opening</span>
+                                </button>
+                                {% endif %}
+                            </form>
+                        </div>
                         {% endif %}
                     {% elif not current_user %}
                         <a href="{% url 'login' %}" class="w-full inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold py-3.5 px-6 rounded-full transition shadow-sm text-xs sm:text-sm">

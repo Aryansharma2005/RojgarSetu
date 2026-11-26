@@ -677,15 +677,15 @@ def generate_smart_employer_questions(
 ) -> list:
     """
     Production-level context-aware question generator using Gemini Flash + Django cache.
-    Understands the exact job details and live chat history to suggest 3 simple, everyday
-    questions an Indian homeowner should ask before sending the work agreement.
+    Understands the exact job details and live chat history to suggest all essential,
+    role-specific questions an Indian homeowner should ask before sending the work agreement.
     """
     import hashlib
     from django.core.cache import cache
 
     recent_messages = recent_messages or []
     chat_digest = "|".join(f"{m.get('sender')}:{m.get('text')}" for m in recent_messages[-6:])
-    raw_key = f"smart_q:{job_id}:{lang}:{job_title}:{scope_of_work}:{chat_digest}"
+    raw_key = f"smart_q_v2:{job_id}:{lang}:{job_title}:{scope_of_work}:{chat_digest}"
     cache_key = "rs_q_" + hashlib.md5(raw_key.encode("utf-8")).hexdigest()
 
     cached = cache.get(cache_key)
@@ -700,7 +700,8 @@ def generate_smart_employer_questions(
 
         prompt = f"""
 You are helping an ordinary Indian homeowner hire a local {category} on Rojgar Setu.
-Analyze the exact job and conversation below, and suggest 3 essential, practical questions the homeowner should ask the worker NEXT before signing the work agreement.
+Analyze the exact job and conversation below, and suggest ALL essential, practical questions the homeowner should ask the worker NEXT before signing the work agreement.
+Do NOT force a fixed count of questions — include every important question needed for this specific {category} role and job situation (typically 3 to 7 questions, or fewer if some are already answered in chat).
 
 JOB DETAILS:
 - Trade: {category}
@@ -715,11 +716,11 @@ RECENT CHAT MESSAGES:
 STRICT RULES:
 1. Language: Write ONLY in {target_lang}. Keep words super simple so any local homeowner and worker in India understands immediately.
 2. NO hard/technical/legal words (never use LMV, MCB, CPVC, hydraulic, compensation, commute, diagnostic, scheduled duration).
-3. Understand the exact situation! If the job mentions something specific (e.g. outstation trip, elderly parents, kitchen leak, car model, night shift), tailor the questions directly to that situation.
+3. Understand the exact situation! If the job mentions something specific (e.g. outstation trip, elderly parents, kitchen leak, car model, night shift, multi-day work, materials), tailor the questions directly to that situation.
 4. Do NOT repeat anything already asked or answered in the recent chat messages above.
-5. Focus on practical essentials: tools/parts needed, exact arrival/stay timing, specific task readiness, or extra material charges.
-6. Each question must be concise (under 18 words) and polite.
-7. Output ONLY a valid JSON array of 3 strings, e.g. ["Question 1?", "Question 2?", "Question 3?"]. No markdown, no extra text.
+5. Focus on practical essentials: safety/verification/experience, tools/parts needed, exact arrival/stay timing, specific task readiness, and extra material or overtime charges.
+6. Each question must be concise (under 18 words) and polite. No fluff or filler questions.
+7. Output ONLY a valid JSON array of question strings, e.g. ["Question 1?", "Question 2?", ...]. No markdown, no extra text.
 """
         models_to_try = []
         for m in ["gemini-3.8-flash-lite", "gemini-3.8-flash", GEMINI_MODEL]:
@@ -740,7 +741,7 @@ STRICT RULES:
                         raw_text = raw_text.strip("`").replace("json", "", 1).strip()
                     parsed = json.loads(raw_text)
                     if isinstance(parsed, list):
-                        clean_qs = [str(q).strip() for q in parsed if isinstance(q, str) and len(str(q).strip()) > 8][:3]
+                        clean_qs = [str(q).strip() for q in parsed if isinstance(q, str) and len(str(q).strip()) > 8]
                         if clean_qs:
                             cache.set(cache_key, clean_qs, timeout=1800)
                             return clean_qs
@@ -792,6 +793,6 @@ STRICT RULES:
         if q not in filtered:
             filtered.append(q)
 
-    final_qs = (filtered or base_qs)[:3]
+    final_qs = filtered or base_qs
     cache.set(cache_key, final_qs, timeout=300)
     return final_qs

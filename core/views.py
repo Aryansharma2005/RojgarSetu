@@ -19,7 +19,7 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 
 from .models import (
     UserAccount, WorkerProfile, Job, Application,
@@ -785,14 +785,43 @@ def job_delete_draft_view(request, job_id):
     return redirect('employer_profile')
 
 
-def my_jobs_view(request):
-    """Employer dashboard showing ONLY active/published jobs (no drafts), applicant counts, and chat links."""
+@require_POST
+def job_toggle_status_view(request, job_id):
+    """Allows an employer to close an active job opening (blocking new worker applications) or reopen it."""
     auth_redirect = _require_auth(request, allowed_roles=['employer', 'admin'])
     if auth_redirect:
         return auth_redirect
 
     user = _get_current_user(request)
-    jobs = Job.objects.filter(employer=user, is_active=True).exclude(status='draft').prefetch_related('digital_agreements').annotate(
+    job = get_object_or_404(Job, id=job_id, employer=user)
+
+    if job.status == 'draft':
+        messages.warning(request, "Draft jobs must be signed and published before they can be closed or reopened.")
+    elif job.is_active and job.status == 'active':
+        job.status = 'closed'
+        job.is_active = False
+        job.save(update_fields=['status', 'is_active'])
+        messages.success(request, f"\"{job.title}\" is now closed. Workers can no longer apply to this opening.")
+    else:
+        job.status = 'active'
+        job.is_active = True
+        job.save(update_fields=['status', 'is_active'])
+        messages.success(request, f"\"{job.title}\" has been reopened and is accepting worker applications again.")
+
+    next_url = (request.POST.get('next') or '').strip()
+    if next_url.startswith('/') and not next_url.startswith('//'):
+        return redirect(next_url)
+    return redirect('employer_profile')
+
+
+def my_jobs_view(request):
+    """Employer dashboard showing published and closed jobs (no drafts), applicant counts, and chat links."""
+    auth_redirect = _require_auth(request, allowed_roles=['employer', 'admin'])
+    if auth_redirect:
+        return auth_redirect
+
+    user = _get_current_user(request)
+    jobs = Job.objects.filter(employer=user).exclude(status='draft').prefetch_related('digital_agreements').annotate(
         applicant_count=Count('applications')
     ).order_by('-created_at')
 
@@ -807,7 +836,10 @@ def apply_job_view(request, job_id):
         return auth_redirect
 
     user = _get_current_user(request)
-    job = get_object_or_404(Job, id=job_id, is_active=True)
+    job = get_object_or_404(Job, id=job_id)
+    if not job.is_active or job.status != 'active':
+        messages.warning(request, "This job opening has been closed by the employer and is no longer accepting applications.")
+        return redirect('job_detail', job_id=job.id)
 
     # Check if already applied
     app, created = Application.objects.get_or_create(
@@ -861,7 +893,7 @@ def job_applicants_view(request, job_id):
     Employer reviews applicants for their job:
     - AI Score & AI Bio
     - Proximity to job location
-    - 'Accept Application & Open Chat' button
+    - Mutually signed contracts / downloadable agreements for this specific job opening
     """
     auth_redirect = _require_auth(request, allowed_roles=['employer', 'admin'])
     if auth_redirect:
@@ -869,9 +901,33 @@ def job_applicants_view(request, job_id):
 
     user = _get_current_user(request)
     job = get_object_or_404(Job, id=job_id, employer=user)
-    applications = Application.objects.filter(job=job).select_related('worker', 'worker__worker_profile').order_by('-applied_at')
+    applications = list(
+        Application.objects.filter(job=job)
+        .select_related('worker', 'worker__worker_profile', 'chat_room', 'chat_room__contract')
+        .order_by('-applied_at')
+    )
 
-    # Attach proximity to each applicant
+    from .models import DigitalAgreement
+    executed_agreements = list(
+        DigitalAgreement.objects.filter(job=job, status='FULLY_EXECUTED')
+        .select_related('worker')
+        .order_by('-worker_signed_at', '-created_at')
+    )
+    agreements_by_worker = {a.worker_id: a for a in executed_agreements if a.worker_id}
+    fallback_agreement = job.latest_agreement
+
+    accepted_contracts = list(
+        Contract.objects.filter(job=job, status__in=['active', 'completed'])
+        .select_related('worker', 'chat_room')
+        .order_by('-worker_signed_at', '-created_at')
+    )
+    for c in accepted_contracts:
+        agr = agreements_by_worker.get(c.worker_id) or (
+            fallback_agreement if fallback_agreement and fallback_agreement.status == 'FULLY_EXECUTED' else None
+        )
+        c.download_agreement_id = agr.id if agr else None
+
+    # Attach proximity & contract/agreement state to each applicant
     for app in applications:
         w = app.worker
         if w.latitude and w.longitude and job.latitude and job.longitude:
@@ -880,9 +936,18 @@ def job_applicants_view(request, job_id):
         else:
             app.distance_display = "Nearby"
 
+        chat_room = getattr(app, 'chat_room', None)
+        contract = getattr(chat_room, 'contract', None) if chat_room else None
+        app.signed_contract = contract if (contract and contract.status in ('active', 'completed')) else None
+        agr = agreements_by_worker.get(w.id) or (
+            fallback_agreement if (app.signed_contract and fallback_agreement and fallback_agreement.status == 'FULLY_EXECUTED') else None
+        )
+        app.download_agreement_id = agr.id if agr else None
+
     context = {
         'job': job,
         'applications': applications,
+        'accepted_contracts': accepted_contracts,
         'current_user': user,
     }
     return render(request, 'jobs/applicants.html', context)
@@ -1379,6 +1444,28 @@ def worker_profile_view(request, worker_id=None):
     if user and (user == worker_user):
         applications = Application.objects.filter(worker=user).select_related('job', 'job__employer', 'chat_room').order_by('-applied_at')
 
+    # Party-specific, non-redundant worker statistics from real DB records
+    total_applied = Application.objects.filter(worker=worker_user).count()
+    active_chats_count = ChatRoom.objects.filter(worker=worker_user).count()
+    signed_contracts_qs = Contract.objects.filter(worker=worker_user, status__in=['active', 'completed'])
+    contracts_signed_count = signed_contracts_qs.count()
+    total_contract_value = signed_contracts_qs.aggregate(total=Sum('agreed_price'))['total'] or 0
+    mcq_score = (profile.verification_badges or {}).get('mcq_score', '100%')
+
+    distance_display = f"{profile.city}"
+    if user and user != worker_user and user.latitude and user.longitude and profile.latitude and profile.longitude:
+        dist_km = calculate_haversine_distance(user.latitude, user.longitude, profile.latitude, profile.longitude)
+        distance_display = format_distance(dist_km)
+
+    worker_stats = {
+        'total_applied': total_applied,
+        'active_chats_count': active_chats_count,
+        'contracts_signed_count': contracts_signed_count,
+        'total_contract_value': total_contract_value,
+        'mcq_score': mcq_score,
+        'distance_display': distance_display,
+    }
+
     # Specific, easy-to-read verified competency bullet points for employers & workers
     TRADE_BULLET_POINTS = {
         "Driver": [
@@ -1456,6 +1543,7 @@ def worker_profile_view(request, worker_id=None):
         'is_self': (user == worker_user),
         'applications': applications,
         'trade_points': trade_points,
+        'worker_stats': worker_stats,
     }
     return render(request, 'workers/profile.html', context)
 

@@ -186,20 +186,70 @@
         </div>
     </nav>
 
-    <!-- Global Messages Banner -->
+    <!-- Floating Global Toast Notifications (Zero Layout Shift, 3s Auto-Dismiss) -->
     {% if messages %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    <div id="flash-toast-stack" class="fixed top-20 right-5 z-[60] flex flex-col gap-2.5 max-w-sm w-[calc(100%-2.5rem)] pointer-events-none">
         {% for message in messages %}
-        <div class="p-3.5 rounded-xl mb-2 flex items-start space-x-2.5 text-xs shadow-xs border
-            {% if message.tags == 'error' %}bg-rose-50/60 border-rose-200 text-rose-800
-            {% elif message.tags == 'success' %}bg-emerald-50/60 border-emerald-200 text-emerald-800
-            {% elif message.tags == 'warning' %}bg-amber-50/60 border-amber-200 text-amber-800
-            {% else %}bg-neutral-50 border-neutral-200 text-neutral-800{% endif %}">
-            <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
-            <div class="flex-1 font-medium">{{ message }}</div>
+        <div class="flash-toast pointer-events-auto relative overflow-hidden rounded-2xl px-4 py-3.5 shadow-xl border backdrop-blur-md flex items-start gap-3 text-xs transition-all duration-300 ease-out translate-x-6 opacity-0
+            {% if 'error' in message.tags %}bg-white/95 border-rose-200 text-neutral-900
+            {% elif 'success' in message.tags %}bg-white/95 border-emerald-200 text-neutral-900
+            {% elif 'warning' in message.tags %}bg-white/95 border-amber-200 text-neutral-900
+            {% else %}bg-white/95 border-neutral-200 text-neutral-900{% endif %}">
+            
+            {% if 'error' in message.tags %}
+                <span class="w-6 h-6 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                </span>
+            {% elif 'success' in message.tags %}
+                <span class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                </span>
+            {% elif 'warning' in message.tags %}
+                <span class="w-6 h-6 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                </span>
+            {% else %}
+                <span class="w-6 h-6 rounded-full bg-neutral-100 text-neutral-700 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                </span>
+            {% endif %}
+
+            <div class="flex-1 font-semibold leading-relaxed pt-0.5">{{ message }}</div>
+
+            <button type="button" onclick="dismissFlashToast(this.closest('.flash-toast'))" class="text-neutral-400 hover:text-neutral-900 p-0.5 transition cursor-pointer flex-shrink-0" aria-label="Close">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+
+            <!-- 3s Progress Bar -->
+            <div class="flash-toast-bar absolute bottom-0 left-0 h-0.5 w-full origin-left transition-all duration-[3000ms] ease-linear
+                {% if 'error' in message.tags %}bg-rose-500
+                {% elif 'success' in message.tags %}bg-emerald-500
+                {% elif 'warning' in message.tags %}bg-amber-500
+                {% else %}bg-neutral-950{% endif %}"></div>
         </div>
         {% endfor %}
     </div>
+    <script>
+        function dismissFlashToast(el) {
+            if (!el || el.dataset.dismissed) return;
+            el.dataset.dismissed = '1';
+            el.classList.add('translate-x-6', 'opacity-0');
+            setTimeout(function() { if (el.parentNode) el.remove(); }, 300);
+        }
+        (function() {
+            var toasts = document.querySelectorAll('#flash-toast-stack .flash-toast');
+            toasts.forEach(function(toast, idx) {
+                setTimeout(function() {
+                    toast.classList.remove('translate-x-6', 'opacity-0');
+                    var bar = toast.querySelector('.flash-toast-bar');
+                    if (bar) {
+                        requestAnimationFrame(function() { bar.style.width = '0%'; });
+                    }
+                }, 30 + (idx * 60));
+                setTimeout(function() { dismissFlashToast(toast); }, 3000 + (idx * 150));
+            });
+        })();
+    </script>
     {% endif %}
 
     <!-- Main Content Block -->
