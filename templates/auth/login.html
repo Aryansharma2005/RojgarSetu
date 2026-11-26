@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ T.nav_login }} - {{ T.brand_title }}{% endblock %}
+
+{% block content %}
+<div class="w-full min-h-[calc(100vh-4.5rem)] flex flex-col justify-between px-4 sm:px-8 py-8 max-w-xl mx-auto">
+
+    <!-- Header -->
+    <div class="text-center pt-4">
+        <div class="w-12 h-12 rounded-2xl bg-neutral-950 text-white flex items-center justify-center mx-auto mb-3 shadow-xs">
+            <i data-lucide="log-in" class="w-5 h-5"></i>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950">{{ T.nav_login }}</h1>
+        <p class="text-xs text-neutral-400 mt-1">Access your Rojgar Setu verified dashboard</p>
+    </div>
+
+    <!-- Login Form (Open Canvas) -->
+    <div class="py-6 w-full">
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">{% if current_lang == 'hi' %}फोन नंबर या ईमेल{% else %}Mobile Number or Email{% endif %}</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                    <p class="text-xs text-rose-500 mt-1">{{ form.phone.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">{% if current_lang == 'hi' %}पासवर्ड{% else %}Password{% endif %}</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <p class="text-xs text-rose-500 mt-1">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="w-full bg-neutral-950 hover:bg-neutral-800 text-white font-semibold py-3.5 rounded-full transition shadow-xs text-xs sm:text-sm mt-3 cursor-pointer">
+                {{ T.nav_login }}
+            </button>
+        </form>
+
+        <!-- Demo Accounts Quick Click (Pill Buttons) -->
+        <div class="mt-6 pt-5 border-t border-neutral-100">
+            <div class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2.5 text-center">Quick Demo Accounts</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="fillDemo('9870001111', 'password123')" 
+                        class="p-3 rounded-2xl border border-neutral-200/80 bg-neutral-50/80 hover:bg-neutral-100 hover:border-neutral-300 text-left transition shadow-xs cursor-pointer">
+                    <strong class="block text-neutral-900 text-xs">Karigar (Worker)</strong>
+                    <span class="text-neutral-400 text-[11px]">9870001111</span>
+                </button>
+                <button type="button" onclick="fillDemo('9811223344', 'password123')" 
+                        class="p-3 rounded-2xl border border-neutral-200/80 bg-neutral-50/80 hover:bg-neutral-100 hover:border-neutral-300 text-left transition shadow-xs cursor-pointer">
+                    <strong class="block text-neutral-900 text-xs">Employer</strong>
+                    <span class="text-neutral-400 text-[11px]">9811223344</span>
+                </button>
+            </div>
+            <div class="text-[11px] text-neutral-400 text-center mt-2">Password: <code class="font-mono bg-neutral-100 px-1 py-0.5 rounded">password123</code></div>
+        </div>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="text-center text-xs text-neutral-500 pb-4">
+        Don't have an account yet? 
+        <a href="{% url 'register' %}" class="font-semibold text-neutral-950 hover:underline">{{ T.nav_register }}</a>
+    </div>
+
+</div>
+
+<script>
+    function fillDemo(phone, pass) {
+        document.querySelector('input[name="phone"]').value = phone;
+        document.querySelector('input[name="password"]').value = pass;
+    }
+</script>
+{% endblock %}

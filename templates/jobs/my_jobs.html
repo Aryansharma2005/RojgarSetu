@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ T.nav_my_jobs }} - {{ T.brand_title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Boldonse&display=swap" rel="stylesheet">
+<style>
+    .boldonse-regular {
+        font-family: "Boldonse", system-ui, sans-serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative">
+
+    <!-- Typographic Watermark -->
+    <div class="boldonse-regular absolute top-4 sm:top-6 right-6 sm:right-10 text-3xl sm:text-4xl lg:text-5xl text-neutral-950/[0.06] tracking-wider pointer-events-none select-none uppercase">
+        MY JOBS
+    </div>
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 relative z-10">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">{{ T.nav_my_jobs }}</h1>
+            <p class="text-xs sm:text-sm text-neutral-500 mt-1">
+                {% if current_lang == 'hi' %}अपने सक्रिय और प्रकाशित कार्यों का प्रबंधन करें एवं आवेदकों की समीक्षा करें।{% else %}Manage your active published jobs, inspect applicants, and track signed agreements.{% endif %}
+            </p>
+        </div>
+        <a href="{% url 'job_create' %}" class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-white font-bold rounded-full text-xs shadow-sm transition self-start sm:self-auto">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>{{ T.nav_post_job }}</span>
+        </a>
+    </div>
+
+    <!-- Active Jobs Table / Card Container -->
+    <div class="bg-white rounded-3xl border border-neutral-200/90 overflow-hidden shadow-sm relative z-10">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-neutral-50/80 border-b border-neutral-200/80 text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+                        <th class="p-4 sm:p-5">Opening / Title</th>
+                        <th class="p-4 sm:p-5">Trade</th>
+                        <th class="p-4 sm:p-5">Offered Pay</th>
+                        <th class="p-4 sm:p-5">Location</th>
+                        <th class="p-4 sm:p-5 text-center">Applicants</th>
+                        <th class="p-4 sm:p-5 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-100 text-xs">
+                    {% for job in jobs %}
+                        <tr class="hover:bg-neutral-50/60 transition">
+                            <td class="p-4 sm:p-5">
+                                <a href="{% url 'job_detail' job.id %}" class="font-bold text-sm text-neutral-950 hover:underline transition block">
+                                    {{ job.title }}
+                                </a>
+                                <div class="text-[11px] text-neutral-400 font-medium mt-0.5 flex items-center gap-1.5">
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span>Published {{ job.employer_signed_at|date:"M d, Y" }}</span>
+                                </div>
+                            </td>
+                            <td class="p-4 sm:p-5">
+                                <span class="bg-neutral-100 text-neutral-900 font-bold px-3 py-1 rounded-full border border-neutral-200 text-[11px]">
+                                    {{ job.category }}
+                                </span>
+                            </td>
+                            <td class="p-4 sm:p-5 font-bold text-neutral-950">
+                                ₹{{ job.offered_price|floatformat:0 }}
+                                <span class="text-[11px] font-normal text-neutral-500 block">
+                                    {{ job.get_wage_period_display }} • {{ job.duration_text }}
+                                </span>
+                            </td>
+                            <td class="p-4 sm:p-5 text-neutral-600 font-medium">
+                                {{ job.locality }}, {{ job.city }}
+                            </td>
+                            <td class="p-4 sm:p-5 text-center">
+                                <span data-job-applicant-badge="{{ job.id }}" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-all {% if job.applicant_count > 0 %}bg-emerald-50 text-emerald-800 border border-emerald-200{% else %}bg-neutral-100 text-neutral-600{% endif %}">
+                                    <i data-lucide="users" class="w-3 h-3"></i>
+                                    <span data-job-applicant-count="{{ job.id }}">{{ job.applicant_count }}</span>
+                                </span>
+                            </td>
+                            <td class="p-4 sm:p-5 text-right">
+                                <div class="inline-flex items-center gap-2">
+                                    <a href="{% url 'job_applicants' job.id %}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold rounded-full transition text-xs shadow-2xs">
+                                        <span>Review Applicants</span>
+                                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                    <a href="{% url 'job_detail' job.id %}" class="inline-flex items-center px-3 py-2 rounded-full text-xs font-semibold text-neutral-600 hover:text-neutral-950 border border-neutral-200 hover:bg-neutral-50 transition">
+                                        View
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-14 px-4">
+                                <div class="w-12 h-12 rounded-full bg-neutral-100 text-neutral-400 flex items-center justify-center mx-auto mb-3">
+                                    <i data-lucide="briefcase" class="w-5 h-5"></i>
+                                </div>
+                                <div class="text-sm font-bold text-neutral-900">No Active Jobs Yet</div>
+                                <p class="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
+                                    Only signed and published jobs appear here. Any unfinished drafts can be resumed from your Profile.
+                                </p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('rojgar:application_created', function(e) {
+        var p = e.detail || {};
+        if (!p.job_id) return;
+        var countEl = document.querySelector('[data-job-applicant-count="' + p.job_id + '"]');
+        var badgeEl = document.querySelector('[data-job-applicant-badge="' + p.job_id + '"]');
+        if (countEl) {
+            countEl.textContent = p.applicant_count;
+        }
+        if (badgeEl) {
+            badgeEl.className = "inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-all bg-emerald-50 text-emerald-800 border border-emerald-200 ring-2 ring-emerald-400/50";
+        }
+    });
+</script>
+{% endblock %}

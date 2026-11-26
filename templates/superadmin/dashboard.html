@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SuperAdmin Control Center - {{ T.brand_title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Boldonse&display=swap" rel="stylesheet">
+<style>
+    .boldonse-regular {
+        font-family: "Boldonse", system-ui, sans-serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative">
+
+    <!-- Typographic Watermark -->
+    <div class="boldonse-regular absolute top-4 right-6 text-3xl sm:text-4xl lg:text-5xl text-neutral-950/[0.04] tracking-wider pointer-events-none select-none uppercase">
+        SUPERADMIN
+    </div>
+
+    <!-- Header -->
+    <div class="mb-8 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-950 text-white text-[10px] font-bold uppercase tracking-widest mb-2">
+                <i data-lucide="shield" class="w-3 h-3 text-emerald-400"></i>
+                <span>Platform Governance Console</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">SuperAdmin Portal</h1>
+            <p class="text-xs sm:text-sm text-neutral-500 mt-1">
+                Manage employers, workers, passwords, job postings, digital agreements, and disputes across Rojgar Setu.
+            </p>
+        </div>
+        <div class="text-xs font-mono text-neutral-500 bg-white px-4 py-2 rounded-full border border-neutral-200/90 shadow-2xs self-start sm:self-auto">
+            Signed in: <strong class="text-neutral-950">{{ current_user.email }}</strong>
+        </div>
+    </div>
+
+    <!-- Live Platform Telemetry KPIs -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-8 relative z-10">
+        <div class="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-2xs">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Employers</div>
+            <div class="text-2xl font-black text-neutral-950 mt-1">{{ stats.employers_count }}</div>
+        </div>
+        <div class="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-2xs">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Workers</div>
+            <div class="text-2xl font-black text-neutral-950 mt-1">{{ stats.workers_count }}</div>
+        </div>
+        <div class="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-2xs">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Active / Draft Jobs</div>
+            <div class="text-2xl font-black text-neutral-950 mt-1">{{ stats.active_jobs }} <span class="text-xs font-semibold text-amber-600">/ {{ stats.draft_jobs }}d</span></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-2xs">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Applications</div>
+            <div class="text-2xl font-black text-neutral-950 mt-1">{{ stats.total_applications }}</div>
+        </div>
+        <div class="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-2xs">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Executed Contracts</div>
+            <div class="text-2xl font-black text-emerald-700 mt-1">{{ stats.executed_agreements }} <span class="text-xs font-normal text-neutral-400">/ {{ stats.total_agreements }}</span></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-2xs">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Open Disputes</div>
+            <div class="text-2xl font-black {% if stats.open_disputes > 0 %}text-rose-600{% else %}text-neutral-950{% endif %} mt-1">{{ stats.open_disputes }}</div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex flex-wrap items-center gap-2 mb-6 relative z-10">
+        <a href="?tab=users" class="px-5 py-2.5 rounded-full text-xs font-bold transition {% if active_tab == 'users' %}bg-neutral-950 text-white shadow-xs{% else %}bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50{% endif %}">
+            Users & Passwords ({{ stats.total_users }})
+        </a>
+        <a href="?tab=jobs" class="px-5 py-2.5 rounded-full text-xs font-bold transition {% if active_tab == 'jobs' %}bg-neutral-950 text-white shadow-xs{% else %}bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50{% endif %}">
+            Jobs Moderation
+        </a>
+        <a href="?tab=agreements" class="px-5 py-2.5 rounded-full text-xs font-bold transition {% if active_tab == 'agreements' %}bg-neutral-950 text-white shadow-xs{% else %}bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50{% endif %}">
+            Agreements ({{ stats.total_agreements }})
+        </a>
+        <a href="?tab=disputes" class="px-5 py-2.5 rounded-full text-xs font-bold transition {% if active_tab == 'disputes' %}bg-neutral-950 text-white shadow-xs{% else %}bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50{% endif %}">
+            Disputes ({{ stats.open_disputes }})
+        </a>
+        <a href="?tab=audit" class="px-5 py-2.5 rounded-full text-xs font-bold transition {% if active_tab == 'audit' %}bg-neutral-950 text-white shadow-xs{% else %}bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50{% endif %}">
+            Audit Trail
+        </a>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: USERS & PASSWORD MANAGEMENT                                  -->
+    <!-- =================================================================== -->
+    {% if active_tab == 'users' %}
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs overflow-hidden relative z-10">
+        <div class="p-5 sm:p-6 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <form method="GET" class="flex flex-wrap items-center gap-2 flex-1">
+                <input type="hidden" name="tab" value="users">
+                <input type="text" name="q" value="{{ q }}" placeholder="Search by name, phone, email, or city..."
+                       class="form-input max-w-xs text-xs py-2 rounded-full">
+                <select name="role" class="form-input w-auto text-xs py-2 rounded-full">
+                    <option value="all" {% if role_filter == 'all' %}selected{% endif %}>All Roles</option>
+                    <option value="employer" {% if role_filter == 'employer' %}selected{% endif %}>Employers</option>
+                    <option value="worker" {% if role_filter == 'worker' %}selected{% endif %}>Workers</option>
+                    <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admins</option>
+                </select>
+                <button type="submit" class="px-4 py-2 rounded-full bg-neutral-950 text-white text-xs font-bold hover:bg-neutral-800 transition cursor-pointer">
+                    Filter
+                </button>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-neutral-50/80 border-b border-neutral-200/80 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                        <th class="p-4">User</th>
+                        <th class="p-4">Role</th>
+                        <th class="p-4">Phone & Email</th>
+                        <th class="p-4">Location</th>
+                        <th class="p-4">Verification</th>
+                        <th class="p-4 text-right">Direct Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-100">
+                    {% for u in users_list %}
+                    <tr class="hover:bg-neutral-50/60 transition">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="{{ u.avatar_url }}" alt="" class="w-9 h-9 rounded-full object-cover border border-neutral-200 flex-shrink-0">
+                                <div>
+                                    <div class="font-bold text-neutral-950">{{ u.name }}</div>
+                                    <div class="text-[10px] font-mono text-neutral-400">Joined {{ u.created_at|date:"M d, Y" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold capitalize
+                                {% if u.role == 'admin' %}bg-neutral-950 text-white
+                                {% elif u.role == 'employer' %}bg-amber-50 text-amber-800 border border-amber-200
+                                {% else %}bg-neutral-100 text-neutral-800 border border-neutral-200{% endif %}">
+                                {{ u.role }}
+                            </span>
+                        </td>
+                        <td class="p-4 font-mono text-[11px]">
+                            <div class="text-neutral-900 font-semibold">{{ u.phone }}</div>
+                            <div class="text-neutral-500">{{ u.email|default:"—" }}</div>
+                        </td>
+                        <td class="p-4 text-neutral-600">
+                            {{ u.locality|default:"—" }}, {{ u.city|default:"—" }}
+                        </td>
+                        <td class="p-4">
+                            {% if u.is_aadhaar_verified %}
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                Aadhaar ✓
+                            </span>
+                            {% else %}
+                            <span class="text-[11px] text-neutral-400 font-medium">Unverified</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 text-right">
+                            <div class="inline-flex items-center gap-2">
+                                <a href="{% url 'superadmin_user_edit' u.id %}" class="px-3.5 py-1.5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-[11px] transition">
+                                    Edit & Password
+                                </a>
+                                {% if u.id != current_user.id %}
+                                <form method="POST" action="{% url 'superadmin_user_delete' u.id %}" onsubmit="return confirm('Permanently delete {{ u.name }}?');" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-1.5 rounded-full text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer" title="Delete User">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: JOBS MODERATION                                              -->
+    <!-- =================================================================== -->
+    {% elif active_tab == 'jobs' %}
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs overflow-hidden relative z-10">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-neutral-50/80 border-b border-neutral-200/80 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                        <th class="p-4">Job Title</th>
+                        <th class="p-4">Employer</th>
+                        <th class="p-4">Trade & Pay</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Applicants</th>
+                        <th class="p-4 text-right">Moderation</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-100">
+                    {% for j in jobs_list %}
+                    <tr class="hover:bg-neutral-50/60 transition">
+                        <td class="p-4">
+                            <a href="{% url 'job_detail' j.id %}" class="font-bold text-neutral-950 hover:underline">{{ j.title }}</a>
+                            <div class="text-[11px] text-neutral-400">{{ j.locality }}, {{ j.city }}</div>
+                        </td>
+                        <td class="p-4 font-semibold text-neutral-800">{{ j.employer.name }}</td>
+                        <td class="p-4">
+                            <span class="font-bold">{{ j.category }}</span> • ₹{{ j.offered_price|floatformat:0 }}
+                        </td>
+                        <td class="p-4">
+                            {% if j.is_active %}
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+                            {% else %}
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">{{ j.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 font-bold">{{ j.applicant_count }}</td>
+                        <td class="p-4 text-right">
+                            <div class="inline-flex items-center gap-1.5">
+                                <form method="POST" action="{% url 'superadmin_job_action' j.id %}" class="inline">
+                                    {% csrf_token %}
+                                    {% if j.is_active %}
+                                    <button type="submit" name="action" value="pause" class="px-3 py-1.5 rounded-full border border-neutral-200 text-neutral-700 hover:bg-neutral-100 font-semibold text-[11px] cursor-pointer">Pause</button>
+                                    {% else %}
+                                    <button type="submit" name="action" value="activate" class="px-3 py-1.5 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-[11px] cursor-pointer">Activate</button>
+                                    {% endif %}
+                                    <button type="submit" name="action" value="delete" onclick="return confirm('Delete this job?');" class="px-3 py-1.5 rounded-full text-rose-600 hover:bg-rose-50 font-semibold text-[11px] cursor-pointer">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: DIGITAL AGREEMENTS                                           -->
+    <!-- =================================================================== -->
+    {% elif active_tab == 'agreements' %}
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs overflow-hidden relative z-10">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-neutral-50/80 border-b border-neutral-200/80 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                        <th class="p-4">Agreement Ref</th>
+                        <th class="p-4">Job & Trade</th>
+                        <th class="p-4">Parties</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4 text-right">PDF</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-100">
+                    {% for agr in agreements_list %}
+                    <tr class="hover:bg-neutral-50/60 transition">
+                        <td class="p-4 font-mono font-bold text-neutral-950">{{ agr.agreement_number }}</td>
+                        <td class="p-4">
+                            <div class="font-bold text-neutral-900">{{ agr.job.title }}</div>
+                            <div class="text-[11px] text-neutral-500">{{ agr.category }}</div>
+                        </td>
+                        <td class="p-4 text-[11px]">
+                            <div><strong>Emp:</strong> {{ agr.employer.name }}</div>
+                            <div><strong>Wrk:</strong> {{ agr.worker.name|default:"Pending" }}</div>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-neutral-100 text-neutral-800 border border-neutral-200">
+                                {{ agr.status }}
+                            </span>
+                        </td>
+                        <td class="p-4 text-right">
+                            <a href="{% url 'agreement_download_pdf' agr.id %}" class="px-3.5 py-1.5 rounded-full bg-neutral-950 text-white font-bold text-[11px] hover:bg-neutral-800 transition">
+                                Download PDF
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: DISPUTE RESOLUTION                                           -->
+    <!-- =================================================================== -->
+    {% elif active_tab == 'disputes' %}
+    <div class="space-y-4 relative z-10">
+        {% for d in disputes_list %}
+        <div class="bg-white rounded-3xl border border-neutral-200/90 p-6 shadow-xs space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 pb-3">
+                <div>
+                    <span class="text-xs font-mono font-bold text-neutral-950">{{ d.agreement.agreement_number }}</span>
+                    <span class="text-neutral-300 mx-2">•</span>
+                    <span class="text-xs font-bold text-rose-700">{{ d.get_dispute_category_display }}</span>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-neutral-100 text-neutral-900">{{ d.status }}</span>
+            </div>
+            <p class="text-xs text-neutral-700 leading-relaxed">{{ d.description }}</p>
+            <form method="POST" action="{% url 'superadmin_dispute_update' d.id %}" class="flex flex-col sm:flex-row gap-3 pt-2">
+                {% csrf_token %}
+                <select name="status" class="form-input w-auto text-xs">
+                    <option value="OPEN" {% if d.status == 'OPEN' %}selected{% endif %}>OPEN</option>
+                    <option value="UNDER_REVIEW" {% if d.status == 'UNDER_REVIEW' %}selected{% endif %}>UNDER_REVIEW</option>
+                    <option value="RESOLVED" {% if d.status == 'RESOLVED' %}selected{% endif %}>RESOLVED</option>
+                    <option value="ESCALATED" {% if d.status == 'ESCALATED' %}selected{% endif %}>ESCALATED</option>
+                </select>
+                <input type="text" name="resolution_notes" value="{{ d.resolution_notes }}" placeholder="Admin resolution notes..." class="form-input flex-1 text-xs">
+                <button type="submit" class="px-5 py-2.5 rounded-full bg-neutral-950 text-white font-bold text-xs hover:bg-neutral-800 transition cursor-pointer">
+                    Update Dispute
+                </button>
+            </form>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-3xl border border-neutral-200/90 p-12 text-center text-xs text-neutral-500">
+            No agreement disputes filed.
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 5: IMMUTABLE AUDIT TRAIL                                        -->
+    <!-- =================================================================== -->
+    {% elif active_tab == 'audit' %}
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs overflow-hidden relative z-10">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-neutral-50/80 border-b border-neutral-200/80 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                        <th class="p-4">Timestamp</th>
+                        <th class="p-4">Agreement</th>
+                        <th class="p-4">Event</th>
+                        <th class="p-4">Actor</th>
+                        <th class="p-4">Transition</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-100">
+                    {% for log in audit_logs %}
+                    <tr>
+                        <td class="p-4 font-mono text-[11px] text-neutral-500">{{ log.timestamp|date:"M d, Y H:i" }}</td>
+                        <td class="p-4 font-mono font-bold text-neutral-900">{{ log.agreement.agreement_number }}</td>
+                        <td class="p-4 font-bold">{{ log.event_type }}</td>
+                        <td class="p-4">{{ log.actor.name|default:"System" }}</td>
+                        <td class="p-4 text-[11px] text-neutral-500">{{ log.previous_status }} → {{ log.new_status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

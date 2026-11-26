@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if current_lang == 'hi' %}डिजिटल कार्य अनुबंध प्रबंधन{% else %}Digital Work Agreements{% endif %} - {{ T.brand_title }}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+
+    <!-- Header Banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>Cryptographically Verified Legal Rails</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-neutral-950">
+                {% if current_lang == 'hi' %}डिजिटल कार्य अनुबंध{% else %}Digital Work Agreements{% endif %}
+            </h1>
+            <p class="text-xs sm:text-sm text-neutral-500 mt-1">
+                {% if current_lang == 'hi' %}
+                    आपके सभी पूर्व-हस्ताक्षरित एवं पूर्ण रूप से निष्पादित कानूनी कार्य अनुबंध।
+                {% else %}
+                    Manage all your pre-signed and executed bilateral P2P service agreements.
+                {% endif %}
+            </p>
+        </div>
+
+        {% if current_user.role == 'employer' %}
+        <a href="{% url 'job_create' %}" class="inline-flex items-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-full transition shadow-sm self-start sm:self-auto cursor-pointer">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>{% if current_lang == 'hi' %}नया कार्य पोस्ट करें{% else %}Post New Job{% endif %}</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Status Filters Bar -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 text-xs font-semibold">
+        <a href="?status=all" class="px-4 py-2 rounded-full transition whitespace-nowrap {% if selected_status == 'all' %}bg-neutral-950 text-white{% else %}bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50{% endif %}">
+            All Agreements ({{ agreements|length }})
+        </a>
+        <a href="?status=FULLY_EXECUTED" class="px-4 py-2 rounded-full transition whitespace-nowrap {% if selected_status == 'FULLY_EXECUTED' %}bg-neutral-950 text-white{% else %}bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50{% endif %}">
+            Fully Executed
+        </a>
+        <a href="?status=PUBLISHED_AWAITING_WORKER" class="px-4 py-2 rounded-full transition whitespace-nowrap {% if selected_status == 'PUBLISHED_AWAITING_WORKER' %}bg-neutral-950 text-white{% else %}bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50{% endif %}">
+            Awaiting Worker
+        </a>
+        <a href="?status=DISPUTED" class="px-4 py-2 rounded-full transition whitespace-nowrap {% if selected_status == 'DISPUTED' %}bg-neutral-950 text-white{% else %}bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50{% endif %}">
+            Disputed
+        </a>
+    </div>
+
+    <!-- Agreements Grid -->
+    <div class="space-y-4">
+        {% for agr in agreements %}
+        <div class="bg-white rounded-2xl border border-neutral-200/90 shadow-2xs hover:shadow-sm transition p-5 sm:p-6">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                
+                <div class="space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-mono font-bold text-neutral-900 bg-neutral-100 px-2.5 py-0.5 rounded-full border border-neutral-200">
+                            {{ agr.agreement_number }}
+                        </span>
+                        <span class="text-xs font-bold text-neutral-600 bg-neutral-50 px-2.5 py-0.5 rounded-full border border-neutral-200">
+                            {{ agr.category }}
+                        </span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full
+                            {% if agr.status == 'FULLY_EXECUTED' %}bg-emerald-100 text-emerald-800
+                            {% elif agr.status == 'PUBLISHED_AWAITING_WORKER' %}bg-blue-100 text-blue-800
+                            {% elif agr.status == 'DISPUTED' %}bg-rose-100 text-rose-800
+                            {% else %}bg-amber-100 text-amber-900{% endif %}">
+                            {{ agr.get_status_display }}
+                        </span>
+                    </div>
+
+                    <h2 class="text-base sm:text-lg font-bold text-neutral-950">
+                        {{ agr.job.title }}
+                    </h2>
+
+                    <div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-neutral-500">
+                        <span><strong>Employer:</strong> {{ agr.employer.name }}</span>
+                        <span>•</span>
+                        <span><strong>Worker:</strong> {% if agr.worker %}{{ agr.worker.name }}{% else %}<span class="italic text-neutral-400">Awaiting Assignment</span>{% endif %}</span>
+                        <span>•</span>
+                        <span><strong>Compensation:</strong> <strong class="text-neutral-900">₹{{ agr.job.offered_price|floatformat:0 }}</strong></span>
+                        <span>•</span>
+                        <span><strong>Created:</strong> {{ agr.created_at|date:"d M Y" }}</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-wrap items-center gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-neutral-100">
+                    <!-- Review / View -->
+                    {% if current_user.role == 'employer' and not agr.employer_signed_at %}
+                    <a href="{% url 'agreement_employer_review' agr.id %}" class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 transition">
+                        <i data-lucide="pen-tool" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Sign & Publish</span>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'agreement_employer_review' agr.id %}" class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-neutral-100 text-neutral-800 hover:bg-neutral-200 transition">
+                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                        <span>View Document</span>
+                    </a>
+                    {% endif %}
+
+                    <!-- Download PDF -->
+                    {% if agr.generated_pdf_file or agr.status == 'FULLY_EXECUTED' or agr.employer_signed_at %}
+                    <a href="{% url 'agreement_download_pdf' agr.id %}" class="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full bg-white border border-neutral-200 hover:bg-neutral-50 text-neutral-800 transition shadow-2xs">
+                        <i data-lucide="download" class="w-3.5 h-3.5 text-neutral-600"></i>
+                        <span>Download PDF</span>
+                    </a>
+                    {% endif %}
+
+                    <!-- Audit Trail Modal Trigger -->
+                    <button type="button" onclick="openAuditModal('{{ agr.id }}')" class="inline-flex items-center gap-1 text-xs font-semibold px-3 py-2 text-neutral-500 hover:text-neutral-950 transition cursor-pointer">
+                        <i data-lucide="history" class="w-3.5 h-3.5"></i>
+                        <span>Audit Trail</span>
+                    </button>
+
+                    <!-- Dispute Trigger (Only if executed and not already disputed) -->
+                    {% if agr.status == 'FULLY_EXECUTED' %}
+                    <button type="button" onclick="openDisputeModal('{{ agr.id }}', '{{ agr.agreement_number }}')" class="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-1 transition cursor-pointer">
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                        <span>Report Dispute</span>
+                    </button>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
+            <i data-lucide="file-x-2" class="w-8 h-8 text-neutral-300 mx-auto mb-3"></i>
+            <h3 class="text-sm font-bold text-neutral-700">No agreements found</h3>
+            <p class="text-xs text-neutral-400 mt-1">Agreements are automatically synthesized whenever a job is created.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- Audit Trail Modal -->
+<div id="audit-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl">
+        <div class="flex items-center justify-between pb-3 border-b border-neutral-100 mb-4">
+            <div>
+                <h3 class="text-base font-black text-neutral-950 flex items-center gap-2">
+                    <i data-lucide="history" class="w-4 h-4 text-neutral-900"></i>
+                    <span>Verifiable Cryptographic Audit Trail</span>
+                </h3>
+                <p id="audit-doc-num" class="text-xs font-mono text-neutral-500 mt-0.5"></p>
+            </div>
+            <button type="button" onclick="closeAuditModal()" class="text-neutral-400 hover:text-neutral-900 cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="audit-content" class="space-y-3 max-h-80 overflow-y-auto pr-1 text-xs">
+            <div class="text-center py-6 text-neutral-400">Loading audit events...</div>
+        </div>
+
+        <div class="pt-4 border-t border-neutral-100 flex justify-end mt-4">
+            <button type="button" onclick="closeAuditModal()" class="px-5 py-2 text-xs font-bold bg-neutral-950 text-white rounded-full">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Dispute Filing Modal -->
+<div id="dispute-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl">
+        <div class="flex items-center justify-between pb-3 border-b border-neutral-100 mb-4">
+            <h3 class="text-base font-black text-neutral-950 flex items-center gap-2 text-rose-700">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                <span>File Agreement Dispute</span>
+            </h3>
+            <button type="button" onclick="closeDisputeModal()" class="text-neutral-400 hover:text-neutral-900 cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form method="POST" id="dispute-form" action="">
+            {% csrf_token %}
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-neutral-800 mb-1">Dispute Category *</label>
+                    <select name="dispute_category" required class="form-input text-xs w-full">
+                        <option value="PAYMENT">Payment Settlement Dispute</option>
+                        <option value="WORK_QUALITY">Work Quality & Deliverables</option>
+                        <option value="PROPERTY_DAMAGE">Property Damage or Loss</option>
+                        <option value="SAFETY">Safety Incident / Protocol Breach</option>
+                        <option value="UNAUTHORIZED_CANCELLATION">Unilateral Cancellation</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-neutral-800 mb-1">Incident Description *</label>
+                    <textarea name="description" rows="4" required placeholder="Describe the specific incident and relief requested..." class="form-input text-xs w-full"></textarea>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-neutral-100 flex justify-end gap-2 mt-4">
+                <button type="button" onclick="closeDisputeModal()" class="px-4 py-2 text-xs font-semibold text-neutral-600">Cancel</button>
+                <button type="submit" class="px-5 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-full">Submit Dispute</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAuditModal(agreementId) {
+        var modal = document.getElementById('audit-modal');
+        var content = document.getElementById('audit-content');
+        var docNum = document.getElementById('audit-doc-num');
+        modal.classList.remove('hidden');
+        content.innerHTML = '<div class="text-center py-6 text-neutral-400">Loading audit events...</div>';
+
+        fetch('/api/agreements/' + agreementId + '/history/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    content.innerHTML = '<div class="text-rose-500 py-4">' + data.error + '</div>';
+                    return;
+                }
+                docNum.innerText = data.agreement_number + ' • SHA-256: ' + data.document_hash.substring(0, 16) + '...';
+                var html = '<div class="space-y-3">';
+                data.events.forEach(function(ev) {
+                    html += '<div class="p-3 rounded-xl bg-neutral-50 border border-neutral-200">' +
+                            '<div class="flex items-center justify-between font-bold text-neutral-900">' +
+                            '<span>' + ev.event_type + '</span>' +
+                            '<span class="text-[10px] text-neutral-400 font-mono">' + ev.timestamp + '</span>' +
+                            '</div>' +
+                            '<div class="text-[11px] text-neutral-600 mt-1">Actor: ' + ev.actor_name + ' (' + ev.actor_role + ')</div>' +
+                            '</div>';
+                });
+                html += '</div>';
+                content.innerHTML = html;
+            })
+            .catch(function(e) {
+                content.innerHTML = '<div class="text-rose-500 py-4">Failed to load audit history.</div>';
+            });
+    }
+
+    function closeAuditModal() {
+        document.getElementById('audit-modal').classList.add('hidden');
+    }
+
+    function openDisputeModal(agreementId, agrNumber) {
+        var form = document.getElementById('dispute-form');
+        form.action = '/agreements/' + agreementId + '/dispute/';
+        document.getElementById('dispute-modal').classList.remove('hidden');
+    }
+
+    function closeDisputeModal() {
+        document.getElementById('dispute-modal').classList.add('hidden');
+    }
+</script>
+{% endblock %}

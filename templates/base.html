@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ T.brand_title }} - {{ T.brand_tagline }}{% endblock %}</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans & Noto Sans Devanagari -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (Play CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '"Noto Sans Devanagari"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    },
+                    colors: {
+                        neutral: {
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
+                            950: '#0a0a0a',
+                        }
+                    },
+                    boxShadow: {
+                        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+                        'subtle': '0 2px 8px 0 rgba(0, 0, 0, 0.04)',
+                        'card': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'floating': '0 20px 40px -15px rgba(0, 0, 0, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Leaflet.js for Interactive Hyperlocal Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #ffffff;
+            color: #171717;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .form-input {
+            width: 100%;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e5e5;
+            background-color: #ffffff;
+            padding: 0.75rem 1rem;
+            font-size: 0.925rem;
+            outline: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .form-input:focus {
+            border-color: #0a0a0a;
+            box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.06);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-white text-neutral-900 min-h-screen flex flex-col antialiased">
+
+    <!-- Main Navigation Bar (Clean Minimal Frosted Glass) -->
+    <nav class="bg-white/90 backdrop-blur-md border-b border-neutral-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Brand / Logo -->
+                <div class="flex items-center space-x-8">
+                    <a href="{% url 'home' %}" class="flex items-center space-x-2.5 group">
+                        <div class="w-8 h-8 rounded-full bg-neutral-950 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform duration-200">
+                            <i data-lucide="handshake" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <span class="text-base sm:text-lg font-bold tracking-tight text-neutral-950">
+                                {{ T.brand_title }}
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Navigation Links (Role-Specific & Clean) -->
+                    <div class="hidden md:flex items-center space-x-1">
+                        {% if current_user and current_user.role == 'employer' %}
+                        <a href="{% url 'workers_list' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {{ T.nav_workers }}
+                        </a>
+                        <a href="{% url 'my_jobs' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {{ T.nav_my_jobs }}
+                        </a>
+                        <a href="{% url 'agreements_dashboard' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {% if current_lang == 'hi' %}अनुबंध{% else %}Agreements{% endif %}
+                        </a>
+                        {% elif current_user and current_user.role == 'worker' %}
+                        <a href="{% url 'jobs_list' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {{ T.nav_jobs }}
+                        </a>
+                        <a href="{% url 'my_applications' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {{ T.nav_my_apps }}
+                        </a>
+                        <a href="{% url 'agreements_dashboard' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {% if current_lang == 'hi' %}अनुबंध{% else %}Agreements{% endif %}
+                        </a>
+                        {% elif current_user and current_user.role == 'admin' %}
+                        <a href="{% url 'superadmin_dashboard' %}" class="px-3.5 py-1.5 rounded-full text-xs font-bold text-neutral-950 bg-neutral-100 hover:bg-neutral-200 transition">
+                            SuperAdmin
+                        </a>
+                        <a href="{% url 'agreements_dashboard' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            Agreements
+                        </a>
+                        <a href="{% url 'jobs_list' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {{ T.nav_jobs }}
+                        </a>
+                        <a href="{% url 'workers_list' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {{ T.nav_workers }}
+                        </a>
+                        {% else %}
+                        <a href="{% url 'jobs_list' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {{ T.nav_jobs }}
+                        </a>
+                        <a href="{% url 'workers_list' %}" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition">
+                            {{ T.nav_workers }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Right Side Action Buttons -->
+                <div class="flex items-center space-x-2 sm:space-x-2.5">
+                    <!-- Language Toggle -->
+                    <a href="?lang={% if current_lang == 'en' %}hi{% else %}en{% endif %}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-neutral-100 text-neutral-700 transition text-xs font-medium border border-neutral-200/60 shadow-xs" title="Switch Language">
+                        <i data-lucide="globe" class="w-3.5 h-3.5 text-neutral-500"></i>
+                        <span>{{ T.lang_toggle }}</span>
+                    </a>
+
+                    {% if current_user %}
+                        <a href="{% if current_user.role == 'admin' %}{% url 'superadmin_dashboard' %}{% elif current_user.role == 'employer' %}{% url 'employer_profile' %}{% else %}{% url 'worker_profile' %}{% endif %}" 
+                           class="flex items-center gap-2 text-xs bg-neutral-50 hover:bg-neutral-100 border border-neutral-200/80 pl-1.5 pr-3 py-1 rounded-full text-neutral-800 transition cursor-pointer shadow-2xs"
+                           title="My Profile">
+                            <img src="{{ current_user.avatar_url }}" alt="{{ current_user.name }}" class="w-6 h-6 rounded-full object-cover border border-neutral-200 flex-shrink-0">
+                            <span class="font-semibold max-w-[110px] truncate">{{ current_user.name }}</span>
+                            <span class="hidden sm:inline text-neutral-400 text-[11px]">({% if current_user.role == 'admin' %}SuperAdmin{% elif current_user.role == 'worker' %}{{ T.role_worker }}{% else %}{{ T.role_employer }}{% endif %})</span>
+                        </a>
+
+                        {% if current_user.role == 'employer' and request.resolver_match.url_name != 'job_create' %}
+                        <a href="{% url 'job_create' %}" class="inline-flex items-center gap-1.5 bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-xs px-4 py-2 rounded-full transition shadow-xs">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>{{ T.nav_post_job }}</span>
+                        </a>
+                        {% endif %}
+
+                        <a href="{% url 'logout' %}" class="text-neutral-400 hover:text-neutral-900 p-2 transition" title="Logout">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-neutral-700 hover:text-neutral-950 text-xs font-medium px-3.5 py-2 transition">
+                            {{ T.nav_login }}
+                        </a>
+                        <a href="{% url 'register' %}" class="inline-flex items-center gap-1.5 bg-neutral-950 hover:bg-neutral-800 text-white font-medium text-xs px-4 py-2 rounded-full transition shadow-xs">
+                            <span>Get Started</span>
+                            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Messages Banner -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        {% for message in messages %}
+        <div class="p-3.5 rounded-xl mb-2 flex items-start space-x-2.5 text-xs shadow-xs border
+            {% if message.tags == 'error' %}bg-rose-50/60 border-rose-200 text-rose-800
+            {% elif message.tags == 'success' %}bg-emerald-50/60 border-emerald-200 text-emerald-800
+            {% elif message.tags == 'warning' %}bg-amber-50/60 border-amber-200 text-amber-800
+            {% else %}bg-neutral-50 border-neutral-200 text-neutral-800{% endif %}">
+            <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
+            <div class="flex-1 font-medium">{{ message }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content Block -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Base Footer Block -->
+    {% block footer %}
+    <footer class="bg-neutral-50 text-neutral-600 mt-24 border-t border-neutral-100 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2 text-neutral-950 font-bold text-base">
+                        <div class="w-6 h-6 rounded-full bg-neutral-950 text-white flex items-center justify-center">
+                            <i data-lucide="handshake" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <span>{{ T.brand_title }}</span>
+                    </div>
+                    <p class="text-neutral-500 leading-relaxed text-xs">
+                        Direct Individual-to-Individual Hiring Platform. Eliminating recruitment agency brokerage fees with hyperlocal radius discovery & pre-signed contracts.
+                    </p>
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[11px] font-medium">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        <span>Zero Brokerage Verified Rails</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-neutral-950 font-semibold uppercase tracking-wider text-[11px] mb-3">
+                        {% if current_lang == 'hi' %}कारीगर श्रेणियां{% else %}Trades & Skills{% endif %}
+                    </h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'jobs_list' %}?category=Electrician" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}इलेक्ट्रीशियन{% else %}Electrician{% endif %}</a></li>
+                        <li><a href="{% url 'jobs_list' %}?category=Plumber" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}प्लंबर{% else %}Plumber{% endif %}</a></li>
+                        <li><a href="{% url 'jobs_list' %}?category=House Maid" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}घरेलू सहायिका{% else %}House Assistant{% endif %}</a></li>
+                        <li><a href="{% url 'jobs_list' %}?category=Mechanic" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}मैकेनिक{% else %}Mechanic{% endif %}</a></li>
+                        <li><a href="{% url 'jobs_list' %}?category=Construction Worker" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}निर्माण श्रमिक{% else %}Construction Craftsman{% endif %}</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-neutral-950 font-semibold uppercase tracking-wider text-[11px] mb-3">Direct Handshake</h4>
+                    <ul class="space-y-2">
+                        <li>1. Dynamic Job Posting with Pre-Signature</li>
+                        <li>2. Hyperlocal Proximity Discovery</li>
+                        <li>3. Masked In-App Chat Privacy</li>
+                        <li>4. In-Chat Contract Forwarding</li>
+                        <li>5. Dual Digital Counter-Signature</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-neutral-950 font-semibold uppercase tracking-wider text-[11px] mb-3">Architecture</h4>
+                    <div class="space-y-2 font-mono text-[11px]">
+                        <div class="bg-white p-2.5 rounded-xl border border-neutral-200/80 shadow-xs">
+                            <div class="text-neutral-900 font-semibold">Supabase PostgreSQL 17</div>
+                            <div class="text-neutral-400">PostGIS GiST Spherical Indexing</div>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-xl border border-neutral-200/80 shadow-xs">
+                            <div class="text-neutral-900 font-semibold">Google Gemini Flash</div>
+                            <div class="text-neutral-400">AI MCQ Screening Engine</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-neutral-200/60 flex flex-col sm:flex-row justify-between items-center gap-2 text-neutral-400">
+                <div>© 2026 Rojgar Setu (रोजगार सेतु). Direct Informal Workforce Discovery.</div>
+                <div>Hyperlocal Direct Architecture</div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <script>
+        lucide.createIcons();
+    </script>
+
+    {% if current_user and current_user.role == 'employer' and request.resolver_match.url_name != 'agreement_employer_review' %}
+        {% if employer_draft_count > 0 %}
+        <!-- Global Persistent Floating Draft Cart (Visible across entire site for this Employer) -->
+        <div id="global-employer-draft-dock" class="{% if request.resolver_match.url_name == 'employer_profile' and request.GET.tab == 'jobs' %}hidden {% endif %}fixed bottom-5 right-5 z-50 bg-white/95 backdrop-blur-md text-neutral-950 rounded-2xl p-3.5 sm:p-4 shadow-2xl border border-neutral-200/90 flex items-center justify-between gap-3.5 max-w-sm w-[calc(100%-2.5rem)] sm:w-auto">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-neutral-950 text-white flex items-center justify-center flex-shrink-0 relative">
+                    <i data-lucide="file-clock" class="w-5 h-5"></i>
+                    <span class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-black flex items-center justify-center border-2 border-white">
+                        {{ employer_draft_count }}
+                    </span>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xs font-black text-neutral-950 truncate">
+                        {{ employer_draft_count }} {% if current_lang == 'hi' %}अधूरा कार्य ड्राफ्ट{% else %}Unfinished Job Draft{% if employer_draft_count > 1 %}s{% endif %}{% endif %}
+                    </div>
+                    <div class="text-[11px] text-neutral-500 font-medium truncate">
+                        {% if current_lang == 'hi' %}हस्ताक्षर पूरा करें या ड्राफ्ट हटाएं{% else %}Resume signing or manage drafts{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+                <a href="{% url 'employer_profile' %}?tab=jobs" class="text-xs font-bold bg-neutral-950 hover:bg-neutral-800 text-white px-4 py-2 rounded-full transition shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                    <span>{% if current_lang == 'hi' %}ड्राफ्ट देखें{% else %}View Drafts{% endif %}</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+                <button type="button" onclick="document.getElementById('global-employer-draft-dock').remove();" class="text-neutral-400 hover:text-neutral-900 p-1 cursor-pointer" title="Dismiss">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+        <script>if (window.lucide) lucide.createIcons();</script>
+        {% elif request.resolver_match.url_name != 'job_create' %}
+        <!-- Fallback LocalStorage Unsaved Form Draft Detector -->
+        <script>
+            (function() {
+                try {
+                    var draftKey = "rojgar_job_draft_{{ current_user.id }}";
+                    var raw = localStorage.getItem(draftKey);
+                    if (!raw) return;
+                    var draft = JSON.parse(raw);
+                    if (!draft || !draft.timestamp) return;
+                    if (Date.now() - draft.timestamp > 7 * 86400 * 1000) {
+                        localStorage.removeItem(draftKey);
+                        return;
+                    }
+                    var titleSnippet = draft.title ? draft.title : (draft.category || "Job Draft");
+                    var dock = document.createElement('div');
+                    dock.id = "global-local-draft-dock";
+                    dock.className = "fixed bottom-5 right-5 z-50 bg-white/95 backdrop-blur-md text-neutral-950 rounded-2xl p-3.5 sm:p-4 shadow-2xl border border-neutral-200/90 flex items-center justify-between gap-3.5 max-w-sm w-[calc(100%-2.5rem)] sm:w-auto";
+                    dock.innerHTML =
+                        '<div class="flex items-center gap-3 min-w-0">' +
+                            '<div class="w-10 h-10 rounded-xl bg-neutral-950 text-white flex items-center justify-center flex-shrink-0">' +
+                                '<i data-lucide="file-edit" class="w-5 h-5"></i>' +
+                            '</div>' +
+                            '<div class="min-w-0">' +
+                                '<div class="text-xs font-black text-neutral-950 truncate">Unsaved Form Draft</div>' +
+                                '<div class="text-[11px] text-neutral-500 font-medium truncate">' + titleSnippet + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex items-center gap-1.5 flex-shrink-0">' +
+                            '<a href="{% url "job_create" %}?resume=true" class="text-xs font-bold bg-neutral-950 hover:bg-neutral-800 text-white px-4 py-2 rounded-full transition shadow-xs flex items-center gap-1.5 whitespace-nowrap">' +
+                                '<span>Resume</span><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>' +
+                            '</a>' +
+                            '<button type="button" onclick="this.closest(\'#global-local-draft-dock\').remove();" class="text-neutral-400 hover:text-neutral-900 p-1 cursor-pointer">' +
+                                '<i data-lucide="x" class="w-4 h-4"></i>' +
+                            '</button>' +
+                        '</div>';
+                    document.body.appendChild(dock);
+                    if (window.lucide) lucide.createIcons();
+                } catch(e){}
+            })();
+        </script>
+        {% endif %}
+    {% endif %}
+
+    {% if current_user %}
+    <!-- Live WebSocket Notification Toast Container -->
+    <div id="ws-toast-container" class="fixed top-20 right-5 z-50 flex flex-col gap-3 max-w-sm w-[calc(100%-2.5rem)] pointer-events-none"></div>
+
+    <!-- Resilient Production WebSocket Client (Django Channels) -->
+    <script>
+        (function initRojgarWebSocket() {
+            var reconnectDelay = 1500;
+            var maxDelay = 30000;
+            var ws = null;
+            var pingTimer = null;
+
+            function showRealtimeToast(title, subtitle, avatarUrl, actionUrl, actionLabel) {
+                var container = document.getElementById('ws-toast-container');
+                if (!container) return;
+
+                var toast = document.createElement('div');
+                toast.className = "pointer-events-auto bg-neutral-950 text-white rounded-2xl p-4 shadow-2xl border border-neutral-800 flex items-center justify-between gap-3 transition-all duration-300";
+                
+                var leftHtml = '<div class="flex items-center gap-3 min-w-0">';
+                if (avatarUrl) {
+                    leftHtml += '<img src="' + avatarUrl + '" alt="" class="w-9 h-9 rounded-full object-cover border border-neutral-700 flex-shrink-0">';
+                } else {
+                    leftHtml += '<div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0"><i data-lucide="bell" class="w-4 h-4"></i></div>';
+                }
+                leftHtml += '<div class="min-w-0">' +
+                    '<div class="text-xs font-bold text-white truncate">' + title + '</div>' +
+                    '<div class="text-[11px] text-neutral-400 truncate">' + subtitle + '</div>' +
+                    '</div></div>';
+
+                var rightHtml = '<div class="flex items-center gap-2 flex-shrink-0">';
+                if (actionUrl) {
+                    rightHtml += '<a href="' + actionUrl + '" class="text-[11px] font-bold bg-white text-neutral-950 px-3 py-1.5 rounded-full hover:bg-neutral-200 transition whitespace-nowrap">' + (actionLabel || 'View') + '</a>';
+                }
+                rightHtml += '<button type="button" onclick="this.closest(\'div.pointer-events-auto\').remove();" class="text-neutral-500 hover:text-white p-1 cursor-pointer"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>';
+
+                toast.innerHTML = leftHtml + rightHtml;
+                container.appendChild(toast);
+                if (window.lucide) lucide.createIcons();
+
+                setTimeout(function() {
+                    if (toast && toast.parentNode) toast.remove();
+                }, 9000);
+            }
+
+            function connect() {
+                var protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                var wsUrl = protocol + window.location.host + '/ws/notifications/';
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function() {
+                    reconnectDelay = 1500;
+                    if (pingTimer) clearInterval(pingTimer);
+                    pingTimer = setInterval(function() {
+                        if (ws && ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify({ type: 'ping' }));
+                        }
+                    }, 30000);
+                };
+
+                ws.onmessage = function(event) {
+                    try {
+                        var data = JSON.parse(event.data);
+                        if (data.type === 'job_application_created') {
+                            var p = data.payload || {};
+                            showRealtimeToast(
+                                'New Applicant: ' + (p.worker_name || 'Karigar'),
+                                'Applied for ' + (p.job_title || 'your job'),
+                                p.worker_avatar,
+                                p.applicants_url,
+                                'Review →'
+                            );
+                            window.dispatchEvent(new CustomEvent('rojgar:application_created', { detail: p }));
+                        } else if (data.type === 'agreement_status_changed') {
+                            var a = data.payload || {};
+                            showRealtimeToast(
+                                'Agreement Executed ✓',
+                                (a.worker_name || 'Worker') + ' signed ' + (a.job_title || ''),
+                                null,
+                                a.url,
+                                'Open →'
+                            );
+                            window.dispatchEvent(new CustomEvent('rojgar:agreement_updated', { detail: a }));
+                        } else if (data.type === 'application_accepted') {
+                            var acc = data.payload || {};
+                            showRealtimeToast(
+                                'Application Accepted!',
+                                (acc.employer_name || 'Employer') + ' opened chat for ' + (acc.job_title || 'your job'),
+                                acc.employer_avatar,
+                                acc.chat_url,
+                                'Open Chat →'
+                            );
+                            window.dispatchEvent(new CustomEvent('rojgar:application_accepted', { detail: acc }));
+                        } else if (data.type === 'contract_forwarded') {
+                            var cf = data.payload || {};
+                            showRealtimeToast(
+                                'Agreement Ready to Sign',
+                                (cf.employer_name || 'Employer') + ' sent agreement for ' + (cf.job_title || ''),
+                                cf.employer_avatar,
+                                cf.agreement_url,
+                                'Review & Sign →'
+                            );
+                            window.dispatchEvent(new CustomEvent('rojgar:contract_forwarded', { detail: cf }));
+                        } else if (data.type === 'chat_message_received') {
+                            var cm = data.payload || {};
+                            if (window.location.pathname.indexOf(cm.room_id) === -1) {
+                                showRealtimeToast(
+                                    'Message from ' + (cm.sender_name || 'User'),
+                                    cm.message || 'New message',
+                                    cm.sender_avatar,
+                                    cm.chat_url,
+                                    'Reply →'
+                                );
+                            }
+                            window.dispatchEvent(new CustomEvent('rojgar:chat_message', { detail: cm }));
+                        }
+                    } catch (e) {}
+                };
+
+                ws.onclose = function() {
+                    if (pingTimer) clearInterval(pingTimer);
+                    setTimeout(function() {
+                        reconnectDelay = Math.min(reconnectDelay * 2, maxDelay);
+                        connect();
+                    }, reconnectDelay);
+                };
+            }
+
+            connect();
+        })();
+    </script>
+    {% endif %}
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

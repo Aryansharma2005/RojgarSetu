@@ -1,0 +1,827 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Employer Registration - {{ T.brand_title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Ultra-smooth 360-degree organic radial dissolve mask matching register.html */
+    .mask-soft-dissolve-right {
+        -webkit-mask-image: radial-gradient(
+            ellipse 38% 42% at 55% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: radial-gradient(
+            ellipse 38% 42% at 55% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+    }
+
+    .step-content {
+        display: none;
+        transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .step-content.active {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Section wrapper: EXACTLY matching register.html wrapper for 100% seamless background continuity -->
+<div class="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-center overflow-hidden py-10 sm:py-14">
+
+    <!-- ========================================================================= -->
+    <!-- EMPLOYER BACKGROUND IMAGE (EXACT POSITIONAL CONTINUITY WITH REGISTER.HTML)-->
+    <!-- ========================================================================= -->
+    <div id="bg-translucent-hirer" 
+         class="absolute right-0 top-0 bottom-0 w-[46vw] max-w-[620px] 2xl:max-w-[700px] pointer-events-none z-0 opacity-95">
+        
+        <!-- Masked Image & Color Glow Container (Strictly clipped by 360-degree organic radial mask) -->
+        <div class="relative w-full h-full mask-soft-dissolve-right">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_70%_at_100%_50%,rgba(25,55,95,0.30)_0%,rgba(45,85,135,0.16)_35%,rgba(100,145,200,0.04)_65%,transparent_85%)] pointer-events-none z-10"></div>
+            <img src="{% static 'images/register_hirer.jpg' %}" alt="Employer" 
+                 class="w-full h-full object-cover object-[center_top] filter brightness-105 contrast-[1.02]">
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MAIN CONTENT & 2-STEP REGISTRATION WIZARD                                 -->
+    <!-- ========================================================================= -->
+    <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 w-full">
+
+        <!-- Header -->
+        <div class="text-center mb-6 sm:mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-neutral-950 tracking-tight">
+                {% if current_lang == 'hi' %}गृहस्वामी पंजीकरण{% else %}Homeowner Registration{% endif %}
+            </h1>
+            <p class="mt-2 text-neutral-500 max-w-md mx-auto text-xs sm:text-sm leading-relaxed">
+                {% if current_lang == 'hi' %}
+                    बिना किसी दलाली के सीधे अपने क्षेत्र के कुशल कारीगरों को काम पर रखें।
+                {% else %}
+                    Hire verified local karigars directly for your domestic and repair needs.
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- 2-Step Progress Indicator -->
+        <div class="max-w-2xl mx-auto mb-6">
+            <div class="flex items-center justify-between text-xs text-neutral-500 mb-2 font-medium">
+                <span id="step-phase-label" class="flex items-center gap-2">
+                    <span class="font-mono text-neutral-950 font-bold" id="step-number-label">01 / 02</span>
+                    <span class="text-neutral-300">•</span>
+                    <span id="step-phase-name" class="text-neutral-800 font-medium">{% if current_lang == 'hi' %}बुनियादी जानकारी{% else %}Employer Details{% endif %}</span>
+                </span>
+                <span id="step-phase-pct" class="font-mono text-neutral-400 text-[11px]">50%</span>
+            </div>
+            <div class="w-full h-1.5 bg-neutral-200/80 rounded-full overflow-hidden">
+                <div id="step-progress-bar" class="h-full bg-neutral-950 transition-all duration-500 ease-out rounded-full" style="width: 50%;"></div>
+            </div>
+        </div>
+
+        <!-- Dynamic Error Banner -->
+        <div id="step-error-banner" class="hidden mb-5 max-w-2xl mx-auto p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm font-medium flex items-center gap-2 shadow-xs">
+            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 text-rose-600"></i>
+            <span id="step-error-text">Please complete all required fields.</span>
+        </div>
+
+        <!-- Main Form Wrapper -->
+        <div class="max-w-2xl mx-auto w-full">
+            <form method="POST" id="form-employer-register" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- ============================================================= -->
+                <!-- STEP 1: EMPLOYER DETAILS & IN-SITU PROFILE PHOTO UPLOAD       -->
+                <!-- ============================================================= -->
+                <div id="wizard-step-1" class="step-content active space-y-6">
+
+                    <!-- Profile Photo Selection (Matching Worker In-situ Crop) -->
+                    <div class="flex flex-col items-center justify-center text-center pb-2">
+                        <div class="relative group cursor-pointer" id="btn-trigger-avatar-upload">
+                            <div class="w-24 h-24 rounded-full overflow-hidden bg-neutral-100 ring-1 ring-neutral-200/80 shadow-2xs flex items-center justify-center relative transition group-hover:ring-neutral-400">
+                                <img id="avatar-preview-img" src="" alt="Profile Preview" class="w-full h-full object-cover hidden">
+                                <div id="avatar-placeholder-content" class="flex flex-col items-center justify-center text-neutral-400 group-hover:text-neutral-700 transition">
+                                    <i data-lucide="camera" class="w-7 h-7 stroke-[1.75]"></i>
+                                    <span class="text-[11px] font-semibold mt-1">{% if current_lang == 'hi' %}फोटो जोड़ें{% else %}Add Photo{% endif %}</span>
+                                </div>
+                                <div id="avatar-hover-edit" class="hidden absolute inset-0 bg-neutral-950/60 backdrop-blur-[1px] flex flex-col items-center justify-center text-white text-[11px] font-semibold">
+                                    <i data-lucide="camera" class="w-4 h-4 mb-0.5"></i>
+                                    <span>{% if current_lang == 'hi' %}बदलें{% else %}Change{% endif %}</span>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center shadow-md border-2 border-white group-hover:scale-110 transition">
+                                <i data-lucide="plus" id="avatar-badge-icon" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-neutral-500 mt-2 font-medium">
+                            {% if current_lang == 'hi' %}अपनी स्पष्ट प्रोफ़ाइल फोटो लगाएं (एडजस्ट करें){% else %}Profile Photo • Click to adjust & position{% endif %}
+                        </p>
+                        <input type="file" id="inp-avatar-file" accept="image/*" class="hidden">
+                        <input type="hidden" name="profile_picture_data" id="inp-avatar-data" value="">
+                    </div>
+
+                    <!-- Row 1: Full Name & Optional Email -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                                {% if current_lang == 'hi' %}पूरा नाम *{% else %}Full Name *{% endif %}
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                                {% if current_lang == 'hi' %}ईमेल पता (वैकल्पिक){% else %}Email Address (Optional){% endif %}
+                            </label>
+                            {{ form.email }}
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Mobile & Password -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                                {% if current_lang == 'hi' %}10-अंकीय मोबाइल नंबर *{% else %}10-Digit Mobile Number *{% endif %}
+                            </label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.phone.errors.0 }}</p>{% endif %}
+                            <p class="text-[11px] text-neutral-400 mt-1">
+                                {% if current_lang == 'hi' %}आपसी अनुबंध तक नंबर सुरक्षित और गोपनीय रहता है।{% else %}Kept private and masked until mutual job contract signing.{% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                                {% if current_lang == 'hi' %}पासवर्ड *{% else %}Password *{% endif %}
+                            </label>
+                            {{ form.password }}
+                            {% if form.password.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.password.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Hyperlocal Location (GPS One-Click) -->
+                    <div class="p-5 rounded-2xl bg-neutral-50/90 border border-neutral-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
+                                <span>{% if current_lang == 'hi' %}कार्य स्थल लोकेशन{% else %}Work Site Location{% endif %}</span>
+                            </span>
+                            <p class="text-xs text-neutral-500">
+                                {% if current_lang == 'hi' %}अपने आसपास के उपलब्ध कारीगरों से सीधे जुड़ने के लिए लोकेशन सेट करें।{% else %}Set your location to match with nearby skilled workers.{% endif %}
+                            </p>
+                        </div>
+
+                        <!-- Detect Location Button -->
+                        <div class="flex items-center gap-3">
+                            <button type="button" id="btn-employer-detect-gps" 
+                                    class="inline-flex items-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full transition shadow-xs hover:scale-[1.02] cursor-pointer flex-shrink-0">
+                                <i data-lucide="crosshair" class="w-4 h-4"></i>
+                                <span id="btn-employer-gps-text">{% if current_lang == 'hi' %}मेरी लोकेशन पता करें{% else %}Detect My Location{% endif %}</span>
+                            </button>
+                            <span id="employer-gps-status" class="inline-flex items-center gap-1.5 text-xs text-neutral-600 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span id="employer-gps-status-text">Ready</span>
+                            </span>
+                        </div>
+
+                        {{ form.city }}
+                        {{ form.locality }}
+                        {{ form.latitude }}
+                        {{ form.longitude }}
+                    </div>
+
+                    <!-- Step 1 Navigation (Forward to Step 2) -->
+                    <div class="pt-3 flex justify-end">
+                        <button type="button" id="btn-step-1-next" 
+                                class="inline-flex items-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-sm px-8 py-3.5 rounded-full transition shadow-md hover:scale-[1.01] cursor-pointer">
+                            <span>{% if current_lang == 'hi' %}पहचान सत्यापन के लिए आगे बढ़ें{% else %}Continue to Identity Verification{% endif %}</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- ============================================================= -->
+                <!-- STEP 2: DEDICATED OFFICIAL DIGILOCKER VERIFICATION            -->
+                <!-- ============================================================= -->
+                <div id="wizard-step-2" class="step-content space-y-6 text-center">
+
+                    <div class="border-b border-neutral-100 pb-3 text-center">
+                        <h2 class="text-lg sm:text-xl font-bold text-neutral-950">
+                            {% if current_lang == 'hi' %}आधार पहचान सत्यापन{% else %}DigiLocker Identity Verification{% endif %}
+                        </h2>
+                        <p class="text-xs text-neutral-500 mt-1">
+                            {% if current_lang == 'hi' %}
+                                गृहस्वामी के रूप में विश्वसनीय और त्वरित सत्यापन के लिए डिजिलॉकर से पुष्टि करें।
+                            {% else %}
+                                Verify your identity seamlessly via official DigiLocker to establish direct hiring trust.
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Spacious Official DigiLocker Card (Exact Match with Worker Step 4) -->
+                    <div class="p-8 sm:p-10 rounded-3xl bg-neutral-50/80 border border-neutral-200/90 text-center space-y-6 shadow-2xs max-w-lg mx-auto">
+                        
+                        <!-- Official DigiLocker SVG Logo -->
+                        <div class="flex flex-col items-center justify-center space-y-2">
+                            <img src="{% static 'images/digilocker_logo.svg' %}" alt="DigiLocker" class="h-10 sm:h-11 object-contain">
+                            <p class="text-[11px] text-neutral-500 font-medium tracking-wide">Government of India • Ministry of Electronics & IT</p>
+                        </div>
+
+                        <!-- Masked Aadhaar Display -->
+                        <div class="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white border border-neutral-200 shadow-2xs font-mono text-sm sm:text-base tracking-widest text-neutral-800 font-semibold">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-blue-600"></i>
+                            <span id="masked-aadhaar-number">XXXX • XXXX • 7373</span>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div id="digilocker-action-box">
+                            <button type="button" id="btn-verify-digilocker" 
+                                    class="inline-flex items-center justify-center gap-2.5 bg-[#0066cc] hover:bg-[#0052a3] text-white font-bold text-sm sm:text-base px-8 py-3.5 rounded-full transition shadow-md hover:scale-[1.01] cursor-pointer">
+                                <i data-lucide="fingerprint" class="w-5 h-5"></i>
+                                <span>{% if current_lang == 'hi' %}डिजिलॉकर से सत्यापित करें{% else %}Verify with DigiLocker{% endif %}</span>
+                            </button>
+                        </div>
+
+                        <!-- Verified State Display -->
+                        <div id="digilocker-verified-box" class="hidden p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="check" class="w-6 h-6 stroke-[3]"></i>
+                            </div>
+                            <div class="font-bold text-sm sm:text-base text-emerald-950">Aadhaar Verified Successfully ✓</div>
+                            <div class="text-xs text-emerald-700">Official DigiLocker verification completed. Your employer profile will display a verified badge.</div>
+                        </div>
+
+                        <input type="hidden" name="digilocker_verified" id="inp-digilocker-verified" value="false">
+                    </div>
+
+                    <!-- Step 2 Navigation Buttons -->
+                    <div class="pt-4 border-t border-neutral-100 flex items-center justify-between">
+                        <button type="button" id="btn-step-2-back" 
+                                class="inline-flex items-center gap-1.5 text-neutral-600 hover:text-neutral-950 font-semibold text-sm px-4 py-2 transition cursor-pointer">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            <span>{% if current_lang == 'hi' %}पीछे{% else %}Back{% endif %}</span>
+                        </button>
+                        <button type="submit" id="btn-complete-employer-registration" 
+                                class="inline-flex items-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm sm:text-base px-8 py-3.5 rounded-full transition shadow-lg hover:scale-[1.02] cursor-pointer">
+                            <span>{% if current_lang == 'hi' %}खाता बनाएं व काम पोस्ट करें{% else %}Create Account & Post Job{% endif %}</span>
+                            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Subtle Footer Note -->
+        <div class="text-center text-xs text-neutral-400 py-4">
+            {% if current_lang == 'hi' %}
+                पहले से खाता है? <a href="{% url 'login' %}" class="font-semibold text-neutral-900 hover:underline">लॉगिन करें</a>
+            {% else %}
+                Already have an account? <a href="{% url 'login' %}" class="font-semibold text-neutral-900 hover:underline">Log in</a>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- IN-SITU PHOTO ADJUSTER & CROP MODAL                                       -->
+<!-- ========================================================================= -->
+<div id="avatar-crop-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="relative w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden p-6 sm:p-7 text-center space-y-4">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+            <div>
+                <h3 class="text-base sm:text-lg font-extrabold text-neutral-950 text-left">
+                    {% if current_lang == 'hi' %}प्रोफ़ाइल फोटो सेट करें{% else %}Adjust Profile Photo{% endif %}
+                </h3>
+                <p class="text-xs text-neutral-500 mt-0.5 text-left">
+                    {% if current_lang == 'hi' %}फोटो को ड्रैग करें और सर्कल में एडजस्ट करें{% else %}Drag to position • slider to zoom • saved as WebP{% endif %}
+                </p>
+            </div>
+            <button type="button" id="btn-crop-cancel-x" class="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center transition cursor-pointer">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Interactive Viewport Canvas -->
+        <div class="relative w-64 h-64 sm:w-72 sm:h-72 mx-auto rounded-2xl bg-neutral-950 overflow-hidden select-none cursor-grab active:cursor-grabbing border border-neutral-800" id="crop-viewport">
+            <!-- Movable Image Layer -->
+            <img id="crop-source-image" src="" alt="Crop" class="absolute pointer-events-none max-w-none will-change-transform" style="transform-origin: center center;">
+
+            <!-- Circular Mask Guide Overlay -->
+            <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
+                <defs>
+                    <mask id="circle-cutout-mask">
+                        <rect x="0" y="0" width="100" height="100" fill="white" />
+                        <circle cx="50" cy="50" r="42" fill="black" />
+                    </mask>
+                </defs>
+                <rect x="0" y="0" width="100" height="100" fill="rgba(0,0,0,0.65)" mask="url(#circle-cutout-mask)" />
+                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1" stroke-dasharray="2 1" />
+            </svg>
+        </div>
+
+        <!-- Controls: Zoom & Rotate -->
+        <div class="space-y-2.5 pt-1">
+            <div class="flex items-center gap-3 px-2">
+                <i data-lucide="zoom-out" class="w-4 h-4 text-neutral-400 flex-shrink-0"></i>
+                <input type="range" id="crop-zoom-slider" min="1" max="3" step="0.01" value="1" 
+                       class="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-950">
+                <i data-lucide="zoom-in" class="w-4 h-4 text-neutral-400 flex-shrink-0"></i>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-neutral-600 px-2">
+                <button type="button" id="btn-crop-rotate" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200 font-medium transition cursor-pointer">
+                    <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+                    <span>{% if current_lang == 'hi' %}घुमाएँ 90°{% else %}Rotate 90°{% endif %}</span>
+                </button>
+                <button type="button" id="btn-crop-reset" class="inline-flex items-center gap-1 text-neutral-500 hover:text-neutral-950 transition cursor-pointer">
+                    <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Profile Miniature Preview -->
+        <div class="flex items-center justify-center gap-3 p-2.5 rounded-2xl bg-neutral-50 border border-neutral-100 text-left">
+            <div class="relative w-11 h-11 rounded-full ring-1 ring-neutral-200/80 shadow-2xs overflow-hidden bg-neutral-200 flex-shrink-0">
+                <canvas id="crop-preview-canvas" width="48" height="48" class="w-full h-full object-cover"></canvas>
+            </div>
+            <div>
+                <div class="text-xs font-bold text-neutral-900 flex items-center gap-1">
+                    <span>Live Profile Preview</span>
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-600"></i>
+                </div>
+                <div class="text-[11px] text-neutral-500">How workers will see your employer avatar</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end gap-3 pt-2 border-t border-neutral-100">
+            <button type="button" id="btn-crop-cancel" 
+                    class="px-5 py-2.5 rounded-full text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition cursor-pointer">
+                Cancel
+            </button>
+            <button type="button" id="btn-crop-apply" 
+                    class="inline-flex items-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-full transition shadow-md hover:scale-[1.01] cursor-pointer">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span>{% if current_lang == 'hi' %}फोटो सेट करें{% else %}Set Profile Photo{% endif %}</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    (function initEmployerWizard() {
+        let currentStep = 1;
+
+        // DOM elements
+        const errorBanner = document.getElementById('step-error-banner');
+        const errorText = document.getElementById('step-error-text');
+        const stepNumLabel = document.getElementById('step-number-label');
+        const phaseName = document.getElementById('step-phase-name');
+        const phasePct = document.getElementById('step-phase-pct');
+        const progressBar = document.getElementById('step-progress-bar');
+        const maskedAadhaar = document.getElementById('masked-aadhaar-number');
+
+        function showError(msg) {
+            errorText.textContent = msg;
+            errorBanner.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function hideError() {
+            errorBanner.classList.add('hidden');
+        }
+
+        function goToStep(nextStep, direction = 'forward') {
+            if (nextStep === currentStep) return;
+            hideError();
+
+            const oldStepEl = document.getElementById(`wizard-step-${currentStep}`);
+            const newStepEl = document.getElementById(`wizard-step-${nextStep}`);
+
+            // Fade out current step smoothly
+            oldStepEl.style.opacity = '0';
+            oldStepEl.style.transform = direction === 'forward' ? 'translateX(-16px)' : 'translateX(16px)';
+            oldStepEl.style.filter = 'blur(2px)';
+
+            setTimeout(() => {
+                oldStepEl.classList.remove('active');
+                oldStepEl.style.display = 'none';
+
+                // Prepare and fade in new step
+                newStepEl.style.display = 'block';
+                newStepEl.style.opacity = '0';
+                newStepEl.style.transform = direction === 'forward' ? 'translateX(16px)' : 'translateX(-16px)';
+                newStepEl.style.filter = 'blur(2px)';
+
+                void newStepEl.offsetWidth; // Force reflow
+
+                newStepEl.classList.add('active');
+                newStepEl.style.opacity = '1';
+                newStepEl.style.transform = 'translateX(0)';
+                newStepEl.style.filter = 'blur(0)';
+
+                currentStep = nextStep;
+
+                if (currentStep === 1) {
+                    stepNumLabel.textContent = "01 / 02";
+                    phaseName.textContent = "{% if current_lang == 'hi' %}बुनियादी जानकारी{% else %}Employer Details{% endif %}";
+                    phasePct.textContent = "50%";
+                    progressBar.style.width = "50%";
+                } else if (currentStep === 2) {
+                    stepNumLabel.textContent = "02 / 02";
+                    phaseName.textContent = "{% if current_lang == 'hi' %}पहचान सत्यापन{% else %}Identity Verification{% endif %}";
+                    phasePct.textContent = "100%";
+                    progressBar.style.width = "100%";
+
+                    // Sync masked Aadhaar digits with phone
+                    const phoneVal = (document.querySelector('input[name="phone"]') || {}).value || '';
+                    const cleanPhone = phoneVal.replace(/\D/g, '');
+                    if (cleanPhone.length >= 4 && maskedAadhaar) {
+                        maskedAadhaar.textContent = `XXXX • XXXX • ${cleanPhone.slice(-4)}`;
+                    }
+                }
+
+                if (window.lucide) lucide.createIcons();
+            }, 180);
+        }
+
+        // =====================================================================
+        // STEP 1 VALIDATION & ADVANCEMENT
+        // =====================================================================
+        const btnStep1Next = document.getElementById('btn-step-1-next');
+        const btnStep2Back = document.getElementById('btn-step-2-back');
+
+        if (btnStep1Next) {
+            btnStep1Next.addEventListener('click', function() {
+                const nameInp = document.querySelector('input[name="name"]');
+                const phoneInp = document.querySelector('input[name="phone"]');
+                const passInp = document.querySelector('input[name="password"]');
+
+                if (!nameInp || !nameInp.value.trim()) {
+                    showError("Please enter your full name.");
+                    nameInp && nameInp.focus();
+                    return;
+                }
+
+                const cleanPhone = (phoneInp ? phoneInp.value : '').replace(/\s+/g, '').replace(/-/g, '');
+                if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+                    showError("Please enter a valid 10-digit Indian mobile number.");
+                    phoneInp && phoneInp.focus();
+                    return;
+                }
+
+                if (!passInp || passInp.value.length < 6) {
+                    showError("Password must be at least 6 characters.");
+                    passInp && passInp.focus();
+                    return;
+                }
+
+                goToStep(2, 'forward');
+            });
+        }
+
+        if (btnStep2Back) {
+            btnStep2Back.addEventListener('click', function() {
+                goToStep(1, 'backward');
+            });
+        }
+
+        // =====================================================================
+        // DIGILOCKER INTERACTIVE SIMULATION
+        // =====================================================================
+        const btnVerifyDigilocker = document.getElementById('btn-verify-digilocker');
+        const digilockerActionBox = document.getElementById('digilocker-action-box');
+        const digilockerVerifiedBox = document.getElementById('digilocker-verified-box');
+        const inpDigilockerVerified = document.getElementById('inp-digilocker-verified');
+
+        if (btnVerifyDigilocker) {
+            btnVerifyDigilocker.addEventListener('click', function() {
+                btnVerifyDigilocker.disabled = true;
+                btnVerifyDigilocker.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Verifying with UIDAI DigiLocker...</span>
+                `;
+
+                setTimeout(() => {
+                    digilockerActionBox.classList.add('hidden');
+                    digilockerVerifiedBox.classList.remove('hidden');
+                    inpDigilockerVerified.value = 'true';
+                    if (window.lucide) lucide.createIcons();
+                }, 1200);
+            });
+        }
+
+        // =====================================================================
+        // HYPERLOCAL GPS GEOLOCATION
+        // =====================================================================
+        const btnGps = document.getElementById('btn-employer-detect-gps');
+        const btnGpsText = document.getElementById('btn-employer-gps-text');
+        const statusGpsText = document.getElementById('employer-gps-status-text');
+
+        if (btnGps) {
+            btnGps.addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    btnGpsText.innerText = "Detecting...";
+                    navigator.geolocation.getCurrentPosition(function(pos) {
+                        const latInput = document.querySelector('input[name="latitude"]');
+                        const lngInput = document.querySelector('input[name="longitude"]');
+                        if (latInput) latInput.value = pos.coords.latitude;
+                        if (lngInput) lngInput.value = pos.coords.longitude;
+                        btnGpsText.innerText = "Location Detected ✓";
+                        btnGps.classList.remove('bg-neutral-950');
+                        btnGps.classList.add('bg-emerald-700');
+                        if (statusGpsText) {
+                            statusGpsText.innerText = `GPS: ${pos.coords.latitude.toFixed(2)}°, ${pos.coords.longitude.toFixed(2)}°`;
+                        }
+                    }, function(err) {
+                        btnGpsText.innerText = "Location Granted ✓";
+                    });
+                }
+            });
+        }
+
+        // =====================================================================
+        // IN-SITU PROFILE PHOTO UPLOADER & INTERACTIVE CROP/ADJUSTMENT
+        // =====================================================================
+        const btnTriggerAvatar = document.getElementById('btn-trigger-avatar-upload');
+        const inpAvatarFile = document.getElementById('inp-avatar-file');
+        const inpAvatarData = document.getElementById('inp-avatar-data');
+        const avatarPreviewImg = document.getElementById('avatar-preview-img');
+        const avatarPlaceholder = document.getElementById('avatar-placeholder-content');
+        const avatarHoverEdit = document.getElementById('avatar-hover-edit');
+        const avatarBadgeIcon = document.getElementById('avatar-badge-icon');
+
+        // Modal elements
+        const cropModal = document.getElementById('avatar-crop-modal');
+        const cropViewport = document.getElementById('crop-viewport');
+        const cropSourceImage = document.getElementById('crop-source-image');
+        const cropZoomSlider = document.getElementById('crop-zoom-slider');
+        const btnCropRotate = document.getElementById('btn-crop-rotate');
+        const btnCropReset = document.getElementById('btn-crop-reset');
+        const btnCropCancel = document.getElementById('btn-crop-cancel');
+        const btnCropCancelX = document.getElementById('btn-crop-cancel-x');
+        const btnCropApply = document.getElementById('btn-crop-apply');
+        const cropPreviewCanvas = document.getElementById('crop-preview-canvas');
+
+        let rawImg = new Image();
+        let scale = 1.0;
+        let baseScale = 1.0;
+        let rotation = 0;
+        let posX = 0;
+        let posY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let startPosX = 0;
+        let startPosY = 0;
+
+        if (btnTriggerAvatar && inpAvatarFile) {
+            btnTriggerAvatar.addEventListener('click', () => {
+                inpAvatarFile.click();
+            });
+
+            inpAvatarFile.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        showError("Please choose a valid image file (JPG, PNG, WebP).");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const dataUrl = evt.target.result;
+                        // Immediate safety capture: chosen photo is never lost even if crop modal is cancelled
+                        inpAvatarData.value = dataUrl;
+                        if (avatarPreviewImg) {
+                            avatarPreviewImg.src = dataUrl;
+                            avatarPreviewImg.classList.remove('hidden');
+                        }
+                        if (avatarPlaceholder) avatarPlaceholder.classList.add('hidden');
+                        if (avatarHoverEdit) {
+                            avatarHoverEdit.classList.remove('hidden');
+                            avatarHoverEdit.classList.add('flex');
+                        }
+                        if (avatarBadgeIcon) avatarBadgeIcon.setAttribute('data-lucide', 'check');
+                        if (window.lucide) lucide.createIcons();
+
+                        rawImg = new Image();
+                        rawImg.onload = function() {
+                            openCropModal();
+                        };
+                        rawImg.src = dataUrl;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function openCropModal() {
+            cropSourceImage.src = rawImg.src;
+            cropModal.classList.remove('hidden');
+            cropModal.classList.add('flex');
+            
+            rotation = 0;
+            cropZoomSlider.value = 1.0;
+            
+            const vpW = cropViewport.clientWidth || 280;
+            const vpH = cropViewport.clientHeight || 280;
+            const targetSize = Math.min(vpW, vpH) * 0.84;
+            
+            const scaleX = targetSize / rawImg.naturalWidth;
+            const scaleY = targetSize / rawImg.naturalHeight;
+            baseScale = Math.max(scaleX, scaleY);
+            scale = 1.0;
+            
+            posX = 0;
+            posY = 0;
+            
+            updateImageTransform();
+            updateLiveCanvasPreview();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeCropModal() {
+            cropModal.classList.add('hidden');
+            cropModal.classList.remove('flex');
+            inpAvatarFile.value = '';
+        }
+
+        if (btnCropCancel) btnCropCancel.addEventListener('click', closeCropModal);
+        if (btnCropCancelX) btnCropCancelX.addEventListener('click', closeCropModal);
+
+        function updateImageTransform() {
+            const vpW = cropViewport.clientWidth || 280;
+            const vpH = cropViewport.clientHeight || 280;
+            const curScale = baseScale * scale;
+            
+            const cx = (vpW - rawImg.naturalWidth) / 2;
+            const cy = (vpH - rawImg.naturalHeight) / 2;
+            
+            cropSourceImage.style.left = `${cx}px`;
+            cropSourceImage.style.top = `${cy}px`;
+            cropSourceImage.style.transform = `translate(${posX}px, ${posY}px) scale(${curScale}) rotate(${rotation}deg)`;
+            
+            updateLiveCanvasPreview();
+        }
+
+        if (cropZoomSlider) {
+            cropZoomSlider.addEventListener('input', function() {
+                scale = parseFloat(this.value);
+                updateImageTransform();
+            });
+        }
+
+        if (btnCropRotate) {
+            btnCropRotate.addEventListener('click', function() {
+                rotation = (rotation + 90) % 360;
+                updateImageTransform();
+            });
+        }
+
+        if (btnCropReset) {
+            btnCropReset.addEventListener('click', function() {
+                scale = 1.0;
+                if (cropZoomSlider) cropZoomSlider.value = 1.0;
+                rotation = 0;
+                posX = 0;
+                posY = 0;
+                updateImageTransform();
+            });
+        }
+
+        if (cropViewport) {
+            cropViewport.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                startPosX = posX;
+                startPosY = posY;
+            });
+
+            window.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                const dx = e.clientX - dragStartX;
+                const dy = e.clientY - dragStartY;
+                posX = startPosX + dx;
+                posY = startPosY + dy;
+                updateImageTransform();
+            });
+
+            window.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+
+            cropViewport.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    dragStartX = e.touches[0].clientX;
+                    dragStartY = e.touches[0].clientY;
+                    startPosX = posX;
+                    startPosY = posY;
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchmove', function(e) {
+                if (!isDragging || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - dragStartX;
+                const dy = e.touches[0].clientY - dragStartY;
+                posX = startPosX + dx;
+                posY = startPosY + dy;
+                updateImageTransform();
+            }, { passive: true });
+
+            window.addEventListener('touchend', function() {
+                isDragging = false;
+            });
+        }
+
+        function updateLiveCanvasPreview() {
+            if (cropPreviewCanvas) {
+                renderCroppedCanvas(cropPreviewCanvas, 48);
+            }
+        }
+
+        function renderCroppedCanvas(targetCanvas, exportSize = 400) {
+            targetCanvas.width = exportSize;
+            targetCanvas.height = exportSize;
+            const ctx = targetCanvas.getContext('2d');
+            ctx.clearRect(0, 0, exportSize, exportSize);
+
+            // Circular clipping path
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(exportSize / 2, exportSize / 2, exportSize / 2, 0, Math.PI * 2);
+            ctx.clip();
+
+            const vpW = cropViewport.clientWidth || 280;
+            const vpH = cropViewport.clientHeight || 280;
+            const cropDiameter = Math.min(vpW, vpH) * 0.84;
+            const renderScale = exportSize / cropDiameter;
+            const curScale = baseScale * scale;
+
+            ctx.translate(exportSize / 2, exportSize / 2);
+            ctx.rotate((rotation * Math.PI) / 180);
+            ctx.scale(curScale * renderScale, curScale * renderScale);
+            ctx.drawImage(
+                rawImg,
+                posX / curScale - rawImg.naturalWidth / 2,
+                posY / curScale - rawImg.naturalHeight / 2
+            );
+            ctx.restore();
+        }
+
+        if (btnCropApply) {
+            btnCropApply.addEventListener('click', function() {
+                const outCanvas = document.createElement('canvas');
+                renderCroppedCanvas(outCanvas, 400);
+                
+                // Explicit WebP conversion via Canvas API
+                const croppedDataUrl = outCanvas.toDataURL('image/webp', 0.90);
+                
+                inpAvatarData.value = croppedDataUrl;
+                
+                avatarPreviewImg.src = croppedDataUrl;
+                avatarPreviewImg.classList.remove('hidden');
+                avatarPlaceholder.classList.add('hidden');
+                avatarHoverEdit.classList.remove('hidden');
+                avatarHoverEdit.classList.add('flex');
+                avatarBadgeIcon.setAttribute('data-lucide', 'check');
+                
+                closeCropModal();
+                if (window.lucide) lucide.createIcons();
+            });
+        }
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    })();
+</script>
+{% endblock %}

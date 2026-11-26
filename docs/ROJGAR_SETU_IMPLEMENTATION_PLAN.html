@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rojgar Setu - Engineering Implementation Plan & System Architecture</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        @page {
+            size: A4;
+            margin: 18mm 16mm 18mm 16mm;
+            @bottom-right {
+                content: counter(page);
+                font-family: 'Inter', sans-serif;
+                font-size: 8pt;
+                color: #64748b;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 9.5pt;
+            line-height: 1.55;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 1.4em;
+            margin-bottom: 0.5em;
+            page-break-after: avoid;
+        }
+
+        h1 {
+            font-size: 20pt;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            margin-top: 0;
+            color: #064e3b;
+        }
+
+        h2 {
+            font-size: 13pt;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 4px;
+            margin-top: 1.6em;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 .section-num {
+            background-color: #059669;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9pt;
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 11pt;
+            color: #047857;
+            margin-top: 1.2em;
+        }
+
+        h4 {
+            font-size: 10pt;
+            color: #334155;
+            margin-top: 1em;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 0.8em;
+            text-align: justify;
+        }
+
+        /* Hero / Header Cover Box */
+        .cover-box {
+            border: 2px solid #059669;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #f8fafc 100%);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .cover-badge {
+            display: inline-block;
+            background-color: #059669;
+            color: white;
+            font-size: 7.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .cover-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 8pt;
+        }
+
+        .cover-meta-item strong {
+            display: block;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .cover-meta-item span {
+            color: #64748b;
+        }
+
+        /* Callouts / Alerts */
+        .callout {
+            border-left: 4px solid #059669;
+            background-color: #f0fdf4;
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            margin: 12px 0;
+            font-size: 9pt;
+        }
+
+        .callout-amber {
+            border-left-color: #ea580c;
+            background-color: #fff7ed;
+        }
+
+        .callout-blue {
+            border-left-color: #0284c7;
+            background-color: #f0f9ff;
+        }
+
+        .callout strong {
+            color: #0f172a;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0 16px 0;
+            font-size: 8.5pt;
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 7.8pt;
+            line-height: 1.45;
+            overflow-x: auto;
+            margin: 10px 0 14px 0;
+            page-break-inside: avoid;
+            border: 1px solid #1e293b;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 8.2pt;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Architecture & Workflow Diagram Containers */
+        .diagram-container {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 14px;
+            margin: 12px 0;
+            page-break-inside: avoid;
+        }
+
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            text-align: center;
+        }
+
+        .diagram-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .diagram-card-title {
+            font-weight: 700;
+            font-size: 8.5pt;
+            color: #059669;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .diagram-card-desc {
+            font-size: 7.5pt;
+            color: #64748b;
+            line-height: 1.35;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 14pt;
+            color: #059669;
+            font-weight: bold;
+            margin: 4px 0;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 7pt;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+        .badge-green { background-color: #dcfce7; color: #15803d; }
+        .badge-blue { background-color: #e0f2fe; color: #0369a1; }
+        .badge-amber { background-color: #fef3c7; color: #b45309; }
+        .badge-purple { background-color: #f3e8ff; color: #7e22ce; }
+
+        ul, ol {
+            margin-top: 4px;
+            margin-bottom: 10px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- DOCUMENT COVER / HEADER -->
+    <div class="cover-box">
+        <span class="cover-badge">Software Engineering & Architecture Specification</span>
+        <h1>ROJGAR SETU (रोजगार सेतु)</h1>
+        <p style="font-size: 11pt; color: #334155; font-weight: 600; margin-bottom: 4px;">
+            AI-Driven Hyperlocal Employment & Blue-Collar Skill-Matching Platform
+        </p>
+        <p style="font-size: 9pt; color: #64748b; margin-bottom: 0;">
+            Benchmark Architecture Inspired by <strong>JobsUPI (https://www.jobsupi.com/)</strong> & India's Unified Open Rails Philosophy
+        </p>
+
+        <div class="cover-meta">
+            <div class="cover-meta-item">
+                <strong>CORE STACK</strong>
+                <span>Python 3.12, Django 5+, MongoDB Atlas</span>
+            </div>
+            <div class="cover-meta-item">
+                <strong>DATABASE DRIVER</strong>
+                <span>Official PyMongo & 2dsphere GeoJSON</span>
+            </div>
+            <div class="cover-meta-item">
+                <strong>REFERENCE ARCHITECTURE</strong>
+                <span>JobsUPI (Frontline & Hyperlocal)</span>
+            </div>
+            <div class="cover-meta-item">
+                <strong>DOCUMENT PURPOSE</strong>
+                <span>Implementation Blueprint for AI/Engineers</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1 -->
+    <h2><span class="section-num">01</span> Executive Summary & JobsUPI Architectural Benchmark</h2>
+    
+    <p>
+        <strong>Rojgar Setu</strong> is designed as a mission-critical digital bridge addressing India's fragmented informal, blue-collar, and grey-collar labor ecosystem. Millions of skilled tradespeople (electricians, carpenters, plumbers, delivery executives, drivers, masons, security personnel, technicians) struggle to discover regular local employment, while MSMEs, contractors, and household employers face high friction and middleman commissions.
+    </p>
+
+    <div class="callout callout-blue">
+        <strong>The JobsUPI (https://www.jobsupi.com/) Architectural Philosophy:</strong><br>
+        Just as India's <em>Unified Payments Interface (UPI)</em> dismantled proprietary banking silos by creating an interoperable, zero-friction layer for instant fund transfers via mobile numbers, <strong>JobsUPI</strong> pioneered the concept of <em>"Unified Employment Rails"</em> for frontline workers. <strong>Rojgar Setu</strong> models its core pillars on JobsUPI:
+        <ul>
+            <li><strong>Zero Middleman Brokerage:</strong> Direct connection via instant WhatsApp Click-to-Chat and Direct Mobile Dialing.</li>
+            <li><strong>Hyperlocal Geo-Mapping:</strong> Automatic matching within a 2 km to 15 km perimeter using MongoDB <code>2dsphere</code> index.</li>
+            <li><strong>Voice & Multilingual Inclusivity:</strong> Intuitive bilingual (Hindi / English) interface tailored for low-literacy workers.</li>
+            <li><strong>AI-Powered Fit Scoring:</strong> Algorithmic matching calculating skill overlap, distance friction, and wage expectations.</li>
+        </ul>
+    </div>
+
+    <!-- SECTION 2 -->
+    <h2><span class="section-num">02</span> System Architecture & Component Topology</h2>
+
+    <p>
+        The platform implements a clean decoupled architecture combining Django's robust request-response lifecycle with MongoDB Atlas's dynamic JSON/BSON document model.
+    </p>
+
+    <div class="diagram-container">
+        <div class="diagram-grid">
+            <div class="diagram-card">
+                <div class="diagram-card-title">1. Presentation Layer</div>
+                <div class="diagram-card-desc">
+                    <strong>Tailwind CSS + Leaflet.js</strong><br>
+                    Mobile-first responsive UI, Hindi/English dictionary toggle, interactive geospatial job map, WhatsApp Web deep-links.
+                </div>
+            </div>
+            <div class="diagram-card">
+                <div class="diagram-card-title">2. Application Core</div>
+                <div class="diagram-card-desc">
+                    <strong>Django 5+ & REST Controllers</strong><br>
+                    Session authentication, role-based routing (Karigar vs. Employer), AI Fit Scorer, Aggregation Pipelines.
+                </div>
+            </div>
+            <div class="diagram-card">
+                <div class="diagram-card-title">3. Data Engine</div>
+                <div class="diagram-card-desc">
+                    <strong>MongoDB Atlas (PyMongo)</strong><br>
+                    <code>2dsphere</code> spatial coordinates, BSON schema validation, horizontal replica sets, compound indexing.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Detailed Technology Specifications</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Tier / Layer</th>
+                <th>Selected Technology</th>
+                <th>Engineering Justification</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Web Framework</strong></td>
+                <td>Python Django 5.x / 6.x</td>
+                <td>Rapid development, enterprise-grade CSRF/session security, clean modular routing, built-in management commands.</td>
+            </tr>
+            <tr>
+                <td><strong>Database Layer</strong></td>
+                <td>MongoDB Atlas (PyMongo Driver)</td>
+                <td>Native GeoJSON <code>Point</code> support, flexible BSON schemas accommodating diverse trade attributes without SQL migrations.</td>
+            </tr>
+            <tr>
+                <td><strong>Geospatial Engine</strong></td>
+                <td>MongoDB <code>2dsphere</code> Index + Leaflet.js</td>
+                <td>Sub-millisecond spherical queries (<code>$near</code>, <code>$geoWithin</code>) and client-side map visualization via OpenStreetMap.</td>
+            </tr>
+            <tr>
+                <td><strong>Styling & Design</strong></td>
+                <td>Tailwind CSS (Play CDN / Utility)</td>
+                <td>Ultra-fast layout generation, zero compilation overhead for prototyping, native mobile viewport responsiveness.</td>
+            </tr>
+            <tr>
+                <td><strong>Communication Rails</strong></td>
+                <td>WhatsApp Deep-linking & Telephony</td>
+                <td>Eliminates onboarding friction; allows employers to initiate one-click WhatsApp interviews inspired by JobsUPI.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- SECTION 3 -->
+    <h2><span class="section-num">03</span> MongoDB Atlas BSON Schema Specifications</h2>
+
+    <p>
+        The database design leverages document-based modeling: <strong>embedding</strong> for composite sub-records (e.g. GeoJSON coordinates) and <strong>referencing</strong> for high-cardinality associations (e.g. applications linking workers to jobs).
+    </p>
+
+    <h3>1. `users` Collection (Authentication & Role Authority)</h3>
+    <pre><code>{
+  "_id": ObjectId("673c52a10001000000000001"),
+  "name": "Manoj Kumar Prajapati",
+  "phone": "9870001111",            // Primary key equivalent across Indian blue-collar space
+  "email": "manoj.electrician@example.com",
+  "role": "worker",                 // Enum: ["worker", "employer", "admin"]
+  "city": "New Delhi",
+  "preferred_lang": "hi",           // Enum: ["en", "hi"]
+  "password": "pbkdf2_sha256$...",  // Hashed security credential
+  "is_verified": true,
+  "created_at": ISODate("2026-11-01T10:00:00Z")
+}</code></pre>
+
+    <h3>2. `worker_profiles` Collection (Karigar Unified Profile)</h3>
+    <pre><code>{
+  "_id": ObjectId("673c52a10002000000000001"),
+  "user_id": "673c52a10001000000000001", // Foreign reference to users._id
+  "karigar_id": "RS-DEL-8821",           // Unified UPI-style Unique Worker Identifier
+  "primary_trade": "Electrician",
+  "skills": ["House Wiring", "3-Phase Panel", "Inverter Installation", "MCB Wiring"],
+  "experience_years": 6,
+  "wage_type": "daily",                  // Enum: ["daily", "monthly", "per_job"]
+  "expected_wage": 700.00,
+  "availability": true,                  // Toggle: Available Now vs Busy
+  "location": {
+    "type": "Point",
+    "coordinates": [77.2090, 28.6139]    // [Longitude, Latitude] for 2dsphere indexing
+  },
+  "address": { "city": "New Delhi", "state": "Delhi", "pincode": "110001" },
+  "rating_avg": 4.9,
+  "total_reviews": 24,
+  "bio": "Certified ITI Wireman with 6+ years experience in commercial site wiring."
+}</code></pre>
+
+    <h3>3. `jobs` Collection (Work Postings & Gigs)</h3>
+    <pre><code>{
+  "_id": ObjectId("673c52a10003000000000001"),
+  "employer_id": "673c52a10001000000000099",
+  "employer_name": "Rajesh Sharma (Sharma Construction Co.)",
+  "employer_phone": "9811223344",
+  "title": "Need 3 Certified Electricians for Commercial Building Wiring",
+  "category": "Electrician",
+  "job_type": "contract",                // Enum: ["daily_wage", "contract", "full_time"]
+  "vacancies": 3,
+  "wage_offered": 750.00,
+  "wage_period": "daily",                // Enum: ["daily", "monthly", "per_job"]
+  "description": "Looking for certified wiremen for 3-phase commercial panel wiring. Safety tools provided.",
+  "city": "New Delhi",
+  "area": "Connaught Place / Barakhamba Road",
+  "pincode": "110001",
+  "location": {
+    "type": "Point",
+    "coordinates": [77.2197, 28.6328]    // Exact site coordinates
+  },
+  "status": "active",                    // Enum: ["active", "filled", "closed"]
+  "created_at": ISODate("2026-11-15T08:30:00Z")
+}</code></pre>
+
+    <h3>4. `applications` Collection (Hiring Pipeline & Candidate Tracking)</h3>
+    <pre><code>{
+  "_id": ObjectId("673c52a10004000000000001"),
+  "job_id": "673c52a10003000000000001",
+  "worker_id": "673c52a10001000000000001",
+  "employer_id": "673c52a10001000000000099",
+  "fit_score": 92.5,                     // Algorithmic Fit Score computed on application (0 - 100)
+  "status": "shortlisted",               // Enum: ["applied", "shortlisted", "hired", "rejected"]
+  "notes": "Available to report on site starting tomorrow morning with my own multimeter.",
+  "applied_at": ISODate("2026-11-16T09:15:00Z")
+}</code></pre>
+
+    <div class="callout">
+        <strong>Mandatory Database Indexes to execute in Atlas Shell:</strong>
+        <pre><code>db.jobs.createIndex({ "location": "2dsphere" })
+db.worker_profiles.createIndex({ "location": "2dsphere" })
+db.jobs.createIndex({ "category": 1, "status": 1 })
+db.users.createIndex({ "phone": 1 }, { unique: true })
+db.applications.createIndex({ "job_id": 1, "worker_id": 1 }, { unique: true })</code></pre>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- SECTION 4 -->
+    <h2><span class="section-num">04</span> Algorithmic Engine: JobsUPI-Inspired AI Fit Scorer</h2>
+
+    <p>
+        A core differentiator adapted from JobsUPI is the automated candidate-to-job matching calculation. When a worker searches for jobs or an employer reviews applicant pipelines, Rojgar Setu evaluates candidate compatibility through a deterministic weighted scoring function:
+    </p>
+
+    <div class="diagram-container">
+        <div style="font-size: 11pt; font-weight: 700; color: #047857; text-align: center; margin-bottom: 8px;">
+            Total Fit Score (100%) = S_skill (45%) + P_geo (30%) + W_wage (15%) + E_exp (10%)
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Factor</th>
+                    <th>Weight</th>
+                    <th>Formula / Heuristic</th>
+                    <th>Interpretation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Skill Overlap (S)</strong></td>
+                    <td>45%</td>
+                    <td><code>|Skills_worker ∩ Skills_job| / |Skills_job|</code></td>
+                    <td>Evaluates exact trade terminology and sub-competencies.</td>
+                </tr>
+                <tr>
+                    <td><strong>Proximity Score (P)</strong></td>
+                    <td>30%</td>
+                    <td><code>max(0, 1 - (Distance_km / Radius_max_km))</code></td>
+                    <td>Calculates Haversine spherical distance via MongoDB GeoJSON.</td>
+                </tr>
+                <tr>
+                    <td><strong>Wage Alignment (W)</strong></td>
+                    <td>15%</td>
+                    <td><code>min(1.0, Wage_offered / Wage_expected)</code></td>
+                    <td>Guarantees worker expectation matches or exceeds employer budget.</td>
+                </tr>
+                <tr>
+                    <td><strong>Experience & Rating (E)</strong></td>
+                    <td>10%</td>
+                    <td><code>min(1.0, Exp_years / 5.0) * (Rating / 5.0)</code></td>
+                    <td>Rewards verified track records and client satisfaction.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SECTION 5 -->
+    <h2><span class="section-num">05</span> Step-by-Step Implementation Roadmap</h2>
+
+    <p>
+        The following 6 implementation phases must be executed sequentially. Any developer or AI agent can follow these explicit milestones:
+    </p>
+
+    <h3>Phase 1: Environment Setup & MongoDB Atlas Connection Layer</h3>
+    <ul>
+        <li><strong>Step 1.1:</strong> Initialize Django project directory structure:
+            <code>django-admin startproject rojgar_setu</code> and app: <code>python manage.py startapp core</code>.</li>
+        <li><strong>Step 1.2:</strong> Configure <code>.env</code> with variables: <code>MONGO_URI</code>, <code>MONGO_DB_NAME</code>, <code>SECRET_KEY</code>, <code>DEBUG</code>.</li>
+        <li><strong>Step 1.3:</strong> Build <code>core/db.py</code> using PyMongo with automatic server-selection ping, connection caching, and graceful fallback to <code>mongomock</code> for offline environments.</li>
+        <li><strong>Step 1.4:</strong> Register <code>core</code> in <code>INSTALLED_APPS</code> and establish the bilingual context processor in <code>settings.TEMPLATES</code>.</li>
+    </ul>
+
+    <h3>Phase 2: Authentication & Dual-Role Identity</h3>
+    <ul>
+        <li><strong>Step 2.1:</strong> Create <code>RegisterForm</code> and <code>LoginForm</code> in <code>core/forms.py</code> with 10-digit Indian mobile number validation regex <code>^[6-9]\d{9}$</code>.</li>
+        <li><strong>Step 2.2:</strong> Implement <code>register_view</code> and <code>login_view</code> in <code>core/views.py</code>. Store user sessions inside <code>request.session['rojgar_user']</code>.</li>
+        <li><strong>Step 2.3:</strong> On worker registration, automatically initialize a linked <code>worker_profiles</code> document with default coordinates and trade tags.</li>
+    </ul>
+
+    <h3>Phase 3: Hyperlocal Job & Worker Discovery Engine</h3>
+    <ul>
+        <li><strong>Step 3.1:</strong> Build <code>jobs_list_view</code> supporting multi-parameter filtering: <code>category</code>, <code>city</code>, <code>job_type</code>, and keyword text search <code>$regex</code>.</li>
+        <li><strong>Step 3.2:</strong> Integrate the MongoDB <code>$near</code> geospatial pipeline for radius queries based on client GPS coordinates.</li>
+        <li><strong>Step 3.3:</strong> Render interactive Leaflet.js map with custom popups displaying job title, wage badge, category, and direct application links.</li>
+    </ul>
+
+    <h3>Phase 4: Hiring Pipeline & Direct WhatsApp/Telephony Integration</h3>
+    <ul>
+        <li><strong>Step 4.1:</strong> Implement 1-click application submission in <code>job_detail_view</code> with duplicate application prevention via compound indexing.</li>
+        <li><strong>Step 4.2:</strong> Build Employer Applicant Review Portal (<code>job_applicants_view</code>) displaying candidate fit scores and status toggles (<em>Shortlist</em>, <em>Hire</em>, <em>Reject</em>).</li>
+        <li><strong>Step 4.3:</strong> Generate WhatsApp Web deep-links using format: <code>https://wa.me/91[PHONE]?text=Hello...</code> to enable instant hiring calls.</li>
+    </ul>
+
+    <h3>Phase 5: Analytics & Government Scheme Integration</h3>
+    <ul>
+        <li><strong>Step 5.1:</strong> Build <code>analytics_dashboard_view</code> executing MongoDB Aggregation Pipelines:
+            <ul>
+                <li><code>$match</code> active jobs &rarr; <code>$group</code> by category &rarr; compute average wage and vacancy counts.</li>
+                <li>Supply vs. demand matrix comparing registered karigars against open positions.</li>
+            </ul>
+        </li>
+        <li><strong>Step 5.2:</strong> Integrate resource links to National Career Service (14417 helpline), PMKVY, and PM Vishwakarma Yojana.</li>
+    </ul>
+
+    <h3>Phase 6: Testing, Seed Automation & Deployment</h3>
+    <ul>
+        <li><strong>Step 6.1:</strong> Create Django management command <code>core/management/commands/seed_data.py</code> populating 10 vocational trades, 4 MSME employers, 5 verified karigars, and 5 active jobs across Delhi, Jaipur, Lucknow, and Bengaluru.</li>
+        <li><strong>Step 6.2:</strong> Validate end-to-end responsiveness across mobile screen resolutions (360px to 1080px).</li>
+        <li><strong>Step 6.3:</strong> Deploy database to MongoDB Atlas with IP Whitelist <code>0.0.0.0/0</code> and deploy application to Render, Railway, or AWS EC2.</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <!-- SECTION 6 -->
+    <h2><span class="section-num">06</span> API Routing & View Dispatch Specification</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>HTTP Verb</th>
+                <th>URL Pattern</th>
+                <th>View Function</th>
+                <th>Role Access</th>
+                <th>Purpose & Data Payload</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="badge badge-green">GET</span></td>
+                <td><code>/</code></td>
+                <td><code>home_view</code></td>
+                <td>Public</td>
+                <td>Landing page, aggregate counts, top categories, Leaflet map coordinates.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-green">GET</span></td>
+                <td><code>/jobs/</code></td>
+                <td><code>jobs_list_view</code></td>
+                <td>Public</td>
+                <td>Job search engine with filter parameters: <code>q</code>, <code>category</code>, <code>city</code>, <code>job_type</code>.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-blue">POST</span> / <span class="badge badge-green">GET</span></td>
+                <td><code>/jobs/post/</code></td>
+                <td><code>job_create_view</code></td>
+                <td>Employer</td>
+                <td>Create new job vacancy document with GeoJSON coordinates.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-green">GET</span> / <span class="badge badge-blue">POST</span></td>
+                <td><code>/jobs/&lt;id&gt;/</code></td>
+                <td><code>job_detail_view</code></td>
+                <td>Public / Worker</td>
+                <td>Inspect job description; POST submits worker application document.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-green">GET</span></td>
+                <td><code>/jobs/&lt;id&gt;/applicants/</code></td>
+                <td><code>job_applicants_view</code></td>
+                <td>Employer</td>
+                <td>List all candidate applications, compute fit score, display WhatsApp button.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-amber">POST</span></td>
+                <td><code>/applications/&lt;id&gt;/status/</code></td>
+                <td><code>update_app_status</code></td>
+                <td>Employer</td>
+                <td>Update applicant status: <code>shortlisted</code>, <code>hired</code>, <code>rejected</code>.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-green">GET</span></td>
+                <td><code>/workers/</code></td>
+                <td><code>workers_list_view</code></td>
+                <td>Public</td>
+                <td>Public skilled karigar directory with trade and city filters.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-green">GET</span> / <span class="badge badge-blue">POST</span></td>
+                <td><code>/worker/profile/</code></td>
+                <td><code>worker_profile_view</code></td>
+                <td>Worker</td>
+                <td>Manage skills list, experience years, expected wage, and availability status.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-green">GET</span></td>
+                <td><code>/worker/applications/</code></td>
+                <td><code>my_applications_view</code></td>
+                <td>Worker</td>
+                <td>Applicant tracking dashboard showing live review statuses.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-green">GET</span></td>
+                <td><code>/analytics/</code></td>
+                <td><code>analytics_dashboard_view</code></td>
+                <td>Public / Admin</td>
+                <td>MongoDB Aggregation pipeline reporting market wage rates and trade demand.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-purple">AUTH</span></td>
+                <td><code>/login/</code>, <code>/register/</code></td>
+                <td><code>login_view</code>, <code>register_view</code></td>
+                <td>Public</td>
+                <td>Dual-role registration and login authentication via mobile number.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SECTION 7 -->
+    <h2><span class="section-num">07</span> Verification, Quality Assurance & Evaluator Checklist</h2>
+
+    <div class="callout callout-amber">
+        <strong>Pre-Demonstration Verification Matrix:</strong>
+        Ensure the following criteria are validated prior to final deployment or academic viva evaluation:
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Test Area</th>
+                <th>Validation Procedure</th>
+                <th>Expected Outcome</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Atlas Connectivity</strong></td>
+                <td>Insert valid <code>MONGO_URI</code> into <code>.env</code> and run <code>python manage.py runserver</code>.</td>
+                <td>Top navbar diagnostic badge illuminates green: <code>MongoDB Layer: Atlas (Live)</code>.</td>
+            </tr>
+            <tr>
+                <td><strong>Geospatial Query</strong></td>
+                <td>Execute filter search by city or radius on <code>/jobs/</code>.</td>
+                <td>Query resolves using 2dsphere index without collection scan (<code>COLLSCAN</code>).</td>
+            </tr>
+            <tr>
+                <td><strong>Direct WhatsApp Hiring</strong></td>
+                <td>Click on candidate WhatsApp button in employer dashboard.</td>
+                <td>Opens WhatsApp Web / App with pre-filled message addressing candidate by name.</td>
+            </tr>
+            <tr>
+                <td><strong>Bilingual Localization</strong></td>
+                <td>Click language switch pill in top right corner.</td>
+                <td>Instant translation between English and Hindi across labels, trade categories, and badges.</td>
+            </tr>
+            <tr>
+                <td><strong>Database Aggregation</strong></td>
+                <td>Navigate to <code>/analytics/</code> dashboard.</td>
+                <td>Dynamically renders average daily wages and open vacancies grouped by vocational category.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #cbd5e1; text-align: center; font-size: 8pt; color: #64748b;">
+        <strong>Rojgar Setu (रोजगार सेतु) - Implementation Blueprint</strong><br>
+        Crafted with reference to JobsUPI (jobsupi.com) &bull; Built with Django & MongoDB Atlas &bull; Document Version 2.0
+    </div>
+
+</body>
+</html>

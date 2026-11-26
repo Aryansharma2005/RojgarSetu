@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit User {{ target_user.name }} - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+    <div class="mb-6">
+        <a href="{% url 'superadmin_dashboard' %}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-950 transition">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to SuperAdmin Portal</span>
+        </a>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-sm p-6 sm:p-10 space-y-6">
+        <div class="flex items-center gap-4 border-b border-neutral-100 pb-5">
+            <img src="{{ target_user.avatar_url }}" alt="" class="w-14 h-14 rounded-full object-cover border border-neutral-200">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight">{{ target_user.name }}</h1>
+                <p class="text-xs text-neutral-500 font-mono">ID: {{ target_user.id }} • Role: {{ target_user.role|upper }}</p>
+            </div>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Core Identity Fields -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">Full Name *</label>
+                    <input type="text" name="name" value="{{ target_user.name }}" required class="form-input text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">Phone Number *</label>
+                    <input type="text" name="phone" value="{{ target_user.phone }}" required class="form-input text-sm font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">Email Address</label>
+                    <input type="email" name="email" value="{{ target_user.email|default:'' }}" class="form-input text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">Account Role</label>
+                    <select name="role" class="form-input text-sm">
+                        <option value="employer" {% if target_user.role == 'employer' %}selected{% endif %}>Employer</option>
+                        <option value="worker" {% if target_user.role == 'worker' %}selected{% endif %}>Worker</option>
+                        <option value="admin" {% if target_user.role == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Location & Language -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">Locality</label>
+                    <input type="text" name="locality" value="{{ target_user.locality }}" class="form-input text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">City</label>
+                    <input type="text" name="city" value="{{ target_user.city }}" class="form-input text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">Preferred Language</label>
+                    <select name="preferred_lang" class="form-input text-sm">
+                        <option value="en" {% if target_user.preferred_lang == 'en' %}selected{% endif %}>English</option>
+                        <option value="hi" {% if target_user.preferred_lang == 'hi' %}selected{% endif %}>Hindi</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Verification Flags -->
+            <div class="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex flex-wrap gap-6">
+                <label class="inline-flex items-center gap-2 text-xs font-bold text-neutral-800 cursor-pointer">
+                    <input type="checkbox" name="is_phone_verified" {% if target_user.is_phone_verified %}checked{% endif %} class="h-4 w-4 accent-neutral-950 rounded">
+                    <span>Phone Verified</span>
+                </label>
+                <label class="inline-flex items-center gap-2 text-xs font-bold text-neutral-800 cursor-pointer">
+                    <input type="checkbox" name="is_aadhaar_verified" {% if target_user.is_aadhaar_verified %}checked{% endif %} class="h-4 w-4 accent-neutral-950 rounded">
+                    <span>Aadhaar Verified</span>
+                </label>
+            </div>
+
+            {% if target_user.role == 'worker' and worker_profile %}
+            <!-- Worker-Specific Data -->
+            <div class="p-5 rounded-2xl bg-stone-50/90 border border-neutral-200/80 space-y-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-900">Worker Profile Data</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-neutral-600 mb-1">Primary Trade</label>
+                        <input type="text" name="primary_trade" value="{{ worker_profile.primary_trade }}" class="form-input text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-neutral-600 mb-1">Trades (comma separated)</label>
+                        <input type="text" name="trades_csv" value="{{ trades_csv }}" class="form-input text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-neutral-600 mb-1">Expected Wage (₹)</label>
+                        <input type="number" name="expected_wage" value="{{ worker_profile.expected_wage|floatformat:0 }}" class="form-input text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-neutral-600 mb-1">Wage Type</label>
+                        <select name="wage_type" class="form-input text-xs">
+                            <option value="daily" {% if worker_profile.wage_type == 'daily' %}selected{% endif %}>Daily</option>
+                            <option value="monthly" {% if worker_profile.wage_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                            <option value="per_job" {% if worker_profile.wage_type == 'per_job' %}selected{% endif %}>Per Job</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-neutral-600 mb-1">Profile Bio</label>
+                    <textarea name="ai_bio" rows="3" class="form-input text-xs">{{ worker_profile.ai_bio }}</textarea>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Direct Password Reset / Update -->
+            <div class="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/90 space-y-2">
+                <label class="block text-xs font-bold uppercase tracking-wider text-amber-950">
+                    Reset / Update Password (Optional)
+                </label>
+                <input type="password" name="new_password" minlength="6" placeholder="Leave blank to keep current password, or type new password (min 6 chars)"
+                       class="form-input text-sm bg-white">
+                <p class="text-[11px] text-amber-800">
+                    Entering a new password here immediately updates this user's login credentials.
+                </p>
+            </div>
+
+            <div class="pt-4 border-t border-neutral-100 flex items-center justify-between gap-3">
+                <a href="{% url 'superadmin_dashboard' %}" class="px-5 py-2.5 rounded-full border border-neutral-200 text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition">
+                    Cancel
+                </a>
+                <button type="submit" class="px-8 py-3 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm shadow-sm transition cursor-pointer">
+                    Save All Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

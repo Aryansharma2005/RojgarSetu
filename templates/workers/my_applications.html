@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ T.nav_my_apps }} - {{ T.brand_title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Boldonse&display=swap" rel="stylesheet">
+<style>
+    .boldonse-regular {
+        font-family: "Boldonse", system-ui, sans-serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative">
+
+    <!-- Typographic Watermark -->
+    <div class="boldonse-regular absolute top-4 sm:top-6 right-6 sm:right-10 text-3xl sm:text-4xl lg:text-5xl text-neutral-950/[0.05] tracking-wider pointer-events-none select-none uppercase">
+        APPLICATIONS
+    </div>
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 relative z-10">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">{{ T.nav_my_apps }}</h1>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Live</span>
+                </span>
+            </div>
+            <p class="text-xs sm:text-sm text-neutral-500 mt-1">
+                Track your active applications, employer responses, and service agreements in real time.
+            </p>
+        </div>
+        <a href="{% url 'jobs_list' %}" class="inline-flex items-center gap-1.5 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs px-5 py-2.5 rounded-full transition shadow-xs self-start sm:self-auto">
+            <i data-lucide="search" class="w-3.5 h-3.5"></i>
+            <span>Find More Jobs</span>
+        </a>
+    </div>
+
+    <!-- Applications List -->
+    <div class="space-y-4 relative z-10">
+        {% for app in applications %}
+            <div data-app-card="{{ app.id }}" class="bg-white rounded-3xl border border-neutral-200/90 p-6 sm:p-7 shadow-xs hover:shadow-card hover:border-neutral-300 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                <div class="flex items-start gap-4 min-w-0">
+                    <img src="{{ app.job.employer.avatar_url }}" alt="{{ app.job.employer.name }}" 
+                         class="w-12 h-12 rounded-full object-cover border border-neutral-200 shadow-2xs flex-shrink-0">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-900 border border-neutral-200">
+                                {{ app.job.category }}
+                            </span>
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/70">
+                                ₹{{ app.job.offered_price|floatformat:0 }} • {{ app.job.get_wage_period_display }}
+                            </span>
+                        </div>
+
+                        <h3 class="text-base sm:text-lg font-black text-neutral-950 tracking-tight truncate">
+                            <a href="{% url 'job_detail' app.job.id %}" class="hover:underline transition">{{ app.job.title }}</a>
+                        </h3>
+
+                        <div class="text-xs text-neutral-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span>Employer: <strong class="text-neutral-900">{{ app.job.employer.name }}</strong></span>
+                            <span class="text-neutral-300">•</span>
+                            <span>Applied: <strong>{{ app.applied_at|date:"M d, Y" }}</strong></span>
+                            <span class="text-neutral-300">•</span>
+                            <span>{{ app.job.duration_text }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-100">
+                    <span data-app-status="{{ app.id }}" class="text-xs px-3.5 py-1.5 rounded-full font-bold
+                        {% if app.status == 'contract_accepted' %}bg-emerald-50 text-emerald-800 border border-emerald-200
+                        {% elif app.status == 'contract_forwarded' %}bg-amber-50 text-amber-800 border border-amber-200
+                        {% elif app.status == 'chat_initiated' %}bg-neutral-100 text-neutral-900 border border-neutral-200
+                        {% else %}bg-neutral-50 text-neutral-600 border border-neutral-200{% endif %}">
+                        {{ app.get_status_display }}
+                    </span>
+
+                    <div data-app-action="{{ app.id }}">
+                        {% if app.chat_room %}
+                        <a href="{% url 'chat_room_detail' app.chat_room.id %}" class="bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-xs transition inline-flex items-center gap-1.5">
+                            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                            <span>Open Chat</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'job_detail' app.job.id %}" class="text-xs font-semibold text-neutral-700 hover:text-neutral-950 px-4 py-2 rounded-full border border-neutral-200 hover:bg-neutral-50 transition inline-flex items-center gap-1">
+                            <span>View Job</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-16 bg-white rounded-3xl border border-neutral-200/90 shadow-xs">
+                <div class="w-12 h-12 rounded-full bg-neutral-100 text-neutral-400 flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="inbox" class="w-5 h-5"></i>
+                </div>
+                <div class="text-sm font-bold text-neutral-900">You haven't applied to any jobs yet</div>
+                <p class="text-xs text-neutral-500 mt-1 mb-5">Browse nearby openings within 500m – 10km and apply in 1 click.</p>
+                <a href="{% url 'jobs_list' %}" class="inline-flex items-center gap-1.5 px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs rounded-full transition shadow-xs">
+                    <span>Browse Nearby Jobs</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    window.addEventListener('rojgar:application_accepted', function(e) {
+        var acc = e.detail || {};
+        if (!acc.application_id) return;
+        var card = document.querySelector('[data-app-card="' + acc.application_id + '"]');
+        var statusEl = document.querySelector('[data-app-status="' + acc.application_id + '"]');
+        var actionEl = document.querySelector('[data-app-action="' + acc.application_id + '"]');
+        if (card) {
+            card.classList.add('border-emerald-400', 'ring-2', 'ring-emerald-400/30');
+        }
+        if (statusEl) {
+            statusEl.className = "text-xs px-3.5 py-1.5 rounded-full font-bold bg-emerald-50 text-emerald-800 border border-emerald-200";
+            statusEl.textContent = acc.status_label || 'Chat Initiated';
+        }
+        if (actionEl && acc.chat_url) {
+            actionEl.innerHTML =
+                '<a href="' + acc.chat_url + '" class="bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-xs transition inline-flex items-center gap-1.5">' +
+                    '<i data-lucide="message-circle" class="w-3.5 h-3.5"></i>' +
+                    '<span>Open Chat</span>' +
+                    '<i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>' +
+                '</a>';
+            if (window.lucide) lucide.createIcons();
+        }
+    });
+
+    window.addEventListener('rojgar:contract_forwarded', function(e) {
+        var cf = e.detail || {};
+        if (!cf.application_id) return;
+        var statusEl = document.querySelector('[data-app-status="' + cf.application_id + '"]');
+        if (statusEl) {
+            statusEl.className = "text-xs px-3.5 py-1.5 rounded-full font-bold bg-amber-50 text-amber-800 border border-amber-200";
+            statusEl.textContent = 'Agreement Forwarded';
+        }
+    });
+</script>
+{% endblock %}

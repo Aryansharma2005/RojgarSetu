@@ -1,0 +1,1020 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if current_lang == 'hi' %}काम पोस्ट करें - {{ T.brand_title }}{% else %}Post a Job - {{ T.brand_title }}{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<!-- Boldonse Google Font for Typographic Watermarks -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Boldonse&display=swap" rel="stylesheet">
+
+<style>
+    .boldonse-regular {
+        font-family: "Boldonse", system-ui, sans-serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Expansive, Modern Container with Continuity -->
+<div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative">
+
+    <!-- Dynamic Typographic Watermark (Boldonse Font, Compact & Bold, Top-Right Corner) -->
+    <div id="job-watermark-text" 
+         class="boldonse-regular absolute top-4 sm:top-6 right-6 sm:right-10 text-3xl sm:text-4xl lg:text-5xl text-neutral-950/[0.06] tracking-wider pointer-events-none select-none uppercase transition-all duration-300">
+        {% if current_lang == 'hi' %}नया कार्य{% else %}POST JOB{% endif %}
+    </div>
+
+    <!-- Header Section -->
+    <div class="mb-6 sm:mb-8 space-y-3">
+        <a href="{% url 'employer_profile' %}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-950 transition">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>{% if current_lang == 'hi' %}प्रोफ़ाइल पर वापस जाएं{% else %}Back to Profile{% endif %}</span>
+        </a>
+
+        <div class="pt-1">
+            <h1 class="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">
+                {% if current_lang == 'hi' %}नया कार्य पोस्ट करें{% else %}Post a Job{% endif %}
+            </h1>
+            <p class="text-xs sm:text-sm text-neutral-500 mt-1">
+                {% if current_lang == 'hi' %}
+                    विवरण भरें। इसके बाद आप कानूनी अनुबंध की समीक्षा करेंगे और डिजिटल हस्ताक्षर करेंगे।
+                {% else %}
+                    Fill in the work details. You will review and digitally sign the legal agreement in the next step.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- INTELLIGENT STEPPER PROGRESS BAR (2 Focused Steps + Next Review)   -->
+    <!-- Step 1: Role & Pay | Step 2: Work Address & Site                   -->
+    <!-- ================================================================= -->
+    <div class="bg-white rounded-2xl border border-neutral-200/80 p-3.5 sm:p-4 mb-6 shadow-2xs">
+        <div class="flex items-center justify-between max-w-xl mx-auto">
+
+            <!-- Step 1 Button/Indicator -->
+            <button type="button" onclick="goToStep(1)" id="step-btn-1" class="relative z-10 flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none flex-shrink-0">
+                <span id="step-badge-1" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all bg-neutral-950 text-white shadow-sm ring-4 ring-neutral-100">
+                    1
+                </span>
+                <span class="block">
+                    <span class="block text-[10px] font-bold uppercase tracking-wider text-neutral-400">Step 1</span>
+                    <span id="step-title-1" class="block text-xs font-bold text-neutral-950">
+                        {% if current_lang == 'hi' %}कार्य व पारिश्रमिक{% else %}Job & Pay{% endif %}
+                    </span>
+                </span>
+            </button>
+
+            <!-- Connecting Track Strictly Between Step 1 and Step 2 -->
+            <div class="flex-1 mx-3 sm:mx-6 h-1 bg-neutral-100 relative rounded-full overflow-hidden">
+                <div id="stepper-progress-line" class="h-full bg-neutral-950 transition-all duration-300 rounded-full" style="width: 0%;"></div>
+            </div>
+
+            <!-- Step 2 Button/Indicator -->
+            <button type="button" onclick="goToStep(2)" id="step-btn-2" class="relative z-10 flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none flex-shrink-0">
+                <span id="step-badge-2" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all bg-neutral-100 text-neutral-600 border border-neutral-200">
+                    2
+                </span>
+                <span class="block">
+                    <span class="block text-[10px] font-bold uppercase tracking-wider text-neutral-400">Step 2</span>
+                    <span id="step-title-2" class="block text-xs font-semibold text-neutral-500">
+                        {% if current_lang == 'hi' %}कार्य स्थल का पता{% else %}Work Address{% endif %}
+                    </span>
+                </span>
+            </button>
+
+            <!-- Next Indicator (Subtle badge indicating Agreement Step - strictly outside the track) -->
+            <div class="hidden sm:flex items-center pl-4 sm:pl-6 border-l border-neutral-200 ml-4 sm:ml-6 flex-shrink-0">
+                <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/80 text-neutral-500 text-[11px] font-semibold">
+                    <i data-lucide="file-signature" class="w-3.5 h-3.5 text-neutral-400"></i>
+                    <span>{% if current_lang == 'hi' %}अगला: ई-हस्ताक्षर{% else %}Next: E-Sign Agreement{% endif %}</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MAIN FORM CONTAINER                                               -->
+    <!-- ================================================================= -->
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-sm p-6 sm:p-8 lg:p-10 relative">
+        
+        <!-- Live Auto-Save Status Badge -->
+        <div id="draft-autosave-badge" class="absolute top-4 right-6 sm:right-8 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 opacity-0 transition-opacity duration-300 pointer-events-none">
+            <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>{% if current_lang == 'hi' %}ड्राफ्ट सहेजा गया{% else %}Draft saved{% endif %}</span>
+        </div>
+
+        <form method="POST" id="job-post-form" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- ============================================================= -->
+            <!-- STEP 1 PANEL: ROLE & COMPENSATION                             -->
+            <!-- ============================================================= -->
+            <div id="step-panel-1" class="step-panel space-y-6">
+                <div class="border-b border-neutral-100 pb-3 flex items-center justify-between">
+                    <h2 class="text-base sm:text-lg font-black text-neutral-950 flex items-center gap-2">
+                        <i data-lucide="briefcase" class="w-5 h-5 text-neutral-900"></i>
+                        <span>{% if current_lang == 'hi' %}1. कार्य व पारिश्रमिक विवरण{% else %}1. Role & Compensation{% endif %}</span>
+                    </h2>
+                    <span class="text-xs font-bold text-neutral-400 uppercase tracking-widest font-mono">1 / 2</span>
+                </div>
+
+                <!-- Job Title (Headline that defines the scope) -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">
+                        {% if current_lang == 'hi' %}कार्य शीर्षक *{% else %}Job Title *{% endif %}
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<p class="text-xs text-rose-600 mt-1 font-medium">{{ form.title.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Category & Estimated Duration (Enhanced with custom split inputs) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <!-- Trade Category -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">
+                            {% if current_lang == 'hi' %}कारीगर श्रेणी *{% else %}Trade Category *{% endif %}
+                        </label>
+                        {{ form.category }}
+                    </div>
+
+                    <!-- Estimated Duration (Number + Unit Dropdown) -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">
+                            {% if current_lang == 'hi' %}अनुमानित समय अवधि *{% else %}Estimated Duration *{% endif %}
+                        </label>
+                        <div class="grid grid-cols-5 gap-2">
+                            <!-- Numeric Quantity Input -->
+                            <div class="col-span-2 relative">
+                                <input type="number" name="duration_number" id="job-duration-number" 
+                                       value="{{ form.duration_number.value|default:'2' }}" min="1" max="365" required
+                                       class="form-input text-center font-bold text-neutral-900 px-2" placeholder="2">
+                            </div>
+                            <!-- Unit Selector Dropdown (Hours, Days, Months) -->
+                            <div class="col-span-3">
+                                {{ form.duration_unit }}
+                            </div>
+                        </div>
+                        {{ form.duration_text }}
+                        {% if form.duration_number.errors %}<p class="text-xs text-rose-600 mt-1 font-medium">{{ form.duration_number.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Compensation & Wage Terms Card -->
+                <div class="p-5 rounded-2xl bg-neutral-50/80 border border-neutral-200/80 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">
+                                {% if current_lang == 'hi' %}प्रस्तावित पारिश्रमिक (₹) *{% else %}Offered Compensation (INR) *{% endif %}
+                            </label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-3.5 text-xs font-bold text-neutral-400 select-none">₹</span>
+                                <input type="number" name="offered_price" id="job-price-input" 
+                                       value="{{ form.offered_price.value|default:'500' }}" min="100" required
+                                       class="form-input pl-8 font-semibold text-neutral-900" 
+                                       placeholder="600">
+                            </div>
+                            {% if form.offered_price.errors %}<p class="text-xs text-rose-600 mt-1 font-medium">{{ form.offered_price.errors.0 }}</p>{% endif %}
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">
+                                {% if current_lang == 'hi' %}भुगतान प्रकार *{% else %}Wage Basis *{% endif %}
+                            </label>
+                            {{ form.wage_period }}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-xs text-neutral-600 pt-1">
+                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
+                        <span>
+                            {% if current_lang == 'hi' %}
+                                कार्य संतोषजनक पूरा होने पर 100% प्रत्यक्ष भुगतान। कोई दलाली नहीं।
+                            {% else %}
+                                100% direct Karigar settlement upon task satisfaction. Zero brokerage.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Optional Note Accordion (Never mandatory) -->
+                <div class="pt-1">
+                    <button type="button" id="toggle-optional-note" 
+                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition cursor-pointer focus:outline-none">
+                        <i data-lucide="plus-circle" id="toggle-note-icon" class="w-4 h-4 text-neutral-500"></i>
+                        <span>{% if current_lang == 'hi' %}अतिरिक्त निर्देश जोड़ें (वैकल्पिक){% else %}Add extra note or landmark instruction (Optional){% endif %}</span>
+                    </button>
+                    <div id="optional-note-container" class="hidden mt-3 pt-1">
+                        {{ form.responsibilities }}
+                        <p class="text-[11px] text-neutral-400 mt-1">
+                            {% if current_lang == 'hi' %}
+                                चैट में आप कारीगर से सीधे फोटो साझा कर बात कर सकते हैं।
+                            {% else %}
+                                You can clarify all specifics and share photos directly with workers in the in-app chat.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 1 Actions -->
+                <div class="pt-4 border-t border-neutral-100 flex justify-end">
+                    <button type="button" onclick="nextStep(1)" 
+                            class="inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm px-8 py-3.5 rounded-full transition shadow-sm cursor-pointer">
+                        <span>{% if current_lang == 'hi' %}स्थान विवरण पर आगे बढ़ें{% else %}Continue to Work Location{% endif %}</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- STEP 2 PANEL: WORK SITE ADDRESS & LOCATION (Dedicated Step)   -->
+            <!-- ============================================================= -->
+            <div id="step-panel-2" class="step-panel space-y-6 hidden">
+                <div class="border-b border-neutral-100 pb-3 flex items-center justify-between">
+                    <h2 class="text-base sm:text-lg font-black text-neutral-950 flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-5 h-5 text-neutral-900"></i>
+                        <span>{% if current_lang == 'hi' %}2. कार्य स्थल का पता{% else %}2. Work Site Address{% endif %}</span>
+                    </h2>
+                    <span class="text-xs font-bold text-neutral-400 uppercase tracking-widest font-mono">2 / 2</span>
+                </div>
+
+                <!-- Standalone Work Location Section Card -->
+                <div class="p-6 sm:p-7 rounded-2xl bg-neutral-50/80 border border-neutral-200/80 space-y-5">
+                    <div class="flex items-center justify-between pb-3 border-b border-neutral-200/60">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-900">
+                                {% if current_lang == 'hi' %}पता व स्थान निर्धारण{% else %}Location Details{% endif %}
+                            </h3>
+                            <p class="text-xs text-neutral-500 mt-0.5">
+                                {% if current_lang == 'hi' %}
+                                    स्थानीय कारीगरों से शीघ्र मिलान के लिए अपना क्षेत्र या मोहल्ला दर्ज करें।
+                                {% else %}
+                                    Enter your locality for accurate hyperlocal matching with local karigars.
+                                {% endif %}
+                            </p>
+                        </div>
+                        <button type="button" id="btn-detect-site-gps" 
+                                class="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-200 shadow-2xs transition cursor-pointer flex-shrink-0">
+                            <i data-lucide="crosshair" class="w-3.5 h-3.5 text-neutral-600"></i>
+                            <span id="btn-detect-site-gps-text">
+                                {% if current_lang == 'hi' %}GPS से स्थान भरें{% else %}Auto-fill from GPS{% endif %}
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">
+                                {% if current_lang == 'hi' %}मोहल्ला / लैंडमार्क *{% else %}Locality / Landmark *{% endif %}
+                            </label>
+                            {{ form.locality }}
+                            {% if form.locality.errors %}<p class="text-xs text-rose-600 mt-1 font-medium">{{ form.locality.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">
+                                {% if current_lang == 'hi' %}शहर *{% else %}City *{% endif %}
+                            </label>
+                            {{ form.city }}
+                            {% if form.city.errors %}<p class="text-xs text-rose-600 mt-1 font-medium">{{ form.city.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+
+                    {{ form.latitude }}
+                    {{ form.longitude }}
+
+                    <div class="p-4 rounded-xl bg-white border border-neutral-200/70 flex items-start gap-3">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-700 mt-0.5 flex-shrink-0"></i>
+                        <div class="space-y-1">
+                            <div class="text-xs font-bold text-neutral-800">
+                                {% if current_lang == 'hi' %}गोपनीयता सुरक्षा गारंटी{% else %}Privacy & Identity Protection{% endif %}
+                            </div>
+                            <p class="text-xs text-neutral-500 leading-relaxed">
+                                {% if current_lang == 'hi' %}
+                                    आपका सटीक घर का पता या GPS निर्देशांक सार्वजनिक रूप से नहीं दिखाए जाते। कारीगर केवल मोहल्ला और शहर देखते हैं। पूरा पता केवल तब साझा होता है जब दोनों पक्ष प्रत्यक्ष अनुबंध पर हस्ताक्षर कर देते हैं।
+                                {% else %}
+                                    Your exact home address and GPS coordinates are never publicly shown. Karigars only see the general locality and city. Full address unlocks solely inside the private chat after mutual contract acceptance.
+                                {% endif %}
+                            </p>
+                            <p id="gps-status-hint" class="text-xs font-medium text-emerald-700 hidden"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 Actions (Submit to generate Digital Agreement) -->
+                <div class="pt-4 border-t border-neutral-100 flex items-center justify-between gap-4">
+                    <button type="button" onclick="goToStep(1)" 
+                            class="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-950 px-4 py-2.5 rounded-full hover:bg-neutral-100 transition cursor-pointer">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span>{% if current_lang == 'hi' %}कार्य विवरण पर वापस{% else %}Back to Job Details{% endif %}</span>
+                    </button>
+                    <button type="button" onclick="submitToAgreementReview()" 
+                            class="inline-flex items-center justify-center gap-2.5 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm sm:text-base px-8 sm:px-10 py-3.5 sm:py-4 rounded-full transition shadow-md hover:scale-[1.01] cursor-pointer">
+                        <span>{% if current_lang == 'hi' %}कानूनी अनुबंध समीक्षा व हस्ताक्षर करें{% else %}Proceed to Legal Agreement & Sign{% endif %}</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- FLOATING DRAFT CART / DRAWER (Persistent Draft Engine)                    -->
+<!-- Automatically restores partially filled forms so employers never lose work-->
+<!-- ========================================================================= -->
+<div id="floating-draft-cart" class="hidden fixed bottom-6 right-6 z-50 max-w-sm w-full bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200/90 shadow-xl p-4 transition-all duration-300">
+    <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-neutral-900 text-white flex items-center justify-center flex-shrink-0">
+                <i data-lucide="file-clock" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <div class="text-xs font-black text-neutral-900">
+                    {% if current_lang == 'hi' %}सहेजा गया ड्राफ्ट मिला{% else %}Unfinished Job Draft Found{% endif %}
+                </div>
+                <div id="draft-summary-text" class="text-[11px] text-neutral-500 font-medium truncate max-w-[190px]">
+                    Draft Job
+                </div>
+            </div>
+        </div>
+        <button type="button" onclick="dismissDraftCart()" class="text-neutral-400 hover:text-neutral-800 p-1 rounded-md cursor-pointer" title="Dismiss">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
+    <div class="mt-3 pt-2.5 border-t border-neutral-100 flex items-center justify-between gap-2">
+        <span id="draft-time-ago" class="text-[10px] font-mono text-neutral-400">Just now</span>
+        <div class="flex items-center gap-1.5">
+            <button type="button" onclick="discardDraft()" class="text-[11px] font-semibold text-neutral-500 hover:text-rose-600 px-2.5 py-1.5 rounded-lg transition cursor-pointer">
+                {% if current_lang == 'hi' %}हटाएं{% else %}Discard{% endif %}
+            </button>
+            <button type="button" onclick="resumeDraft()" class="text-[11px] font-bold text-white bg-neutral-950 hover:bg-neutral-800 px-3.5 py-1.5 rounded-full shadow-2xs transition flex items-center gap-1 cursor-pointer">
+                <span>{% if current_lang == 'hi' %}जारी रखें{% else %}Resume Draft{% endif %}</span>
+                <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function initJobCreateForm() {
+        var currentStep = 1;
+        var currentLang = "{{ current_lang }}";
+        var empName = "{{ current_user.name }}";
+        var userId = "{{ current_user.id }}";
+        var DRAFT_STORAGE_KEY = "rojgar_job_draft_" + userId;
+
+        // =====================================================================
+        // ENHANCED CUSTOM DROPDOWN ENGINE (Replaces raw browser select popups)
+        // =====================================================================
+        function setupCustomDropdown(selectId) {
+            var select = document.getElementById(selectId);
+            if (!select || select.dataset.customized === 'true') return;
+            select.dataset.customized = 'true';
+            select.classList.add('sr-only');
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'relative custom-dropdown-root w-full select-none';
+
+            var trigger = document.createElement('button');
+            trigger.type = 'button';
+            trigger.className = 'w-full flex items-center justify-between bg-white border border-neutral-200/90 hover:border-neutral-400 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-neutral-900 shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-neutral-950/20 cursor-pointer';
+
+            var labelSpan = document.createElement('span');
+            labelSpan.className = 'truncate';
+            var selectedOption = select.selectedOptions[0] || select.options[0];
+            labelSpan.innerText = selectedOption ? selectedOption.text : '';
+
+            var chevron = document.createElement('i');
+            chevron.setAttribute('data-lucide', 'chevron-down');
+            chevron.className = 'w-4 h-4 text-neutral-400 custom-chevron transition-transform duration-200 flex-shrink-0 ml-2';
+
+            trigger.appendChild(labelSpan);
+            trigger.appendChild(chevron);
+
+            var menu = document.createElement('div');
+            menu.className = 'custom-dropdown-menu hidden absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl border border-neutral-200/90 shadow-xl z-50 py-1.5 max-h-56 overflow-y-auto';
+
+            function renderOptions() {
+                menu.innerHTML = '';
+                Array.from(select.options).forEach(function(opt) {
+                    var item = document.createElement('div');
+                    var isSelected = (opt.value === select.value);
+                    item.className = 'custom-dropdown-option px-3.5 py-2 text-xs sm:text-sm font-medium flex items-center justify-between cursor-pointer transition rounded-xl mx-1 ' +
+                        (isSelected ? 'bg-neutral-950 text-white font-semibold' : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100/80');
+
+                    var optText = document.createElement('span');
+                    optText.innerText = opt.text;
+                    item.appendChild(optText);
+
+                    if (isSelected) {
+                        var check = document.createElement('i');
+                        check.setAttribute('data-lucide', 'check');
+                        check.className = 'w-3.5 h-3.5 text-white flex-shrink-0 ml-2';
+                        item.appendChild(check);
+                    }
+
+                    item.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        select.value = opt.value;
+                        labelSpan.innerText = opt.text;
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                        closeAllDropdowns();
+                    });
+
+                    menu.appendChild(item);
+                });
+                if (window.lucide) lucide.createIcons();
+            }
+
+            renderOptions();
+
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var isClosed = menu.classList.contains('hidden');
+                closeAllDropdowns();
+                if (isClosed) {
+                    renderOptions();
+                    menu.classList.remove('hidden');
+                    chevron.classList.add('rotate-180');
+                }
+            });
+
+            select.addEventListener('change', function() {
+                var curr = select.selectedOptions[0];
+                if (curr) labelSpan.innerText = curr.text;
+                renderOptions();
+            });
+
+            select.parentNode.insertBefore(wrapper, select);
+            wrapper.appendChild(trigger);
+            wrapper.appendChild(menu);
+            wrapper.appendChild(select);
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.custom-dropdown-menu').forEach(function(m) {
+                m.classList.add('hidden');
+            });
+            document.querySelectorAll('.custom-chevron').forEach(function(c) {
+                c.classList.remove('rotate-180');
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-dropdown-root')) {
+                closeAllDropdowns();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAllDropdowns();
+            }
+        });
+
+        // Initialize custom dropdowns for Category, Wage Period, and Duration Unit
+        setupCustomDropdown('job-category-select');
+        setupCustomDropdown('job-wage-period-select');
+        setupCustomDropdown('job-duration-unit-select');
+
+        // =====================================================================
+        // OPTIONAL NOTE COLLAPSIBLE ACCORDION
+        // =====================================================================
+        var toggleNoteBtn = document.getElementById('toggle-optional-note');
+        var noteContainer = document.getElementById('optional-note-container');
+        var noteIcon = document.getElementById('toggle-note-icon');
+
+        if (toggleNoteBtn && noteContainer) {
+            toggleNoteBtn.addEventListener('click', function() {
+                var isHidden = noteContainer.classList.contains('hidden');
+                if (isHidden) {
+                    noteContainer.classList.remove('hidden');
+                    if (noteIcon) {
+                        noteIcon.setAttribute('data-lucide', 'minus-circle');
+                        if (window.lucide) lucide.createIcons();
+                    }
+                } else {
+                    noteContainer.classList.add('hidden');
+                    if (noteIcon) {
+                        noteIcon.setAttribute('data-lucide', 'plus-circle');
+                        if (window.lucide) lucide.createIcons();
+                    }
+                }
+            });
+        }
+
+        // =====================================================================
+        // ESTIMATED DURATION SYNC (Number input + Unit selector -> duration_text)
+        // =====================================================================
+        function syncDuration() {
+            var numInp = document.getElementById('job-duration-number');
+            var unitSelect = document.getElementById('job-duration-unit-select');
+            var textInp = document.getElementById('job-duration-input');
+
+            var num = (numInp && numInp.value) ? parseInt(numInp.value, 10) : 2;
+            if (isNaN(num) || num < 1) num = 1;
+            var unit = (unitSelect && unitSelect.value) ? unitSelect.value : 'hours';
+
+            var formattedDuration = "";
+            if (currentLang === 'hi') {
+                var uMapHi = { 'hours': 'घंटे', 'days': 'दिन', 'months': 'महीने' };
+                formattedDuration = num + " " + (uMapHi[unit] || 'घंटे');
+            } else {
+                var uMapEn = {
+                    'hours': num === 1 ? 'Hour' : 'Hours',
+                    'days': num === 1 ? 'Day' : 'Days',
+                    'months': num === 1 ? 'Month' : 'Months'
+                };
+                formattedDuration = num + " " + (uMapEn[unit] || 'Hours');
+            }
+
+            if (textInp) textInp.value = formattedDuration;
+        }
+
+        var numInp = document.getElementById('job-duration-number');
+        var unitSelect = document.getElementById('job-duration-unit-select');
+        if (numInp) {
+            numInp.addEventListener('input', function() { syncDuration(); queueDraftSave(); });
+            numInp.addEventListener('change', function() { syncDuration(); queueDraftSave(); });
+        }
+        if (unitSelect) {
+            unitSelect.addEventListener('change', function() { syncDuration(); queueDraftSave(); });
+        }
+
+        // =====================================================================
+        // 2-STEP NAVIGATION (Role & Pay -> Work Site Address)
+        // =====================================================================
+        window.goToStep = function(step) {
+            if (step < 1 || step > 2) return;
+
+            var panel1 = document.getElementById('step-panel-1');
+            var panel2 = document.getElementById('step-panel-2');
+
+            if (panel1) panel1.classList.toggle('hidden', step !== 1);
+            if (panel2) panel2.classList.toggle('hidden', step !== 2);
+
+            // Update Progress Line (0% for step 1, 100% for step 2)
+            var progressLine = document.getElementById('stepper-progress-line');
+            if (progressLine) {
+                var pct = (step === 1) ? '0%' : '100%';
+                progressLine.style.width = pct;
+            }
+
+            var badge1 = document.getElementById('step-badge-1');
+            var badge2 = document.getElementById('step-badge-2');
+            var title1 = document.getElementById('step-title-1');
+            var title2 = document.getElementById('step-title-2');
+
+            function setBadgeActive(badge, title, num) {
+                if (badge) {
+                    badge.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all bg-neutral-950 text-white shadow-sm ring-4 ring-neutral-100";
+                    badge.innerHTML = num.toString();
+                }
+                if (title) title.className = "block text-xs font-bold text-neutral-950";
+            }
+
+            function setBadgeCompleted(badge, title) {
+                if (badge) {
+                    badge.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all bg-emerald-600 text-white shadow-2xs";
+                    badge.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+                }
+                if (title) title.className = "block text-xs font-semibold text-neutral-800";
+            }
+
+            function setBadgePending(badge, title, num) {
+                if (badge) {
+                    badge.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all bg-neutral-100 text-neutral-600 border border-neutral-200";
+                    badge.innerHTML = num.toString();
+                }
+                if (title) title.className = "block text-xs font-semibold text-neutral-500";
+            }
+
+            if (step === 1) {
+                setBadgeActive(badge1, title1, 1);
+                setBadgePending(badge2, title2, 2);
+            } else if (step === 2) {
+                setBadgeCompleted(badge1, title1);
+                setBadgeActive(badge2, title2, 2);
+            }
+
+            // Update Typographic Watermark text smoothly
+            var watermark = document.getElementById('job-watermark-text');
+            if (watermark) {
+                if (currentLang === 'hi') {
+                    watermark.innerText = (step === 1) ? "कार्य व पारिश्रमिक" : "कार्य स्थल";
+                } else {
+                    watermark.innerText = (step === 1) ? "ROLE & PAY" : "WORK ADDRESS";
+                }
+            }
+
+            currentStep = step;
+            queueDraftSave();
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.nextStep = function(fromStep) {
+            if (fromStep === 1) {
+                var titleInp = document.getElementById('job-title-input');
+                var priceInp = document.getElementById('job-price-input');
+                var durInp = document.getElementById('job-duration-number');
+
+                if (titleInp && !titleInp.value.trim()) {
+                    titleInp.focus();
+                    titleInp.classList.add('ring-2', 'ring-rose-500');
+                    return;
+                }
+                if (titleInp) titleInp.classList.remove('ring-2', 'ring-rose-500');
+
+                if (durInp && (!durInp.value || parseInt(durInp.value, 10) < 1)) {
+                    durInp.focus();
+                    durInp.classList.add('ring-2', 'ring-rose-500');
+                    return;
+                }
+                if (durInp) durInp.classList.remove('ring-2', 'ring-rose-500');
+
+                if (priceInp && (!priceInp.value || parseFloat(priceInp.value) < 100)) {
+                    priceInp.focus();
+                    priceInp.classList.add('ring-2', 'ring-rose-500');
+                    return;
+                }
+                if (priceInp) priceInp.classList.remove('ring-2', 'ring-rose-500');
+
+                goToStep(2);
+            }
+        };
+
+        window.submitToAgreementReview = function() {
+            var locInp = document.getElementById('job-locality-input');
+            var cityInp = document.getElementById('job-city-input');
+
+            if (locInp && !locInp.value.trim()) {
+                locInp.focus();
+                locInp.classList.add('ring-2', 'ring-rose-500');
+                return;
+            }
+            if (locInp) locInp.classList.remove('ring-2', 'ring-rose-500');
+
+            if (cityInp && !cityInp.value.trim()) {
+                cityInp.focus();
+                cityInp.classList.add('ring-2', 'ring-rose-500');
+                return;
+            }
+            if (cityInp) cityInp.classList.remove('ring-2', 'ring-rose-500');
+
+            // Clear draft storage upon submission
+            try {
+                localStorage.removeItem(DRAFT_STORAGE_KEY);
+            } catch(e){}
+
+            // Submit the form to generate the agreement
+            var form = document.getElementById('job-post-form');
+            if (form) {
+                form.submit();
+            }
+        };
+
+        // =====================================================================
+        // PERSISTENT FLOATING DRAFT CART ENGINE
+        // Saves every modification and restores seamlessly
+        // =====================================================================
+        var saveTimeout = null;
+
+        function showAutosaveBadge() {
+            var badge = document.getElementById('draft-autosave-badge');
+            if (badge) {
+                badge.classList.remove('opacity-0');
+                badge.classList.add('opacity-100');
+                setTimeout(function() {
+                    badge.classList.remove('opacity-100');
+                    badge.classList.add('opacity-0');
+                }, 1800);
+            }
+        }
+
+        function getDraftData() {
+            var titleInp = document.getElementById('job-title-input');
+            var catSelect = document.getElementById('job-category-select');
+            var numInp = document.getElementById('job-duration-number');
+            var unitSelect = document.getElementById('job-duration-unit-select');
+            var priceInp = document.getElementById('job-price-input');
+            var wageSelect = document.getElementById('job-wage-period-select');
+            var locInp = document.getElementById('job-locality-input');
+            var cityInp = document.getElementById('job-city-input');
+            var tasksInp = document.getElementById('job-tasks-input');
+
+            return {
+                title: titleInp ? titleInp.value : '',
+                category: catSelect ? catSelect.value : '',
+                duration_number: numInp ? numInp.value : '2',
+                duration_unit: unitSelect ? unitSelect.value : 'hours',
+                offered_price: priceInp ? priceInp.value : '500',
+                wage_period: wageSelect ? wageSelect.value : 'per_job',
+                locality: locInp ? locInp.value : '',
+                city: cityInp ? cityInp.value : '',
+                responsibilities: tasksInp ? tasksInp.value : '',
+                step: currentStep,
+                timestamp: Date.now()
+            };
+        }
+
+        function queueDraftSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(function() {
+                var draft = getDraftData();
+                // Only save if at least title or price or locality has been altered
+                if (draft.title.trim() || draft.locality.trim() || draft.responsibilities.trim() || draft.offered_price != '500') {
+                    try {
+                        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+                        showAutosaveBadge();
+                    } catch(e){}
+                }
+            }, 500);
+        }
+
+        // Attach auto-save listeners to all relevant inputs
+        var watchInputs = [
+            'job-title-input', 'job-category-select', 'job-duration-number',
+            'job-duration-unit-select', 'job-price-input', 'job-wage-period-select',
+            'job-locality-input', 'job-city-input', 'job-tasks-input'
+        ];
+        watchInputs.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', queueDraftSave);
+                el.addEventListener('change', queueDraftSave);
+            }
+        });
+
+        function formatTimeAgo(ts) {
+            var diff = Math.floor((Date.now() - ts) / 1000);
+            if (diff < 60) return currentLang === 'hi' ? 'अभी-अभी' : 'Just now';
+            var mins = Math.floor(diff / 60);
+            if (mins < 60) return mins + (currentLang === 'hi' ? ' मिनट पहले' : 'm ago');
+            var hrs = Math.floor(mins / 60);
+            return hrs + (currentLang === 'hi' ? ' घंटे पहले' : 'h ago');
+        }
+
+        {% if db_draft %}
+        var dbDraftData = {
+            id: "{{ db_draft.id }}",
+            title: "{{ db_draft.title|escapejs }}",
+            category: "{{ db_draft.category|escapejs }}",
+            offered_price: "{{ db_draft.offered_price|floatformat:0 }}",
+            duration_text: "{{ db_draft.duration_text|escapejs }}",
+            locality: "{{ db_draft.locality|escapejs }}",
+            city: "{{ db_draft.city|escapejs }}",
+            responsibilities: "{{ db_draft.responsibilities|escapejs }}",
+            agreement_id: "{% if db_draft.latest_agreement %}{{ db_draft.latest_agreement.id }}{% endif %}"
+        };
+        {% else %}
+        var dbDraftData = null;
+        {% endif %}
+
+        function checkExistingDraft() {
+            try {
+                // 1. Check local storage draft first
+                var raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+                var draft = null;
+                if (raw) {
+                    try { draft = JSON.parse(raw); } catch(e){}
+                }
+
+                var urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('resume') === 'true' || urlParams.get('resume') === '1') {
+                    if (draft) { restoreDraftFields(draft); return; }
+                }
+
+                var cart = document.getElementById('floating-draft-cart');
+                var summaryText = document.getElementById('draft-summary-text');
+                var timeAgo = document.getElementById('draft-time-ago');
+
+                if (draft && draft.timestamp && (Date.now() - draft.timestamp <= 7 * 86400 * 1000)) {
+                    if (cart && summaryText) {
+                        var titleSnippet = draft.title ? draft.title : draft.category;
+                        summaryText.innerText = (titleSnippet || "Draft") + " • ₹" + (draft.offered_price || "500");
+                        if (timeAgo) timeAgo.innerText = formatTimeAgo(draft.timestamp);
+                        cart.classList.remove('hidden');
+                        var globalDock = document.getElementById('global-employer-draft-dock');
+                        if (globalDock) globalDock.classList.add('hidden');
+                        if (window.lucide) lucide.createIcons();
+                        return;
+                    }
+                }
+            } catch(e){}
+        }
+
+        function restoreDraftFields(draft) {
+            if (!draft) return;
+            var titleInp = document.getElementById('job-title-input');
+            var catSelect = document.getElementById('job-category-select');
+            var numInp = document.getElementById('job-duration-number');
+            var unitSelect = document.getElementById('job-duration-unit-select');
+            var priceInp = document.getElementById('job-price-input');
+            var wageSelect = document.getElementById('job-wage-period-select');
+            var locInp = document.getElementById('job-locality-input');
+            var cityInp = document.getElementById('job-city-input');
+            var tasksInp = document.getElementById('job-tasks-input');
+
+            if (titleInp && draft.title) titleInp.value = draft.title;
+            if (numInp && draft.duration_number) numInp.value = draft.duration_number;
+            if (priceInp && draft.offered_price) priceInp.value = draft.offered_price;
+            if (locInp && draft.locality) locInp.value = draft.locality;
+            if (cityInp && draft.city) cityInp.value = draft.city;
+            if (tasksInp && draft.responsibilities) {
+                tasksInp.value = draft.responsibilities;
+                if (noteContainer) noteContainer.classList.remove('hidden');
+            }
+
+            if (catSelect && draft.category) {
+                catSelect.value = draft.category;
+                catSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (unitSelect && draft.duration_unit) {
+                unitSelect.value = draft.duration_unit;
+                unitSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (wageSelect && draft.wage_period) {
+                wageSelect.value = draft.wage_period;
+                wageSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            syncDuration();
+
+            // Navigate to draft's step (1 or 2)
+            if (draft.step && draft.step === 2) {
+                goToStep(2);
+            } else {
+                goToStep(1);
+            }
+
+            // Dismiss floating card
+            dismissDraftCart();
+
+            // Notify user
+            showAutosaveBadge();
+        }
+
+        window.resumeDraft = function() {
+            try {
+                var raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+                if (raw) {
+                    var draft = JSON.parse(raw);
+                    restoreDraftFields(draft);
+                    return;
+                }
+            } catch(e){}
+
+            if (dbDraftData) {
+                if (dbDraftData.agreement_id) {
+                    window.location.href = "/agreements/" + dbDraftData.agreement_id + "/employer-review/";
+                } else {
+                    window.location.href = window.location.pathname + "?resume_job=" + dbDraftData.id;
+                }
+            }
+        };
+
+        window.discardDraft = function() {
+            try {
+                localStorage.removeItem(DRAFT_STORAGE_KEY);
+            } catch(e){}
+            dismissDraftCart();
+            if (dbDraftData && confirm("Discard saved job draft permanently?")) {
+                window.location.href = "/jobs/" + dbDraftData.id + "/delete-draft/";
+            }
+        };
+
+        window.dismissDraftCart = function() {
+            var cart = document.getElementById('floating-draft-cart');
+            if (cart) {
+                cart.classList.add('hidden');
+            }
+        };
+
+        // =====================================================================
+        // GPS → Nominatim Reverse Geocode
+        // =====================================================================
+        var btnSiteGps = document.getElementById('btn-detect-site-gps');
+        var btnSiteGpsText = document.getElementById('btn-detect-site-gps-text');
+        var gpsStatusHint = document.getElementById('gps-status-hint');
+
+        function extractAddress(nominatimData) {
+            var addr = nominatimData.address || {};
+            var locality = addr.suburb || addr.neighbourhood || addr.quarter ||
+                           addr.village || addr.town || addr.county ||
+                           addr.state_district || addr.state || '';
+            var city = addr.city || addr.town || addr.municipality ||
+                       addr.district || addr.county || addr.state || '';
+            if (locality === city) { locality = addr.suburb || addr.neighbourhood || addr.village || ''; }
+            return { locality: locality, city: city };
+        }
+
+        if (btnSiteGps) {
+            btnSiteGps.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    if (gpsStatusHint) {
+                        gpsStatusHint.classList.remove('hidden');
+                        gpsStatusHint.classList.add('text-rose-500');
+                        gpsStatusHint.innerText = currentLang === 'hi' ? 'GPS उपलब्ध नहीं है।' : 'GPS not available on this device.';
+                    }
+                    return;
+                }
+                if (btnSiteGpsText) btnSiteGpsText.innerText = currentLang === 'hi' ? 'स्थान प्राप्त कर रहे हैं...' : 'Detecting location...';
+                btnSiteGps.disabled = true;
+
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    var lat = pos.coords.latitude;
+                    var lng = pos.coords.longitude;
+
+                    var latInput = document.querySelector('input[name="latitude"]');
+                    var lngInput = document.querySelector('input[name="longitude"]');
+                    if (latInput) latInput.value = lat;
+                    if (lngInput) lngInput.value = lng;
+
+                    if (btnSiteGpsText) btnSiteGpsText.innerText = currentLang === 'hi' ? 'पता खोज रहे हैं...' : 'Looking up address...';
+
+                    var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&addressdetails=1&accept-language=' + (currentLang === 'hi' ? 'hi,en' : 'en');
+
+                    fetch(url, { headers: { 'Accept': 'application/json' } })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            var extracted = extractAddress(data);
+                            var localityInp = document.getElementById('job-locality-input');
+                            var cityInp = document.getElementById('job-city-input');
+                            if (localityInp && extracted.locality) localityInp.value = extracted.locality;
+                            if (cityInp && extracted.city) cityInp.value = extracted.city;
+
+                            btnSiteGps.disabled = false;
+                            btnSiteGps.classList.remove('bg-white');
+                            btnSiteGps.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+                            if (btnSiteGpsText) btnSiteGpsText.innerText = currentLang === 'hi' ? 'स्थान सुरक्षित ✓' : 'Location Set ✓';
+                            if (gpsStatusHint) {
+                                gpsStatusHint.classList.remove('hidden', 'text-rose-500');
+                                gpsStatusHint.classList.add('text-emerald-600');
+                                gpsStatusHint.innerText = currentLang === 'hi'
+                                    ? 'सटीक निर्देशांक सुरक्षित रखे गए हैं। कारीगर केवल मोहल्ले का नाम देखते हैं।'
+                                    : 'Exact coordinates are kept secure. Karigars only see the neighbourhood name.';
+                            }
+                            queueDraftSave();
+                        })
+                        .catch(function() {
+                            btnSiteGps.disabled = false;
+                            btnSiteGps.classList.add('bg-amber-50', 'border-amber-200');
+                            if (btnSiteGpsText) btnSiteGpsText.innerText = currentLang === 'hi' ? 'पता न मिला — मैन्युअल भरें' : 'Address lookup failed — enter manually';
+                            if (gpsStatusHint) {
+                                gpsStatusHint.classList.remove('hidden');
+                                gpsStatusHint.classList.add('text-amber-600');
+                                gpsStatusHint.innerText = currentLang === 'hi'
+                                    ? 'GPS सहेजा। कृपया मोहल्ला / शहर मैन्युअल भरें।'
+                                    : 'GPS saved. Please type your locality and city manually.';
+                            }
+                        });
+
+                }, function(err) {
+                    btnSiteGps.disabled = false;
+                    if (btnSiteGpsText) btnSiteGpsText.innerText = currentLang === 'hi' ? 'अनुमति नहीं मिली' : 'Permission denied';
+                    if (gpsStatusHint) {
+                        gpsStatusHint.classList.remove('hidden');
+                        gpsStatusHint.classList.add('text-rose-500');
+                        gpsStatusHint.innerText = currentLang === 'hi'
+                            ? 'GPS अनुमति दें, या पता मैन्युअल टाइप करें।'
+                            : 'Allow GPS access, or type your locality manually.';
+                    }
+                }, { timeout: 10000, enableHighAccuracy: true });
+            });
+        }
+
+        // Clean up any stale GPS coordinate strings from locality or city inputs on load
+        var initialLocalityInp = document.getElementById('job-locality-input');
+        var initialCityInp = document.getElementById('job-city-input');
+        if (initialLocalityInp && (initialLocalityInp.value.indexOf('GPS (') !== -1 || initialLocalityInp.value.indexOf('°') !== -1)) {
+            initialLocalityInp.value = '';
+        }
+        if (initialCityInp && (initialCityInp.value.indexOf('GPS (') !== -1 || initialCityInp.value.indexOf('°') !== -1)) {
+            initialCityInp.value = '';
+        }
+
+        // Check for saved draft on load
+        syncDuration();
+        checkExistingDraft();
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    })();
+</script>
+{% endblock %}

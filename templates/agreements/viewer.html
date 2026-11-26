@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if current_lang == 'hi' %}डिजिटल कार्य अनुबंध समीक्षा{% else %}Review Work Agreement{% endif %} - {{ agreement.agreement_number }}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8 sm:py-12">
+
+    <!-- Top Document Control Toolbar -->
+    <div class="bg-white rounded-2xl border border-neutral-200/90 shadow-2xs p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-neutral-950 text-white flex items-center justify-center font-bold">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-neutral-900">{{ agreement.agreement_number }}</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full 
+                        {% if agreement.status == 'FULLY_EXECUTED' %}bg-emerald-100 text-emerald-800
+                        {% elif agreement.status == 'PUBLISHED_AWAITING_WORKER' %}bg-blue-100 text-blue-800
+                        {% else %}bg-amber-100 text-amber-900{% endif %}">
+                        {{ agreement.get_status_display }}
+                    </span>
+                </div>
+                <h1 class="text-sm sm:text-base font-black text-neutral-950 mt-0.5">{{ agreement.job.title }}</h1>
+            </div>
+        </div>
+
+        <!-- Viewer Controls: Zoom, Print, Download -->
+        <div class="flex items-center gap-2">
+            <button type="button" onclick="adjustZoom(-0.1)" title="Zoom Out" class="p-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition">
+                <i data-lucide="zoom-out" class="w-4 h-4"></i>
+            </button>
+            <span id="zoom-indicator" class="text-xs font-mono font-semibold text-neutral-600 px-1 select-none">100%</span>
+            <button type="button" onclick="adjustZoom(0.1)" title="Zoom In" class="p-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition">
+                <i data-lucide="zoom-in" class="w-4 h-4"></i>
+            </button>
+            <button type="button" onclick="window.print()" title="Print" class="p-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+            </button>
+            {% if agreement.generated_pdf_file %}
+            <a href="{% url 'agreement_download_pdf' agreement.id %}" class="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 transition">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Download PDF</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Multi-Page Document Reader Canvas -->
+    <div class="bg-neutral-200/70 p-4 sm:p-8 rounded-3xl mb-8 flex justify-center overflow-x-auto shadow-inner">
+        <div id="pdf-document-sheet" class="bg-white w-full max-w-[800px] min-h-[1050px] shadow-2xl rounded-sm p-8 sm:p-14 transition-transform duration-200 origin-top text-neutral-900" style="transform: scale(1);">
+            
+            {{ agreement.compiled_agreement_html|safe }}
+
+            <!-- Signature Section Rendered on Document -->
+            <div class="mt-10 pt-6 border-t-2 border-neutral-900">
+                <div class="text-xs font-bold uppercase tracking-wider text-neutral-900 bg-neutral-100 p-2 rounded mb-4">
+                    {% if current_lang == 'hi' %}हस्ताक्षर प्रमाणीकरण अनुभाग{% else %}Section 4: Execution Signatures & Cryptographic Audit{% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <!-- Employer Block -->
+                    <div class="p-4 rounded-xl border border-neutral-300 bg-neutral-50/60">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-2">Employer (First Party) Signature</div>
+                        {% if agreement.employer_signature_data %}
+                            <div class="h-20 flex items-center justify-center bg-white rounded border border-neutral-200 p-1 mb-2">
+                                <img src="{{ agreement.employer_signature_data }}" alt="Employer Signature" class="max-h-full max-w-full object-contain">
+                            </div>
+                            <div class="text-xs font-bold text-neutral-900">{{ agreement.employer.name }}</div>
+                            <div class="text-[10px] text-neutral-500 mt-0.5">Signed: {{ agreement.employer_signed_at|date:"Y-m-d H:i" }} UTC</div>
+                            <div class="text-[10px] font-mono text-emerald-700 mt-0.5">Status: Verified & Cryptographically Bound</div>
+                        {% else %}
+                            <div class="h-20 flex items-center justify-center bg-neutral-100 rounded border border-dashed border-neutral-300 text-xs italic text-neutral-400">
+                                Signature Pending
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Worker Block -->
+                    <div class="p-4 rounded-xl border border-neutral-300 bg-neutral-50/60">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-2">Worker (Second Party) Signature</div>
+                        {% if agreement.worker_signature_data %}
+                            <div class="h-20 flex items-center justify-center bg-white rounded border border-neutral-200 p-1 mb-2">
+                                <img src="{{ agreement.worker_signature_data }}" alt="Worker Signature" class="max-h-full max-w-full object-contain">
+                            </div>
+                            <div class="text-xs font-bold text-neutral-900">{{ agreement.worker.name }}</div>
+                            <div class="text-[10px] text-neutral-500 mt-0.5">Signed: {{ agreement.worker_signed_at|date:"Y-m-d H:i" }} UTC</div>
+                            <div class="text-[10px] font-mono text-emerald-700 mt-0.5">Status: Verified & Cryptographically Bound</div>
+                        {% else %}
+                            <div class="h-20 flex items-center justify-center bg-neutral-100 rounded border border-dashed border-neutral-300 text-xs italic text-neutral-400">
+                                {% if user_role == 'worker' %}Awaiting Your Signature Below{% else %}Awaiting Worker Counter-Signature{% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Active Signing Action Box (Only if user has not yet signed) -->
+    {% if user_role == 'employer' and not agreement.employer_signed_at %}
+    <div class="bg-white rounded-3xl border-2 border-neutral-900 shadow-xl p-6 sm:p-8">
+        <div class="border-b border-neutral-200 pb-3 mb-6">
+            <h2 class="text-base sm:text-lg font-black text-neutral-950 flex items-center gap-2">
+                <i data-lucide="pen-tool" class="w-5 h-5 text-neutral-900"></i>
+                <span>{% if current_lang == 'hi' %}नियोक्ता डिजिटल हस्ताक्षर (प्रथम पक्ष){% else %}Employer Digital Signature Capture{% endif %}</span>
+            </h2>
+            <p class="text-xs text-neutral-500 mt-1">
+                {% if current_lang == 'hi' %}
+                    माउस, टचस्क्रीन या स्टाइलस का उपयोग कर नीचे दिए गए बॉक्स में अपने हस्ताक्षर बनाएं।
+                {% else %}
+                    Draw your signature inside the box using your mouse, touchscreen, or stylus.
+                {% endif %}
+            </p>
+        </div>
+
+        <form method="POST" id="signature-form" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="signature_data" id="signature_data">
+
+            <!-- Responsive HTML5 Signature Canvas -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-neutral-800">
+                        {% if current_lang == 'hi' %}हस्ताक्षर पैड *{% else %}Signature Pad *{% endif %}
+                    </span>
+                    <button type="button" onclick="clearSignatureCanvas()" class="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-800 transition cursor-pointer">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Clear & Redraw</span>
+                    </button>
+                </div>
+
+                <div class="relative bg-neutral-50 border-2 border-dashed border-neutral-300 rounded-2xl overflow-hidden hover:border-neutral-950 transition">
+                    <canvas id="signature-pad" class="w-full h-44 cursor-crosshair touch-none block"></canvas>
+                    <div id="signature-guide-text" class="absolute inset-0 flex items-center justify-center pointer-events-none text-neutral-400 text-xs select-none">
+                        Sign here with finger, stylus or mouse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mandatory Employer Declaration Checkbox -->
+            <div class="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-3">
+                <input type="checkbox" name="declaration_affirmed" id="declaration_affirmed" required
+                       class="h-4 w-4 text-neutral-950 rounded focus:ring-neutral-950 cursor-pointer accent-neutral-950 mt-0.5">
+                <label for="declaration_affirmed" class="text-xs text-neutral-800 leading-relaxed cursor-pointer select-none">
+                    <strong>Employer Declaration:</strong> I confirm that I have reviewed this agreement, understand its terms and conditions, and agree to the responsibilities and obligations specified herein.
+                </label>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-neutral-100">
+                <button type="submit" id="btn-submit-sign" 
+                        class="inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm px-8 py-3.5 rounded-full transition shadow-md hover:scale-[1.01] cursor-pointer">
+                    <i data-lucide="check-check" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Submit & Sign Agreement (Publish Job)</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% elif user_role == 'worker' and not agreement.worker_signed_at %}
+    <div class="bg-white rounded-3xl border-2 border-neutral-900 shadow-xl p-6 sm:p-8">
+        <div class="border-b border-neutral-200 pb-3 mb-6">
+            <h2 class="text-base sm:text-lg font-black text-neutral-950 flex items-center gap-2">
+                <i data-lucide="pen-tool" class="w-5 h-5 text-neutral-900"></i>
+                <span>{% if current_lang == 'hi' %}कारीगर डिजिटल हस्ताक्षर (द्वितीय पक्ष){% else %}Worker Digital Counter-Signature{% endif %}</span>
+            </h2>
+            <p class="text-xs text-neutral-500 mt-1">
+                {% if current_lang == 'hi' %}
+                    नियोक्ता द्वारा हस्ताक्षरित शर्तों को स्वीकार करने हेतु अपने हस्ताक्षर बनाएं।
+                {% else %}
+                    Review the employer-signed terms above and draw your signature to execute the contract.
+                {% endif %}
+            </p>
+        </div>
+
+        <form method="POST" id="signature-form" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="signature_data" id="signature_data">
+
+            <!-- Responsive HTML5 Signature Canvas -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-neutral-800">
+                        {% if current_lang == 'hi' %}हस्ताक्षर पैड *{% else %}Signature Pad *{% endif %}
+                    </span>
+                    <button type="button" onclick="clearSignatureCanvas()" class="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-800 transition cursor-pointer">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Clear & Redraw</span>
+                    </button>
+                </div>
+
+                <div class="relative bg-neutral-50 border-2 border-dashed border-neutral-300 rounded-2xl overflow-hidden hover:border-neutral-950 transition">
+                    <canvas id="signature-pad" class="w-full h-44 cursor-crosshair touch-none block"></canvas>
+                    <div id="signature-guide-text" class="absolute inset-0 flex items-center justify-center pointer-events-none text-neutral-400 text-xs select-none">
+                        Sign here with finger, stylus or mouse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mandatory Worker Declaration Checkbox -->
+            <div class="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-3">
+                <input type="checkbox" name="declaration_affirmed" id="declaration_affirmed" required
+                       class="h-4 w-4 text-neutral-950 rounded focus:ring-neutral-950 cursor-pointer accent-neutral-950 mt-0.5">
+                <label for="declaration_affirmed" class="text-xs text-neutral-800 leading-relaxed cursor-pointer select-none">
+                    <strong>Worker Declaration:</strong> I confirm that I have reviewed this work agreement, understand the stated responsibilities, payment terms and conditions, and voluntarily agree to undertake the work under the terms specified herein.
+                </label>
+            </div>
+
+            <!-- Action Buttons: Decline or Sign -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-neutral-100">
+                <button type="button" onclick="document.getElementById('decline-modal').classList.remove('hidden')" 
+                        class="text-xs font-bold text-neutral-600 hover:text-rose-600 transition px-4 py-2 cursor-pointer">
+                    Decline Agreement Terms
+                </button>
+                <button type="submit" id="btn-submit-sign" 
+                        class="inline-flex items-center justify-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm px-8 py-3.5 rounded-full transition shadow-md hover:scale-[1.01] cursor-pointer">
+                    <i data-lucide="check-check" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Submit & Sign Agreement (Execute Contract)</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Decline Modal -->
+    <div id="decline-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-base font-bold text-neutral-900 mb-2">Decline Agreement</h3>
+            <p class="text-xs text-neutral-500 mb-4">Please specify a reason for declining this agreement. This will notify the employer.</p>
+            <form method="POST" action="{% url 'agreement_decline' agreement.id %}">
+                {% csrf_token %}
+                <textarea name="reason" rows="3" required placeholder="Reason for declining..." class="form-input text-xs w-full mb-4"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="document.getElementById('decline-modal').classList.add('hidden')" class="px-4 py-2 text-xs font-semibold text-neutral-600">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg">Confirm Decline</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Interactive Signature Pad & Zoom Controller -->
+<script>
+    var currentZoom = 1.0;
+    function adjustZoom(delta) {
+        currentZoom = Math.min(Math.max(currentZoom + delta, 0.7), 1.4);
+        var sheet = document.getElementById('pdf-document-sheet');
+        var indicator = document.getElementById('zoom-indicator');
+        if (sheet) sheet.style.transform = 'scale(' + currentZoom + ')';
+        if (indicator) indicator.innerText = Math.round(currentZoom * 100) + '%';
+    }
+
+    // HTML5 Canvas Signature Pad
+    (function() {
+        var canvas = document.getElementById('signature-pad');
+        if (!canvas) return;
+
+        var ctx = canvas.getContext('2d');
+        var isDrawing = false;
+        var hasDrawn = false;
+        var guideText = document.getElementById('signature-guide-text');
+
+        function resizeCanvas() {
+            var rect = canvas.getBoundingClientRect();
+            var dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#0a0a0a';
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 100);
+
+        function getPos(e) {
+            var rect = canvas.getBoundingClientRect();
+            var clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            var clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            isDrawing = true;
+            hasDrawn = true;
+            if (guideText) guideText.style.display = 'none';
+            var pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            var pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
+
+        function stopDrawing(e) {
+            if (!isDrawing) return;
+            isDrawing = false;
+            var hiddenInput = document.getElementById('signature_data');
+            if (hiddenInput) {
+                hiddenInput.value = canvas.toDataURL('image/png');
+            }
+        }
+
+        // Pointer / Touch / Mouse Events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDrawing);
+
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        window.addEventListener('touchend', stopDrawing);
+
+        window.clearSignatureCanvas = function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasDrawn = false;
+            var hiddenInput = document.getElementById('signature_data');
+            if (hiddenInput) hiddenInput.value = '';
+            if (guideText) guideText.style.display = 'flex';
+        };
+
+        // Form Submission Validation
+        var form = document.getElementById('signature-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!hasDrawn) {
+                    e.preventDefault();
+                    alert("Please draw your signature on the signature pad before submitting.");
+                    return false;
+                }
+            });
+        }
+    })();
+</script>
+{% endblock %}

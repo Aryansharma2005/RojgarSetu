@@ -1,0 +1,929 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ T.brand_title }} - {{ T.brand_tagline }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* 3D tilt perspective for the hero card */
+    .tilt-card-3d {
+        transform: perspective(900px) rotateY(-12deg) rotateX(4deg) rotateZ(2deg);
+        box-shadow: -15px 22px 35px -10px rgba(0, 0, 0, 0.12);
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+    .tilt-card-3d:hover {
+        transform: perspective(900px) rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(1.03);
+        box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Continuous seamless infinite horizontal marquee animations for 3-row footer */
+    @keyframes marquee-scroll-left {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
+    @keyframes marquee-scroll-right {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(0); }
+    }
+
+    .marquee-row-1 { animation: marquee-scroll-left 60s linear infinite; will-change: transform; }
+    .marquee-row-2 { animation: marquee-scroll-right 68s linear infinite; will-change: transform; }
+    .marquee-row-3 { animation: marquee-scroll-left 64s linear infinite; will-change: transform; }
+
+    /* Horizontal Edge Fade Mask */
+    .footer-horizontal-fade {
+        mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 4%, rgba(0,0,0,1) 96%, rgba(0,0,0,0) 100%);
+        -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 4%, rgba(0,0,0,1) 96%, rgba(0,0,0,0) 100%);
+    }
+
+    /* Intense White Glowing Shadow for Centerpiece Logo & Cards */
+    .logo-white-glow {
+        box-shadow: 
+            0 0 50px 25px rgba(255, 255, 255, 1),
+            0 0 95px 55px rgba(255, 255, 255, 0.95),
+            0 0 150px 85px rgba(255, 255, 255, 0.85),
+            0 25px 60px -15px rgba(0, 0, 0, 0.18);
+    }
+
+    .text-white-glow {
+        text-shadow: 
+            0 0 30px rgba(255, 255, 255, 1),
+            0 0 60px rgba(255, 255, 255, 0.95),
+            0 0 90px rgba(255, 255, 255, 0.9),
+            0 4px 15px rgba(0, 0, 0, 0.12);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ========================================================================= -->
+<!-- SECTION 1: FULL-SCREEN HERO - C-Arch Framing Direct Product Action        -->
+<!-- Encourages users to hire and workers to register (Zero generic SaaS copy) -->
+<!-- Large, bold typography with 7 craft photos                                -->
+<!-- ========================================================================= -->
+<section class="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-center bg-white py-10 lg:py-14 overflow-hidden border-b border-neutral-100">
+    <div class="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- THE "C" SHAPED GRID COMPOSITION -->
+        <div class="relative w-full">
+            
+            <!-- Desktop Layout: 12-Column "C" Arch -->
+            <div class="hidden lg:grid grid-cols-12 gap-6 items-center justify-between">
+                
+                <!-- LEFT SPINE OF "C": 2 Large Cards Stacked Vertically (Cols 1-3) -->
+                <div class="col-span-3 flex flex-col gap-6 items-end justify-center">
+                    <!-- Photo 1: Delivery Worker (Top-Left) -->
+                    <div class="w-52 xl:w-60 aspect-[4/5] rounded-3xl overflow-hidden shadow-card hover:shadow-floating hover:-translate-y-1 transition-all duration-300">
+                        <img src="{% static 'images/workers/delivery.jpg' %}" alt="Delivery Karigar" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Photo 2: Auto Mechanic (Bottom-Left) -->
+                    <div class="w-52 xl:w-60 aspect-[4/5] rounded-3xl overflow-hidden shadow-card hover:shadow-floating hover:-translate-y-1 transition-all duration-300">
+                        <img src="{% static 'images/workers/auto_mechanic.jpg' %}" alt="Mechanic Karigar" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <!-- CENTER REGION (Cols 4-9): Top 3 Arch Photos + Center Product Action -->
+                <div class="col-span-6 flex flex-col items-center justify-center">
+                    
+                    <!-- TOP ARCH OF "C": 3 Photos (Gardener • Construction • Carpenter) -->
+                    <div class="w-full flex items-end justify-center gap-6 xl:gap-8 mb-6">
+                        <!-- Photo 3: Gardener (Left-Top) -->
+                        <div class="w-44 xl:w-52 aspect-[4/5] rounded-3xl overflow-hidden shadow-card hover:shadow-floating hover:-translate-y-1 transition-all duration-300 translate-y-3">
+                            <img src="{% static 'images/workers/gardener.jpg' %}" alt="Gardener" class="w-full h-full object-cover">
+                        </div>
+
+                        <!-- Photo 4: Construction Craftsman (Center Apex, highest peak) -->
+                        <div class="w-48 xl:w-56 aspect-[4/5] rounded-3xl overflow-hidden shadow-floating hover:scale-105 transition-all duration-300 ring-4 ring-neutral-900/5 -translate-y-4">
+                            <img src="{% static 'images/workers/construction.jpg' %}" alt="Construction Worker" class="w-full h-full object-cover">
+                        </div>
+
+                        <!-- Photo 5: Carpenter (Right-Top) -->
+                        <div class="w-44 xl:w-52 aspect-[4/5] rounded-3xl overflow-hidden shadow-card hover:shadow-floating hover:-translate-y-1 transition-all duration-300 translate-y-3">
+                            <img src="{% static 'images/workers/carpenter.jpg' %}" alt="Carpenter" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+
+                    <!-- Center Platform Overview Content (Crisp, Clear, Neutral) -->
+                    <div class="text-center max-w-xl mx-auto pt-2">
+                        <!-- High-Impact Crisp Headline -->
+                        <h1 class="text-4xl sm:text-5xl xl:text-6xl font-extrabold tracking-tight text-neutral-950 leading-[1.12]">
+                            Direct Hyperlocal
+                            <span class="block text-neutral-400 font-normal mt-1 text-3xl sm:text-4xl xl:text-5xl">Workforce Platform</span>
+                        </h1>
+
+                        <!-- Crisp 1-Sentence Subtitle (General Knowledge) -->
+                        <p class="mt-4 text-base sm:text-lg text-neutral-600 leading-relaxed max-w-lg mx-auto">
+                            Connecting skilled local trades with everyday needs through verified skills, masked privacy, and zero agency brokerage.
+                        </p>
+
+                        <!-- Single Crisp Action Button: Get Started -->
+                        <div class="mt-7 flex items-center justify-center">
+                            <a href="{% url 'register' %}" class="inline-flex items-center justify-center gap-2 px-9 py-4 rounded-full bg-neutral-950 text-white text-base font-semibold hover:bg-neutral-800 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-[1.02]">
+                                <span>Get Started</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT SPINE OF "C": 2 Large Cards Stacked Vertically (Cols 10-12) -->
+                <div class="col-span-3 flex flex-col gap-6 items-start justify-center">
+                    <!-- Photo 6: Tailor (Top-Right) -->
+                    <div class="w-52 xl:w-60 aspect-[4/5] rounded-3xl overflow-hidden shadow-card hover:shadow-floating hover:-translate-y-1 transition-all duration-300">
+                        <img src="{% static 'images/workers/tailor.jpg' %}" alt="Tailor Craftsman" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Photo 7: Bike Mechanic (Bottom-Right, 3D Tilted Perspective) -->
+                    <div class="w-52 xl:w-60 aspect-[4/5] rounded-3xl overflow-hidden tilt-card-3d bg-white p-0.5 border border-white">
+                        <img src="{% static 'images/workers/bike_mechanic.jpg' %}" alt="Bike Mechanic" class="w-full h-full object-cover rounded-[20px]">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Tablet Layout (sm to md) -->
+            <div class="hidden sm:block lg:hidden py-6">
+                <div class="flex items-center justify-center gap-4 mb-8">
+                    <div class="w-40 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/gardener.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="w-44 aspect-[4/5] rounded-3xl overflow-hidden shadow-card -translate-y-2">
+                        <img src="{% static 'images/workers/construction.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="w-40 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/carpenter.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <div class="text-center max-w-xl mx-auto py-4">
+                    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-950">
+                        Direct Hyperlocal
+                        <span class="block text-neutral-400 font-normal mt-1">Workforce Platform</span>
+                    </h1>
+                    <p class="mt-4 text-base text-neutral-600 max-w-md mx-auto">
+                        Connecting skilled local trades with everyday needs through verified skills, masked privacy, and zero agency brokerage.
+                    </p>
+                    <div class="mt-7 flex justify-center">
+                        <a href="{% url 'register' %}" class="px-9 py-4 rounded-full bg-neutral-950 text-white text-base font-semibold shadow-sm hover:bg-neutral-800 transition">
+                            Get Started &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4 mt-8">
+                    <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/delivery.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/auto_mechanic.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/tailor.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/bike_mechanic.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Layout (Small devices) -->
+            <div class="sm:hidden py-4">
+                <div class="flex overflow-x-auto gap-3.5 pb-4 pt-2 no-scrollbar mb-6">
+                    <div class="flex-shrink-0 w-36 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/construction.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-shrink-0 w-36 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/delivery.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-shrink-0 w-36 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/gardener.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-shrink-0 w-36 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/auto_mechanic.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-shrink-0 w-36 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/carpenter.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-shrink-0 w-36 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/tailor.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-shrink-0 w-36 aspect-[4/5] rounded-3xl overflow-hidden shadow-card">
+                        <img src="{% static 'images/workers/bike_mechanic.jpg' %}" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <div class="text-center px-2">
+                    <h1 class="text-3xl font-extrabold tracking-tight text-neutral-950">
+                        Direct Hyperlocal
+                        <span class="block text-neutral-400 font-normal mt-1 text-2xl">Workforce Platform</span>
+                    </h1>
+                    <p class="mt-3 text-sm text-neutral-600">
+                        Connecting skilled local trades with everyday needs through verified skills and zero agency brokerage.
+                    </p>
+                    <div class="mt-6 flex justify-center">
+                        <a href="{% url 'register' %}" class="px-8 py-3.5 rounded-full bg-neutral-950 text-white text-sm font-semibold shadow-sm">
+                            Get Started &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- ========================================================================= -->
+<!-- SECTION 2: FULL-SCREEN LIVE NETWORK METRICS & P2P IMPACT                  -->
+<!-- Prominently showcases real metrics, savings and architectural advantages -->
+<!-- Covers full screen (min-h-screen) with large punchy typography            -->
+<!-- ========================================================================= -->
+<section class="relative w-full min-h-screen flex flex-col justify-center bg-neutral-50/50 py-16 lg:py-24 border-b border-neutral-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        
+        <!-- Section Header -->
+        <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+            <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/70 px-4 py-1.5 rounded-full border border-emerald-200/80 shadow-xs">
+                Live Hyperlocal Ledger
+            </span>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mt-4 leading-tight">
+                Empowering Local Economies With ₹0 Brokerage
+            </h2>
+            <p class="text-base sm:text-lg text-neutral-600 mt-3.5 leading-relaxed">
+                By eliminating third-party agencies that cut 20% to 30% from daily wages, Rojgar Setu keeps 100% of the value between the household and the artisan.
+            </p>
+        </div>
+
+        <!-- 4 Large Punchy Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <!-- Metric 1: Active Openings -->
+            <div class="bg-white p-7 sm:p-9 rounded-3xl shadow-card border border-neutral-200/80 hover:border-neutral-950 transition-all duration-300 flex flex-col justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-900 flex items-center justify-center mb-5">
+                    <i data-lucide="briefcase" class="w-6 h-6 stroke-[2]"></i>
+                </div>
+                <div>
+                    <div class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 font-sans">
+                        {{ total_jobs }}
+                    </div>
+                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Active Openings</div>
+                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">Ready for 1-click application</div>
+                </div>
+            </div>
+
+            <!-- Metric 2: Verified Karigars -->
+            <div class="bg-white p-7 sm:p-9 rounded-3xl shadow-card border border-neutral-200/80 hover:border-neutral-950 transition-all duration-300 flex flex-col justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-900 flex items-center justify-center mb-5">
+                    <i data-lucide="users" class="w-6 h-6 stroke-[2]"></i>
+                </div>
+                <div>
+                    <div class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 font-sans">
+                        {{ total_workers }}
+                    </div>
+                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Verified Karigars</div>
+                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">Screened with Gemini Flash AI</div>
+                </div>
+            </div>
+
+            <!-- Metric 3: Executed Contracts -->
+            <div class="bg-white p-7 sm:p-9 rounded-3xl shadow-card border border-neutral-200/80 hover:border-neutral-950 transition-all duration-300 flex flex-col justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-900 flex items-center justify-center mb-5">
+                    <i data-lucide="file-check-2" class="w-6 h-6 stroke-[2]"></i>
+                </div>
+                <div>
+                    <div class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 font-sans">
+                        {{ total_contracts }}
+                    </div>
+                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Executed Contracts</div>
+                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">Digital pre-signed agreements</div>
+                </div>
+            </div>
+
+            <!-- Metric 4: Agency Fees Saved -->
+            <div class="bg-white p-7 sm:p-9 rounded-3xl shadow-card border-2 border-emerald-500/80 hover:border-emerald-600 transition-all duration-300 flex flex-col justify-between bg-gradient-to-b from-white to-emerald-50/30">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-5">
+                    <i data-lucide="indian-rupee" class="w-6 h-6 stroke-[2.2]"></i>
+                </div>
+                <div>
+                    <div class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-emerald-700 font-sans">
+                        ₹{{ total_savings|floatformat:0 }}
+                    </div>
+                    <div class="text-sm sm:text-base font-bold text-emerald-950 mt-2">Agency Fees Saved</div>
+                    <div class="text-xs sm:text-sm text-emerald-700 font-medium mt-1">Retained by local community</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Underlying Architecture Pillars -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+            <div class="flex items-start space-x-4 bg-white p-6 rounded-2xl border border-neutral-200/70">
+                <div class="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-neutral-900">Masked Phone Privacy</h3>
+                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Your personal phone number is never exposed publicly. Calls and chats unlock only after mutual agreement.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start space-x-4 bg-white p-6 rounded-2xl border border-neutral-200/70">
+                <div class="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-neutral-900">PostGIS Hyperlocal Radius</h3>
+                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Precision geographic indexing pairs gigs within a 500m to 5km radius, minimizing worker transit time.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start space-x-4 bg-white p-6 rounded-2xl border border-neutral-200/70">
+                <div class="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-neutral-900">Gemini Flash AI Verification</h3>
+                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Every worker undergoes automated domain troubleshooting questions to establish verified proficiency.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ========================================================================= -->
+<!-- SECTION 3: FULL-SCREEN 10 VOCATIONAL TRADES (Disciplines)                 -->
+<!-- Covers full screen (min-h-screen) with large cards and grey outline art   -->
+<!-- ========================================================================= -->
+<section class="relative w-full min-h-screen flex flex-col justify-center bg-white py-16 lg:py-24 border-b border-neutral-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        
+        <!-- Section Header -->
+        <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+            <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-neutral-600 bg-neutral-100 px-4 py-1.5 rounded-full border border-neutral-200 shadow-xs">
+                10 Certified Disciplines
+            </span>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mt-4 leading-tight">
+                Hyperlocal Skills in Your Vicinity
+            </h2>
+            <p class="text-base sm:text-lg text-neutral-600 mt-3.5 leading-relaxed">
+                Choose from 10 vetted vocational trades. Every karigar is tested by AI for practical troubleshooting, safety and equipment readiness.
+            </p>
+        </div>
+
+        <!-- 10 Disciplines Grid with Top-Right Grey Outlines -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5">
+            {% for cat in categories %}
+            <a href="{% url 'jobs_list' %}?category={{ cat.name_en }}" 
+               class="group relative overflow-hidden bg-white p-7 sm:p-8 rounded-3xl border border-neutral-200/90 hover:border-neutral-950 hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center justify-center min-h-[160px]">
+                
+                <!-- TOP-RIGHT CORNER GREY OUTLINE ART (Subtle line-art watermark) -->
+                <div class="absolute -top-3 -right-3 text-neutral-200/70 group-hover:text-neutral-300/90 transition-colors duration-300 pointer-events-none rotate-12">
+                    <i data-lucide="{{ cat.icon }}" class="w-24 h-24 stroke-[1.1]"></i>
+                </div>
+
+                <!-- Foreground Content -->
+                <div class="relative z-10 w-14 h-14 rounded-2xl bg-neutral-100 group-hover:bg-neutral-950 group-hover:text-white text-neutral-800 flex items-center justify-center mb-4 transition-colors duration-200 border border-neutral-200/60 shadow-xs">
+                    <i data-lucide="{{ cat.icon }}" class="w-7 h-7 stroke-[2]"></i>
+                </div>
+                <h3 class="relative z-10 text-base sm:text-lg font-bold text-neutral-950 group-hover:text-neutral-950 leading-snug">{{ cat.name_en }}</h3>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Quick Action Prompt -->
+        <div class="mt-12 text-center">
+            <a href="{% url 'jobs_list' %}" class="inline-flex items-center gap-2 text-sm sm:text-base font-bold text-neutral-950 hover:text-emerald-700 transition-colors underline underline-offset-4">
+                <span>Browse all vocational disciplines</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<!-- ========================================================================= -->
+<!-- SECTION 4: FULL-SCREEN THE 5-STAGE CONTRACT HANDSHAKE PIPELINE            -->
+<!-- Step-by-step digital safety rail with larger cards and prominent steps    -->
+<!-- Covers full screen (min-h-screen)                                         -->
+<!-- ========================================================================= -->
+<section class="relative w-full min-h-screen flex flex-col justify-center bg-neutral-50/60 py-16 lg:py-24 border-b border-neutral-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        
+        <!-- Section Header -->
+        <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+            <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-neutral-600 bg-white px-4 py-1.5 rounded-full border border-neutral-200/80 shadow-xs">
+                Privacy Shield & Digital Rail
+            </span>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mt-4 leading-tight">
+                The 5-Stage Contract Handshake
+            </h2>
+            <p class="text-base sm:text-lg text-neutral-600 mt-3.5 leading-relaxed">
+                A transparent digital rail that keeps personal phone numbers completely masked until both parties mutually agree on terms.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
+            <!-- Step 1 -->
+            <div class="bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 shadow-card hover:border-neutral-950 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">1</div>
+                    <h4 class="font-bold text-base sm:text-lg text-neutral-950">Defined Terms</h4>
+                    <p class="text-xs sm:text-sm text-neutral-600 mt-2.5 leading-relaxed">
+                        Project duties and agreed rates are established upfront with a verified digital signature stamp.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-neutral-100 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                    Step 1 of 5
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 shadow-card hover:border-neutral-950 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">2</div>
+                    <h4 class="font-bold text-base sm:text-lg text-neutral-950">Hyperlocal Match</h4>
+                    <p class="text-xs sm:text-sm text-neutral-600 mt-2.5 leading-relaxed">
+                        Direct discovery within a 500m–5km PostGIS radius backed by Gemini Flash AI skill evaluations.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-neutral-100 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                    Step 2 of 5
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 shadow-card hover:border-neutral-950 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">3</div>
+                    <h4 class="font-bold text-base sm:text-lg text-neutral-950">Masked Chat</h4>
+                    <p class="text-xs sm:text-sm text-neutral-600 mt-2.5 leading-relaxed">
+                        1-on-1 private messaging opens. Personal phone numbers and emails stay 100% masked for safety.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-neutral-100 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                    Step 3 of 5
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 shadow-card hover:border-neutral-950 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">4</div>
+                    <h4 class="font-bold text-base sm:text-lg text-neutral-950">Mutual Agreement</h4>
+                    <p class="text-xs sm:text-sm text-neutral-600 mt-2.5 leading-relaxed">
+                        Pre-signed contract terms are forwarded directly into the chat feed for mutual review.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-neutral-100 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                    Step 4 of 5
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="bg-white p-6 sm:p-7 rounded-3xl border-2 border-emerald-500 shadow-card hover:border-emerald-600 transition-all flex flex-col justify-between bg-gradient-to-b from-white to-emerald-50/20">
+                <div>
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">5</div>
+                    <h4 class="font-bold text-base sm:text-lg text-emerald-950">Direct Connection</h4>
+                    <p class="text-xs sm:text-sm text-emerald-800 mt-2.5 leading-relaxed font-medium">
+                        Both parties execute the contract. Agreement becomes active, unlocking 1-click calls and WhatsApp.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-emerald-100 text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
+                    Direct Deal Closed ✓
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+<!-- ========================================================================= -->
+<!-- SECTION 5: INTERACTIVE SCROLL-DRIVEN 3-ROW CAROUSEL FOOTER                -->
+<!-- Covers FULL SCREEN (100vh sticky viewport) with ZERO free space below     -->
+<!-- 3 rows scale with viewport height (h-[30vh]) to fill top-to-bottom        -->
+<!-- Strictly uses ONLY photos of workers holding the Rojgar Setu board        -->
+<!-- Smooth scroll transitions:                                                -->
+<!--   1. हर हुनर की पहचान,                                                    -->
+<!--   2. हर हाथ को काम।                                                       -->
+<!--   3. [Instagram SVG] -- [Rojgar Setu Title Logo] -- [LinkedIn SVG]        -->
+<!-- ========================================================================= -->
+{% block footer %}
+<footer id="interactive-footer" class="relative w-full bg-white border-t border-neutral-100" style="height: 250vh;">
+    
+    <!-- Sticky Full-Screen Viewport (Covers 100vh with Zero Bottom Space) -->
+    <div class="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center items-center">
+
+        <!-- Continuous 3-Row Infinite Carousel with Authentic Sign-Holding Karigars -->
+        <div class="relative w-full h-full flex flex-col justify-between py-2 sm:py-3 footer-horizontal-fade select-none">
+            
+            <!-- ===== ROW 1: Moves Left (h-[31vh]) ===== -->
+            <div class="flex overflow-hidden w-full h-[31vh] items-center">
+                <div class="marquee-row-1 flex shrink-0 items-center h-full">
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_delivery.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mechanic.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_maid.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_guard.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_construction.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_apprentice.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_porter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_ironing.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_barber.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_vendor.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mason.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_painter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="marquee-row-1 flex shrink-0 items-center h-full" aria-hidden="true">
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_delivery.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mechanic.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_maid.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_guard.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_construction.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_apprentice.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_porter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_ironing.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_barber.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_vendor.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mason.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_painter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ROW 2: Moves Right (h-[31vh]) ===== -->
+            <div class="flex overflow-hidden w-full h-[31vh] items-center">
+                <div class="marquee-row-2 flex shrink-0 items-center h-full">
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_painter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_vendor.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_barber.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_ironing.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_porter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mason.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_apprentice.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_construction.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_guard.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_maid.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mechanic.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_delivery.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="marquee-row-2 flex shrink-0 items-center h-full" aria-hidden="true">
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_painter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_vendor.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_barber.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_ironing.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_porter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mason.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_apprentice.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_construction.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_guard.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_maid.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mechanic.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_delivery.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ROW 3: Moves Left (h-[31vh]) ===== -->
+            <div class="flex overflow-hidden w-full h-[31vh] items-center">
+                <div class="marquee-row-3 flex shrink-0 items-center h-full">
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mason.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_maid.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_barber.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_delivery.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_painter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_guard.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_ironing.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mechanic.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_vendor.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_construction.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_porter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_apprentice.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="marquee-row-3 flex shrink-0 items-center h-full" aria-hidden="true">
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mason.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_maid.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_barber.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_delivery.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_painter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_guard.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_ironing.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_mechanic.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_vendor.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_construction.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_porter.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                    <div class="shrink-0 h-[29vh] aspect-[4/5] mr-4 sm:mr-6 rounded-3xl overflow-hidden shadow-card border border-neutral-200/90 bg-neutral-100">
+                        <img src="{% static 'images/workers/setu_apprentice.jpg' %}" alt="Worker" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Ambient White Light Cloud in Center for Optimal Readability -->
+        <div class="absolute w-[600px] sm:w-[850px] md:w-[1100px] h-[400px] sm:h-[550px] bg-white/95 rounded-full blur-3xl pointer-events-none z-20"></div>
+
+        <!-- ===================================================================== -->
+        <!-- CENTER STAGE: SCROLL-TO-CHANGE SMOOTH TRANSITIONS                     -->
+        <!-- 1. हर हुनर की पहचान,                                                  -->
+        <!-- 2. हर हाथ को काम।                                                     -->
+        <!-- 3. [Instagram SVG] - [Rojgar Setu Title Logo] - [LinkedIn SVG]        -->
+        <!-- ===================================================================== -->
+        <div class="absolute inset-0 flex items-center justify-center z-30 pointer-events-none px-4">
+            
+            <!-- STAGE 1: हर हुनर की पहचान, -->
+            <div id="footer-stage-1" class="absolute inset-0 flex items-center justify-center pointer-events-none px-4 will-change-transform">
+                <div class="text-center">
+                    <h2 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight text-neutral-950 font-sans text-white-glow">
+                        हर हुनर की पहचान,
+                    </h2>
+                </div>
+            </div>
+
+            <!-- STAGE 2: हर हाथ को काम। -->
+            <div id="footer-stage-2" class="absolute inset-0 flex items-center justify-center pointer-events-none px-4 opacity-0 will-change-transform">
+                <div class="text-center">
+                    <h2 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight text-neutral-950 font-sans text-white-glow">
+                        हर हाथ को काम।
+                    </h2>
+                </div>
+            </div>
+
+            <!-- STAGE 3: Horizontal Layout with Visible Instagram Logo, Official Navbar Logo (Rojgar Setu), Visible LinkedIn Logo -->
+            <div id="footer-stage-3" class="absolute inset-0 flex items-center justify-center pointer-events-none px-4 opacity-0 will-change-transform">
+                <div class="flex items-center justify-center gap-14 sm:gap-24 md:gap-36 lg:gap-48 pointer-events-auto">
+                    
+                    <!-- Left: Official Instagram Logo (Standalone Circle Pill, Inlined SVG for Guaranteed 100% Visibility) -->
+                    <a href="https://instagram.com/rojgarsetu" target="_blank" rel="noopener" aria-label="Instagram"
+                       class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/95 backdrop-blur-md border border-neutral-300 shadow-xl hover:border-neutral-950 hover:shadow-2xl hover:scale-110 transition-all duration-200 flex items-center justify-center text-neutral-900 hover:text-pink-600 group">
+                        <svg class="w-8 h-8 sm:w-10 sm:h-10 fill-current group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+
+                    <!-- Center: Official Logo matching Navbar (Black Circle Handshake + Title Case "Rojgar Setu") -->
+                    <div class="flex items-center space-x-4 sm:space-x-5 px-8 py-4 sm:px-12 sm:py-6 rounded-full bg-white/95 backdrop-blur-xl border border-white shadow-2xl logo-white-glow">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-neutral-950 text-white flex items-center justify-center shadow-md flex-shrink-0">
+                            <i data-lucide="handshake" class="w-7 h-7 sm:w-9 sm:h-9 stroke-[2.2]"></i>
+                        </div>
+                        <span class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-neutral-950 font-sans">
+                            Rojgar Setu
+                        </span>
+                    </div>
+
+                    <!-- Right: Official LinkedIn Logo (Standalone Circle Pill, Inlined SVG for Guaranteed 100% Visibility) -->
+                    <a href="https://linkedin.com/company/rojgarsetu" target="_blank" rel="noopener" aria-label="LinkedIn"
+                       class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/95 backdrop-blur-md border border-neutral-300 shadow-xl hover:border-neutral-950 hover:shadow-2xl hover:scale-110 transition-all duration-200 flex items-center justify-center text-neutral-900 hover:text-blue-600 group">
+                        <svg class="w-8 h-8 sm:w-10 sm:h-10 fill-current group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                        </svg>
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</footer>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Smooth scroll-to-change transitions for the 3 footer stages (Top to Bottom)
+    (function initFooterScrollTransitions() {
+        const footer = document.getElementById('interactive-footer');
+        const stage1 = document.getElementById('footer-stage-1');
+        const stage2 = document.getElementById('footer-stage-2');
+        const stage3 = document.getElementById('footer-stage-3');
+        if (!footer || !stage1 || !stage2 || !stage3) return;
+
+        let ticking = false;
+
+        function updateTransitions() {
+            const rect = footer.getBoundingClientRect();
+            const totalScrollable = footer.offsetHeight - window.innerHeight;
+            if (totalScrollable <= 0) return;
+
+            const scrolled = -rect.top;
+            let p = scrolled / totalScrollable;
+            if (p < 0) p = 0;
+            if (p > 1) p = 1;
+
+            // STAGE 1: "हर हुनर की पहचान," (Active 0.0 -> 0.35, then exits downward)
+            if (p < 0.18) {
+                stage1.style.opacity = 1;
+                stage1.style.transform = 'translate3d(0, 0px, 0)';
+                stage1.style.pointerEvents = 'auto';
+            } else if (p >= 0.18 && p < 0.36) {
+                const prog = (p - 0.18) / 0.18;
+                stage1.style.opacity = (1 - prog).toFixed(3);
+                stage1.style.transform = `translate3d(0, ${(prog * 50).toFixed(1)}px, 0)`;
+                stage1.style.pointerEvents = 'none';
+            } else {
+                stage1.style.opacity = 0;
+                stage1.style.transform = 'translate3d(0, 50px, 0)';
+                stage1.style.pointerEvents = 'none';
+            }
+
+            // STAGE 2: "हर हाथ को काम।" (Enters from top -50px, active 0.36 -> 0.60, then exits downward)
+            if (p < 0.20) {
+                stage2.style.opacity = 0;
+                stage2.style.transform = 'translate3d(0, -50px, 0)';
+                stage2.style.pointerEvents = 'none';
+            } else if (p >= 0.20 && p < 0.38) {
+                const prog = (p - 0.20) / 0.18;
+                stage2.style.opacity = prog.toFixed(3);
+                stage2.style.transform = `translate3d(0, ${(-50 * (1 - prog)).toFixed(1)}px, 0)`;
+                stage2.style.pointerEvents = prog > 0.6 ? 'auto' : 'none';
+            } else if (p >= 0.38 && p < 0.58) {
+                stage2.style.opacity = 1;
+                stage2.style.transform = 'translate3d(0, 0px, 0)';
+                stage2.style.pointerEvents = 'auto';
+            } else if (p >= 0.58 && p < 0.74) {
+                const prog = (p - 0.58) / 0.16;
+                stage2.style.opacity = (1 - prog).toFixed(3);
+                stage2.style.transform = `translate3d(0, ${(prog * 50).toFixed(1)}px, 0)`;
+                stage2.style.pointerEvents = 'none';
+            } else {
+                stage2.style.opacity = 0;
+                stage2.style.transform = 'translate3d(0, 50px, 0)';
+                stage2.style.pointerEvents = 'none';
+            }
+
+            // STAGE 3: Rojgar Setu Title Logo + Social SVGs (Enters from top -50px, locks at 0.74 -> 1.0)
+            if (p < 0.58) {
+                stage3.style.opacity = 0;
+                stage3.style.transform = 'translate3d(0, -50px, 0)';
+                stage3.style.pointerEvents = 'none';
+            } else if (p >= 0.58 && p < 0.76) {
+                const prog = (p - 0.58) / 0.18;
+                stage3.style.opacity = prog.toFixed(3);
+                stage3.style.transform = `translate3d(0, ${(-50 * (1 - prog)).toFixed(1)}px, 0)`;
+                stage3.style.pointerEvents = prog > 0.6 ? 'auto' : 'none';
+            } else {
+                stage3.style.opacity = 1;
+                stage3.style.transform = 'translate3d(0, 0px, 0)';
+                stage3.style.pointerEvents = 'auto';
+            }
+
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(updateTransitions);
+                ticking = true;
+            }
+        }, { passive: true });
+
+        window.addEventListener('resize', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(updateTransitions);
+                ticking = true;
+            }
+        }, { passive: true });
+
+        updateTransitions();
+    })();
+</script>
+{% endblock %}

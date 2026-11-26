@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Dynamic AI Safety Assessment - {{ T.brand_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-12">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-2xl p-6 sm:p-8 shadow-xl mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <span class="bg-blue-500/30 text-blue-100 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-blue-400/30">
+                Gemini Flash AI Screening Engine
+            </span>
+            <span class="text-xs text-blue-200 font-mono">Real-time Dynamic Generation</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            {% if current_lang == 'hi' %}
+                व्यावहारिक सुरक्षा एवं उपकरण मूल्यांकन
+            {% else %}
+                Practical Safety & Trade Evaluation
+            {% endif %}
+        </h1>
+        <p class="mt-2 text-sm text-blue-100">
+            Selected Trades: <strong class="text-white">{{ trades|join:", " }}</strong> &bull; Karigar: <strong class="text-white">{{ user.name }}</strong>
+        </p>
+    </div>
+
+    <!-- Instructions -->
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8 flex items-start space-x-3 text-xs text-amber-800">
+        <i data-lucide="help-circle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+        <div>
+            <strong>निर्देश (Instructions):</strong> प्रत्येक प्रश्न के लिए सही विकल्प चुनें। 50% या अधिक अंक प्राप्त करने पर आपको प्रोफाइल पर <span class="font-bold text-emerald-800">"Skills Tested ★"</span> बैज मिलेगा, जिससे पास के गृहस्वामियों को आपकी प्रोफाइल सबसे पहले दिखेगी।
+        </div>
+    </div>
+
+    <!-- Questions Form -->
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        <input type="hidden" name="total_questions" value="{{ total_questions }}">
+
+        {% for q in questions %}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                    Question {{ q.id }} &bull; {{ q.category }}
+                </span>
+                <span class="text-xs text-slate-400 font-mono">1 Mark</span>
+            </div>
+
+            <p class="text-base font-semibold text-slate-900 leading-relaxed">
+                {{ q.question }}
+            </p>
+
+            <input type="hidden" name="correct_{{ q.id }}" value="{{ q.correct_option_index }}">
+
+            <div class="space-y-2.5">
+                {% for opt in q.options %}
+                <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 cursor-pointer transition">
+                    <input type="radio" name="question_{{ q.id }}" value="{{ forloop.counter0 }}" required class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                    <span class="ml-3 text-sm text-slate-800 font-medium">{{ opt }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="pt-4">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 text-base">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span>Submit & Generate AI Profile Bio</span>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

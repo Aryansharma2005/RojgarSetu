@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rojgar Setu - Master Full-Stack Engineering Blueprint & Implementation Plan</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        @page {
+            size: A4;
+            margin: 15mm 14mm 15mm 14mm;
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-family: 'Inter', sans-serif;
+                font-size: 8pt;
+                color: #64748b;
+            }
+            @bottom-left {
+                content: "Rojgar Setu (रोजगार सेतु) | Master Full-Stack Engineering Plan";
+                font-family: 'Inter', sans-serif;
+                font-size: 8pt;
+                color: #94a3b8;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 8.8pt;
+            line-height: 1.48;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4 {
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 1.2em;
+            margin-bottom: 0.35em;
+            page-break-after: avoid;
+        }
+
+        h1 {
+            font-size: 18pt;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            margin-top: 0;
+            color: #1e3a8a;
+        }
+
+        h2 {
+            font-size: 12pt;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 4px;
+            margin-top: 1.4em;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 .section-num {
+            background-color: #2563eb;
+            color: white;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 8pt;
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 10pt;
+            color: #1d4ed8;
+            margin-top: 1em;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 0.6em;
+            text-align: justify;
+        }
+
+        /* Cover Box */
+        .cover-box {
+            border: 2px solid #2563eb;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #f8fafc 100%);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .cover-badge {
+            display: inline-block;
+            background-color: #2563eb;
+            color: white;
+            font-size: 7pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3px 9px;
+            border-radius: 20px;
+            margin-bottom: 6px;
+        }
+
+        .cover-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 7.5pt;
+        }
+
+        .cover-meta-item strong {
+            display: block;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .cover-meta-item span {
+            color: #64748b;
+        }
+
+        /* Callouts / Alerts */
+        .callout {
+            border-left: 4px solid #2563eb;
+            background-color: #eff6ff;
+            padding: 8px 12px;
+            border-radius: 0 6px 6px 0;
+            margin: 9px 0;
+            font-size: 8.5pt;
+        }
+
+        .callout-amber {
+            border-left-color: #ea580c;
+            background-color: #fff7ed;
+        }
+
+        .callout-emerald {
+            border-left-color: #059669;
+            background-color: #f0fdf4;
+        }
+
+        .callout strong {
+            color: #0f172a;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 9px 0 12px 0;
+            font-size: 8pt;
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 7.2pt;
+            line-height: 1.38;
+            overflow-x: auto;
+            margin: 7px 0 10px 0;
+            page-break-inside: avoid;
+            border: 1px solid #1e293b;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 1px 3px;
+            border-radius: 3px;
+            font-size: 7.8pt;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Diagrams */
+        .diagram-container {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 9px 0;
+            page-break-inside: avoid;
+        }
+
+        .diagram-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .diagram-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .diagram-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .diagram-card-title {
+            font-weight: 700;
+            font-size: 8.2pt;
+            color: #1d4ed8;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .diagram-card-desc {
+            font-size: 7.2pt;
+            color: #64748b;
+            line-height: 1.3;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 6.5pt;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+        .badge-blue { background-color: #dbeafe; color: #1e40af; }
+        .badge-green { background-color: #dcfce7; color: #15803d; }
+        .badge-amber { background-color: #fef3c7; color: #b45309; }
+        .badge-purple { background-color: #f3e8ff; color: #7e22ce; }
+
+        ul, ol {
+            margin-top: 2px;
+            margin-bottom: 6px;
+            padding-left: 16px;
+        }
+
+        li {
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- DOCUMENT COVER -->
+    <div class="cover-box">
+        <span class="cover-badge">Master Full-Stack Implementation Specification & Blueprint</span>
+        <h1>ROJGAR SETU (रोजगार सेतु)</h1>
+        <p style="font-size: 10pt; color: #1e3a8a; font-weight: 700; margin-bottom: 2px;">
+            Dual-Marketplace Hyperlocal Platform for Commercial & Household Hiring
+        </p>
+        <p style="font-size: 8.2pt; color: #475569; margin-bottom: 0;">
+            Architecture: <strong>Python Django 5+</strong> &bull; <strong>PostgreSQL 16+</strong> &bull; <strong>PostGIS (GiST Spatial)</strong> &bull; <strong>JSONB</strong> &bull; <strong>Gemini AI Screening</strong> &bull; <strong>DigiLocker Trust Rails</strong>
+        </p>
+
+        <div class="cover-meta">
+            <div class="cover-meta-item">
+                <strong>DATABASE & GIS</strong>
+                <span>PostgreSQL 16 + PostGIS GiST</span>
+            </div>
+            <div class="cover-meta-item">
+                <strong>DUAL ARCHETYPE</strong>
+                <span>MSME/Contractors + Households</span>
+            </div>
+            <div class="cover-meta-item">
+                <strong>AI SCREENING</strong>
+                <span>Gemini Flash Trade MCQs</span>
+            </div>
+            <div class="cover-meta-item">
+                <strong>DIRECT HIRING</strong>
+                <span>Zero Commission WhatsApp Rails</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1 -->
+    <h2><span class="section-num">01</span> Project Architecture & Core Engineering Pillars</h2>
+    
+    <p>
+        <strong>Rojgar Setu</strong> is an end-to-end open platform uniting informal workforce discovery across two massive Indian sectors:
+    </p>
+
+    <div class="diagram-grid-2">
+        <div class="diagram-card" style="border-left: 3px solid #2563eb;">
+            <div class="diagram-card-title">1. Commercial & MSME Sector</div>
+            <div class="diagram-card-desc">
+                Contractors, builders, logistics centers, workshops & factories hiring <strong>electricians, plumbers, masons, commercial drivers, warehouse helpers, and carpenters</strong>. Focuses on shift wages, trade certifications, multi-vacancy fulfillment, and rapid deployment.
+            </div>
+        </div>
+        <div class="diagram-card" style="border-left: 3px solid #059669;">
+            <div class="diagram-card-title">2. Household & Domestic Gigs</div>
+            <div class="diagram-card-desc">
+                Individual families, residential societies & homeowners hiring <strong>maids (jhadu-pochha-bartan), cooks, gardeners (mali), babysitters, and urgent home maintenance</strong>. Focuses on <em>trust, Aadhaar verification, micro-radii (500m - 3km)</em>, and zero agency brokerage fees.
+            </div>
+        </div>
+    </div>
+
+    <h3>Technology Stack Matrix</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Tier</th>
+                <th>Selected Technology</th>
+                <th>Purpose & Responsibility</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Backend Web Core</strong></td>
+                <td>Python 3.12+, Django 5+, GeoDjango</td>
+                <td>MVC controllers, session/JWT auth, database ORM, background tasks, management seeders.</td>
+            </tr>
+            <tr>
+                <td><strong>Database & Spatial Engine</strong></td>
+                <td>PostgreSQL 16+ with <strong>PostGIS</strong> extension</td>
+                <td>Relational transactional integrity, <code>GEOGRAPHY(Point, 4326)</code> indexed via <code>GiST</code>, and <code>JSONB</code> for dynamic trade attributes.</td>
+            </tr>
+            <tr>
+                <td><strong>Frontend UI & Map</strong></td>
+                <td>Tailwind CSS (Mobile-First) + Leaflet.js</td>
+                <td>Bilingual (Hindi/English) interface, interactive geospatial pinboard, responsive PWA layout.</td>
+            </tr>
+            <tr>
+                <td><strong>AI Evaluation Engine</strong></td>
+                <td>Google Gemini 1.5/2.0 Flash</td>
+                <td>Generates 3 practical, role-specific scenario MCQs during worker registration in under 1 second.</td>
+            </tr>
+            <tr>
+                <td><strong>Trust & Verification</strong></td>
+                <td>DigiLocker OAuth & Parivahan API</td>
+                <td>Progressive verification awarding <strong>"Aadhaar Verified ✓"</strong> green ticks for domestic worker peace of mind.</td>
+            </tr>
+            <tr>
+                <td><strong>Direct Communication</strong></td>
+                <td>WhatsApp Deep-linking & Telephony</td>
+                <td>Zero-brokerage instant chat (<code>wa.me</code>) and direct phone dialing (<code>tel:</code>).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- SECTION 2 -->
+    <h2><span class="section-num">02</span> Complete PostgreSQL Database Schema (Relational + PostGIS + JSONB)</h2>
+
+    <p>
+        The following DDL script establishes the entire PostgreSQL data layer with relational constraints, PostGIS spatial indexing, and JSONB document flexibility:
+    </p>
+
+    <pre><code>-- =========================================================================
+-- ROJGAR SETU: MASTER POSTGRESQL + POSTGIS DATABASE SCHEMA
+-- =========================================================================
+
+-- 1. Enable Spatial & Cryptographic Extensions
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 2. Enumerated Data Types
+CREATE TYPE user_role AS ENUM ('worker', 'employer', 'admin');
+CREATE TYPE employer_type AS ENUM ('individual_household', 'business_msme');
+CREATE TYPE wage_basis AS ENUM ('daily', 'monthly', 'per_job', 'hourly');
+CREATE TYPE application_status AS ENUM ('applied', 'shortlisted', 'hired', 'rejected');
+
+-- 3. Users Table (Core Auth & Identity)
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    phone VARCHAR(15) UNIQUE NOT NULL,            -- 10-digit Indian Mobile
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(120) NULL,
+    role user_role NOT NULL,
+    employer_category employer_type NULL,         -- Set if role = 'employer'
+    password_hash VARCHAR(255) NOT NULL,
+    preferred_lang VARCHAR(5) DEFAULT 'hi',       -- 'hi' (Hindi) or 'en' (English)
+    is_phone_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_users_phone ON users (phone);
+
+-- 4. Worker Profiles Table (Karigar Unified Profile)
+CREATE TABLE worker_profiles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    karigar_id VARCHAR(30) UNIQUE NOT NULL,       -- e.g. "RS-DEL-8821"
+    primary_trade VARCHAR(80) NOT NULL,           -- "Electrician", "House Maid", "Gardener"
+    
+    -- JSONB column for polymorphic skill checklists:
+    -- Maid: {"jhadu_pochha": true, "bartan": true, "dusting": true, "cooking": "veg_only"}
+    -- Electrician: {"wiring": true, "3phase": true, "inverter": true, "has_tools": true}
+    -- Gardener: {"lawn_mowing": true, "pruning": true, "pesticide": true}
+    skills JSONB NOT NULL DEFAULT '{}'::jsonb,
+    
+    experience_years INT DEFAULT 1,
+    wage_type wage_basis DEFAULT 'daily',
+    expected_wage NUMERIC(10, 2) NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE,            -- Availability Toggle
+    
+    -- PostGIS Spherical Geography Point (WGS-84 SRID 4326)
+    location GEOGRAPHY(Point, 4326) NOT NULL,
+    city VARCHAR(80) NOT NULL,
+    locality VARCHAR(120) NULL,                   -- Colony / Society / Village
+    pincode VARCHAR(10) NULL,
+    
+    -- Verification Badges JSONB (DigiLocker, AI Quiz, Police Check)
+    -- {"aadhaar_verified": true, "mcq_passed": true, "mcq_score": "3/3", "skill_badge": "Certified Pro"}
+    verification_badges JSONB NOT NULL DEFAULT '{}'::jsonb,
+    
+    rating_avg NUMERIC(3, 2) DEFAULT 5.00,
+    total_reviews INT DEFAULT 0,
+    bio TEXT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CREATE GIST SPATIAL INDEX (Replaces MongoDB 2dsphere)
+CREATE INDEX idx_worker_location_gist ON worker_profiles USING GIST (location);
+CREATE INDEX idx_worker_skills_gin ON worker_profiles USING GIN (skills);
+CREATE INDEX idx_worker_trade_available ON worker_profiles (primary_trade, is_available);
+
+-- 5. Jobs Table (Supports Commercial Sites & Domestic Household Openings)
+CREATE TABLE jobs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    employer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(200) NOT NULL,
+    category VARCHAR(80) NOT NULL,
+    
+    -- Sub-services requested (JSONB array)
+    -- Domestic Maid: ["Jhadu-Pochha", "Bartan", "Dusting"]
+    -- Site Electrician: ["Panel Wiring", "Conduit Laying"]
+    sub_services JSONB NOT NULL DEFAULT '[]'::jsonb,
+    
+    timing_type VARCHAR(50) DEFAULT 'full_day',  -- 'morning_shift', 'evening_shift', 'weekend_gig', 'full_day'
+    preferred_timings VARCHAR(100) NULL,         -- "07:30 AM - 09:30 AM"
+    
+    vacancies INT DEFAULT 1,
+    wage_offered NUMERIC(10, 2) NOT NULL,
+    wage_period wage_basis DEFAULT 'daily',
+    description TEXT NOT NULL,
+    
+    -- PostGIS Location Point
+    location GEOGRAPHY(Point, 4326) NOT NULL,
+    city VARCHAR(80) NOT NULL,
+    locality VARCHAR(120) NULL,                   -- "Grand Omaxe, Sector 93B"
+    pincode VARCHAR(10) NULL,
+    
+    status VARCHAR(20) DEFAULT 'active',          -- 'active', 'filled', 'closed'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_jobs_location_gist ON jobs USING GIST (location);
+CREATE INDEX idx_jobs_category_status ON jobs (category, status);
+
+-- 6. Applications Table (Hiring Pipeline)
+CREATE TABLE applications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    worker_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    fit_score NUMERIC(5, 2) DEFAULT 0.00,
+    status application_status DEFAULT 'applied',
+    notes TEXT NULL,
+    applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_job_worker UNIQUE (job_id, worker_id)
+);
+CREATE INDEX idx_applications_job ON applications (job_id, status);</code></pre>
+
+    <div class="page-break"></div>
+
+    <!-- SECTION 3 -->
+    <h2><span class="section-num">03</span> PostGIS Spatial Query Blueprints & Micro-Radius Matching</h2>
+
+    <p>
+        The platform implements dual-tier spatial search: <strong>Micro-Radius (500m to 3km)</strong> for domestic household workers (maids, cooks, gardeners who work within their residential neighborhood) and <strong>Macro-Radius (5km to 15km)</strong> for commercial trades (electricians, plumbers, commercial drivers).
+    </p>
+
+    <h3>1. Micro-Radius Domestic Search SQL (`ST_DWithin` with Inline Distance)</h3>
+    <pre><code>-- Homeowner in Noida (Lng: 77.3639, Lat: 28.6080) searching for Maids within 2 KM (2000 meters)
+SELECT 
+    wp.karigar_id,
+    u.name AS worker_name,
+    u.phone AS worker_phone,
+    wp.primary_trade,
+    wp.skills,
+    wp.expected_wage,
+    wp.wage_type,
+    wp.verification_badges->>'aadhaar_verified' AS is_aadhaar_verified,
+    ROUND(ST_Distance(wp.location, ST_MakePoint(77.3639, 28.6080)::geography)) AS distance_meters
+FROM worker_profiles wp
+JOIN users u ON wp.user_id = u.id
+WHERE wp.is_available = TRUE
+  AND wp.primary_trade = 'House Maid'
+  AND ST_DWithin(wp.location, ST_MakePoint(77.3639, 28.6080)::geography, 2000)
+ORDER BY distance_meters ASC;</code></pre>
+
+    <h3>2. Django GeoDjango Implementation (`core/spatial.py`)</h3>
+    <pre><code>from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import D
+from django.contrib.gis.db.models.functions import Distance
+from .models import WorkerProfile, Job
+
+def get_hyperlocal_workers(lng: float, lat: float, trade: str, radius_km: float = 3.0):
+    """Fetches available karigars sorted by true spherical distance using PostGIS GiST index."""
+    user_location = Point(lng, lat, srid=4326)
+    
+    queryset = WorkerProfile.objects.filter(
+        location__distance_lte=(user_location, D(km=radius_km)),
+        is_available=True
+    ).select_related('user')
+    
+    if trade and trade.lower() != 'all':
+        queryset = queryset.filter(primary_trade__iexact=trade)
+        
+    return queryset.annotate(distance=Distance('location', user_location)).order_by('distance')</code></pre>
+
+    <!-- SECTION 4 -->
+    <h2><span class="section-num">04</span> AI-Powered Role-Specific MCQ Screening Engine (Gemini Flash)</h2>
+
+    <p>
+        During registration, once a Karigar chooses their trade (Electrician, Plumber, Driver, Maid, Gardener), the system runs an automated screening quiz powered by **Gemini 1.5/2.0 Flash** via strict JSON schemas:
+    </p>
+
+    <div class="diagram-container">
+        <div class="diagram-grid-3">
+            <div class="diagram-card">
+                <div class="diagram-card-title">1. Dynamic Generation</div>
+                <div class="diagram-card-desc">Django passes selected trade & language to Gemini API. Returns 3 practical, scenario-based safety & troubleshooting questions in &lt;1.0s.</div>
+            </div>
+            <div class="diagram-card">
+                <div class="diagram-card-title">2. Mobile MCQ UI</div>
+                <div class="diagram-card-desc">Clean, accessible single-tap radio buttons with audio prompt icons for low-literacy workers.</div>
+            </div>
+            <div class="diagram-card">
+                <div class="diagram-card-title">3. Automated Badge</div>
+                <div class="diagram-card-desc">Score &ge; 2/3 awards a <strong>"Skills Tested ★"</strong> badge, immediately boosting profile visibility in employer search results.</div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Complete AI Service Implementation (`core/ai_service.py`)</h3>
+    <pre><code>import os, json
+import google.generativeai as genai
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+# Pre-seeded fallback questions in case API is offline / no internet
+FALLBACK_QUESTIONS = {
+    "Electrician": [
+        {"id": 1, "q": "घरेलू वायरिंग में स्विच हमेशा किस तार पर लगाना चाहिए?", "options": ["फेज़ (Phase / Live)", "न्यूट्रल (Neutral)", "अर्थिंग (Earth)", "किसी पर भी"], "correct": 0, "exp": "सुरक्षा के लिए स्विच हमेशा फेज़ तार पर लगता है।"},
+        {"id": 2, "q": "यदि 16A MCB बार-बार ट्रिप कर रहा है, तो इसका सबसे संभावित कारण क्या है?", "options": ["कम वोल्टेज", "ओवरलोड या शॉर्ट सर्किट", "मजबूत अर्थिंग", "स्विच खराब"], "correct": 1, "exp": "MCB ओवरलोड या शॉर्ट-सर्किट से सुरक्षा देता है।"}
+    ],
+    "House Maid": [
+        {"id": 1, "q": "मार्बल के फर्श पर पोछा लगाते समय किस लिक्विड का उपयोग नहीं करना चाहिए?", "options": ["सादा पानी", "तेज़ाब / हार्पिक (Acid)", "फिनाइल", "फ्लोर क्लीनर"], "correct": 1, "exp": "एसिड से मार्बल का फर्श हमेशा के लिए पीला और खराब हो जाता है।"}
+    ]
+}
+
+def generate_role_mcqs(trade: str, language: str = "hi"):
+    """Generates 3 practical MCQs using Gemini Flash with strict JSON output and fallback resilience."""
+    lang_name = "Hindi (हिंदी)" if language == "hi" else "English"
+    prompt = f"""
+    Generate 3 practical, on-site multiple choice questions to evaluate a blue-collar worker in India applying for: '{trade}'.
+    Language: {lang_name}. Focus on safety, tool knowledge, and practical troubleshooting.
+    STRICT JSON Output only:
+    [
+      {{"id": 1, "q": "Question", "options": ["A", "B", "C", "D"], "correct": 0, "exp": "Brief explanation"}}
+    ]
+    """
+    try:
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            generation_config={"response_mime_type": "application/json", "temperature": 0.3}
+        )
+        resp = model.generate_content(prompt)
+        return json.loads(resp.text)
+    except Exception as e:
+        print(f"[AI Service Fallback]: {e}")
+        return FALLBACK_QUESTIONS.get(trade, FALLBACK_QUESTIONS["Electrician"])</code></pre>
+
+    <div class="page-break"></div>
+
+    <!-- SECTION 5 -->
+    <h2><span class="section-num">05</span> Trust, Safety & DigiLocker Verification Architecture</h2>
+
+    <p>
+        For domestic hiring (maids, cooks, gardeners entering private homes), trust is paramount. However, forcing DigiLocker at initial sign-up causes a 70%+ drop-off. Rojgar Setu solves this via a <strong>Progressive Trust Funnel</strong>:
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tier</th>
+                <th>Target Persona</th>
+                <th>Verification Rail</th>
+                <th>Friction & Speed</th>
+                <th>Resulting Profile Badge</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Level 1: Basic</strong></td>
+                <td>All Workers & Households</td>
+                <td>Mobile Number + 4-digit SMS OTP</td>
+                <td><strong>15 Seconds (Zero Friction)</strong></td>
+                <td>Phone Verified Account</td>
+            </tr>
+            <tr>
+                <td><strong>Level 2: Skill</strong></td>
+                <td>Karigars / Trades</td>
+                <td>3 AI-generated MCQs (Gemini Flash)</td>
+                <td><strong>45 Seconds</strong></td>
+                <td><strong>"Skills Tested ★"</strong> Badge</td>
+            </tr>
+            <tr>
+                <td><strong>Level 3: Trust</strong></td>
+                <td>Domestic Maids, Cooks, Drivers</td>
+                <td>DigiLocker OAuth (Aadhaar / Driving License) or Parivahan DL lookup</td>
+                <td><strong>2 Minutes (Optional)</strong></td>
+                <td><strong>"Aadhaar Verified ✓"</strong> Green Tick Badge (3x higher hire rate)</td>
+            </tr>
+            <tr>
+                <td><strong>Level 4: Entity</strong></td>
+                <td>Commercial MSME Contractors</td>
+                <td>15-Digit GSTIN or Udyam Registration Lookup</td>
+                <td><strong>Instant (Automated)</strong></td>
+                <td>"Verified Enterprise Employer" Badge</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SECTION 6 -->
+    <h2><span class="section-num">06</span> Zero-Brokerage Direct Hiring Rails (`wa.me` & Telephony)</h2>
+
+    <p>
+        Unlike agencies that demand ₹15,000–₹25,000 upfront brokerage, Rojgar Setu enables immediate direct communication.
+    </p>
+
+    <h3>1. Domestic Household Pre-Drafted WhatsApp Message (`wa.me`)</h3>
+    <pre><code>https://wa.me/91{worker_phone}?text=नमस्ते%20{worker_name}-जी,%20मैंने%20Rojgar%20Setu%20पर%20आपकी%20प्रोफाइल%20देखी।%20हमें%20{locality}%20में%20{trade}%20के%20लिए%20आपकी%20ज़रूरत%20है।%20क्या%20आप%20बात%20कर%20सकते%20हैं?</code></pre>
+
+    <h3>2. Commercial Contractor Pre-Drafted WhatsApp Message</h3>
+    <pre><code>https://wa.me/91{worker_phone}?text=Hello%20{worker_name},%20I%20am%20calling%20from%20{company_name}.%20We%20saw%20your%20{trade}%20profile%20on%20Rojgar%20Setu%20for%20our%20site%20in%20{city}.%20Daily%20wage:%20₹{wage}.%20Please%20call%20back.</code></pre>
+
+    <!-- SECTION 7 -->
+    <h2><span class="section-num">07</span> Day-by-Day 14-Day Sprint Implementation Roadmap</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Sprint Timeline</th>
+                <th>Development Focus</th>
+                <th>Actionable Engineering Tasks</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Days 1 – 2</strong></td>
+                <td>Environment & PostgreSQL Setup</td>
+                <td>Install PostgreSQL 16+ & PostGIS. Run DDL scripts to create tables, enums, and GiST indexes. Configure Django <code>DATABASES</code> with <code>django.contrib.gis.db.backends.postgis</code>.</td>
+            </tr>
+            <tr>
+                <td><strong>Days 3 – 4</strong></td>
+                <td>Authentication & Dual Role Architecture</td>
+                <td>Build custom User model with phone as primary ID. Build registration forms with <code>household</code> vs <code>business</code> employer selector.</td>
+            </tr>
+            <tr>
+                <td><strong>Days 5 – 6</strong></td>
+                <td>AI MCQ Screening Integration</td>
+                <td>Implement <code>core/ai_service.py</code> with Gemini Flash. Build interactive mobile-friendly quiz screen that triggers immediately after Karigar trade selection.</td>
+            </tr>
+            <tr>
+                <td><strong>Days 7 – 8</strong></td>
+                <td>Dual Job Posting & Discovery Portals</td>
+                <td>Household portal (Maids, Cooks, Gardeners with sub-services like Jhadu-Pochha-Bartan) and Commercial portal (Multi-vacancy construction gigs).</td>
+            </tr>
+            <tr>
+                <td><strong>Days 9 – 10</strong></td>
+                <td>PostGIS Hyperlocal Search & Leaflet Map</td>
+                <td>Implement <code>ST_DWithin</code> radius queries (2km domestic micro-radius, 10km commercial radius). Render interactive Leaflet map with custom trade pins.</td>
+            </tr>
+            <tr>
+                <td><strong>Days 11 – 12</strong></td>
+                <td>Direct Hiring Rails & Applicant Dashboard</td>
+                <td>Integrate WhatsApp Web deep-links (<code>wa.me</code>) and one-click telephony dialing (<code>tel:</code>). Build applicant pipeline (Shortlist, Hire, Reject).</td>
+            </tr>
+            <tr>
+                <td><strong>Days 13 – 14</strong></td>
+                <td>DigiLocker Sandbox, Seeder & Deployment</td>
+                <td>Add DigiLocker Aadhaar badge verification. Seed 25 realistic Indian jobs, karigars, and domestic helpers. Deploy to Docker / AWS RDS.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 25px; padding-top: 12px; border-top: 1px solid #cbd5e1; text-align: center; font-size: 7.5pt; color: #64748b;">
+        <strong>Rojgar Setu (रोजगार सेतु) - Master Full-Stack Engineering Blueprint</strong><br>
+        Django 5+ &bull; PostgreSQL 16+ PostGIS &bull; Dual Commercial & Household Marketplace &bull; Document Version 4.0 (Production Master)
+    </div>
+
+</body>
+</html>

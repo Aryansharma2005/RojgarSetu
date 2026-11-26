@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}P2P Platform Analytics - {{ T.brand_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <div class="mb-8">
+        <span class="text-xs bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            PostgreSQL 17 &bull; PostGIS GiST Analytics
+        </span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">{{ T.nav_analytics }}</h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">Real-time P2P gig fulfillment, brokerage savings, and hyperlocal trade metrics.</p>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs text-slate-500 font-medium">Executed P2P Contracts</div>
+            <div class="text-2xl font-black text-slate-900 mt-1">{{ total_contracts }}</div>
+            <div class="text-[11px] text-emerald-600 mt-1">Dual-signed & active</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs text-slate-500 font-medium">Total Brokerage Saved</div>
+            <div class="text-2xl font-black text-emerald-600 mt-1">₹{{ total_savings|floatformat:0 }}</div>
+            <div class="text-[11px] text-slate-400 mt-1">Zero agency commission</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs text-slate-500 font-medium">Verified Karigars</div>
+            <div class="text-2xl font-black text-blue-600 mt-1">{{ total_workers }}</div>
+            <div class="text-[11px] text-slate-400 mt-1">AI safety tested</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs text-slate-500 font-medium">Registered Employers</div>
+            <div class="text-2xl font-black text-purple-600 mt-1">{{ total_employers }}</div>
+            <div class="text-[11px] text-slate-400 mt-1">Direct homeowners</div>
+        </div>
+    </div>
+
+    <!-- Two Column Analysis -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <!-- Trade Distribution -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center">
+                <i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-blue-600"></i>
+                Top In-Demand Trades (PostGIS Radius)
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-600">
+                            <th class="p-3">Trade Category</th>
+                            <th class="p-3 text-right">Active Gigs</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for t in trade_stats %}
+                        <tr>
+                            <td class="p-3 font-semibold text-slate-800">{{ t.category }}</td>
+                            <td class="p-3 text-right font-mono font-bold text-blue-700">{{ t.count }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="p-3 text-center text-slate-400">No trade records yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Zero Brokerage Value Proposition -->
+        <div class="bg-gradient-to-br from-blue-900 to-indigo-950 text-white p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+            <div>
+                <span class="text-xs font-mono uppercase tracking-wider text-blue-300 font-bold">The Rojgar Setu Advantage</span>
+                <h3 class="text-xl font-bold mt-2">Zero Agency Intermediaries</h3>
+                <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                    Commercial maid & technician agencies charge upfront non-refundable brokerage fees of <strong>₹15,000 to ₹25,000</strong> per worker from homeowners, while taking a cut from the worker's monthly wages.
+                </p>
+                <div class="mt-4 p-4 bg-white/10 rounded-xl border border-white/10 text-xs space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-300">Traditional Agency Placement:</span>
+                        <span class="text-rose-400 font-bold">₹18,000 - ₹25,000 upfront</span>
+                    </div>
+                    <div class="flex items-center justify-between font-bold text-emerald-300 border-t border-white/10 pt-1.5 mt-1.5">
+                        <span>Rojgar Setu P2P Rails:</span>
+                        <span>₹0 Brokerage (100% Free)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-4">
+                Enforced by WGS-84 spherical PostGIS queries and pre-signed digital contracts.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

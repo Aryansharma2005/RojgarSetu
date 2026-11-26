@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Choose Account Type - {{ T.brand_title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    @keyframes registerFadeUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-register-header {
+        animation: registerFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-card-worker {
+        animation: registerFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+        opacity: 0;
+    }
+
+    .animate-card-hirer {
+        animation: registerFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        opacity: 0;
+    }
+
+    /* Ultra-smooth 360-degree organic radial dissolve mask: reaches 0% opacity well before container bounds */
+    .mask-soft-dissolve-left {
+        -webkit-mask-image: radial-gradient(
+            ellipse 38% 42% at 45% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: radial-gradient(
+            ellipse 38% 42% at 45% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+    }
+
+    .mask-soft-dissolve-right {
+        -webkit-mask-image: radial-gradient(
+            ellipse 38% 42% at 55% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: radial-gradient(
+            ellipse 38% 42% at 55% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Section wrapper: strictly contains background images so they NEVER spill into the footer -->
+<div class="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-center overflow-hidden py-12 sm:py-16">
+
+    <!-- ========================================================================= -->
+    <!-- ALIGNED EXTERNAL IMAGES (BOUNDED STRICTLY TO SELECTION SECTION)           -->
+    <!-- Uses absolute positioning within the relative overflow-hidden section     -->
+    <!-- Zero spill into footer + 360-degree soft feathering with zero hard edges  -->
+    <!-- ========================================================================= -->
+
+    <!-- Worker Image (Aligned strictly to LEFT, in-place fade with Left-Edge Organic Sage Raze) -->
+    <div id="bg-translucent-worker" 
+         class="absolute left-0 top-0 bottom-0 w-[46vw] max-w-[620px] 2xl:max-w-[700px] pointer-events-none z-0 opacity-0 transition-opacity duration-700 ease-out">
+        
+        <!-- Masked Image & Color Glow Container (Strictly clipped by the 360-degree organic radial mask) -->
+        <div class="relative w-full h-full mask-soft-dissolve-left">
+            <!-- Organic Color Raze radiating directly from the left edge matching the image palette -->
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_70%_at_0%_50%,rgba(45,105,65,0.30)_0%,rgba(68,125,88,0.16)_35%,rgba(120,175,135,0.04)_65%,transparent_85%)] pointer-events-none z-10"></div>
+            <img src="{% static 'images/register_worker.jpg' %}" alt="Worker" 
+                 class="w-full h-full object-cover object-[center_top] filter brightness-105 contrast-[1.02]">
+        </div>
+    </div>
+
+    <!-- Employer Image (Aligned strictly to RIGHT, in-place fade with Right-Edge Organic Navy Raze) -->
+    <div id="bg-translucent-hirer" 
+         class="absolute right-0 top-0 bottom-0 w-[46vw] max-w-[620px] 2xl:max-w-[700px] pointer-events-none z-0 opacity-0 transition-opacity duration-700 ease-out">
+        
+        <!-- Masked Image & Color Glow Container (Strictly clipped by the 360-degree organic radial mask) -->
+        <div class="relative w-full h-full mask-soft-dissolve-right">
+            <!-- Organic Color Raze radiating directly from the right edge matching the image palette -->
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_70%_at_100%_50%,rgba(25,55,95,0.30)_0%,rgba(45,85,135,0.16)_35%,rgba(100,145,200,0.04)_65%,transparent_85%)] pointer-events-none z-10"></div>
+            <img src="{% static 'images/register_hirer.jpg' %}" alt="Employer" 
+                 class="w-full h-full object-cover object-[center_top] filter brightness-105 contrast-[1.02]">
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- CENTRAL CONTAINER: PRISTINE, HIGH-CONTRAST ACTION CARDS                   -->
+    <!-- ========================================================================= -->
+    <div class="relative z-10 max-w-4xl mx-auto px-4 w-full">
+        
+        <!-- Header -->
+        <div class="text-center mb-10 sm:mb-14 animate-register-header">
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-neutral-950 tracking-tight leading-tight">
+                {% if current_lang == 'hi' %}
+                    आप कैसे जुड़ना चाहते हैं?
+                {% else %}
+                    How would you like to join?
+                {% endif %}
+            </h1>
+            <p class="mt-3.5 text-neutral-500 max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
+                {% if current_lang == 'hi' %}
+                    बिना किसी दलाली के सीधे काम पाने या देने के लिए अपना खाता चुनें।
+                {% else %}
+                    Choose your account type to hire or get hired directly with zero middleman fees.
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- 2 Clean Option Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
+            
+            <!-- Option 1: Worker Option Card -->
+            <a id="card-option-worker" href="{% url 'register_worker' %}" 
+               class="group relative bg-white/95 backdrop-blur-md rounded-3xl border border-neutral-200/90 hover:border-neutral-950 p-8 sm:p-9 shadow-card hover:shadow-floating transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between text-left animate-card-worker">
+                
+                <div>
+                    <!-- Icon Badge -->
+                    <div class="w-14 h-14 rounded-2xl bg-neutral-100 text-neutral-900 border border-neutral-200/80 flex items-center justify-center mb-6 group-hover:bg-neutral-950 group-hover:text-white transition-all duration-300 shadow-xs group-hover:scale-105">
+                        <i data-lucide="wrench" class="w-6 h-6 stroke-[2]"></i>
+                    </div>
+                    
+                    <div class="inline-block bg-neutral-100 text-neutral-800 text-xs font-semibold px-3 py-1 rounded-full mb-3 border border-neutral-200/70 shadow-xs">
+                        Job Seeker / Karigar
+                    </div>
+
+                    <h3 class="text-xl font-extrabold text-neutral-950 leading-snug">
+                        {% if current_lang == 'hi' %}
+                            मैं कामगार / कारीगर हूँ
+                        {% else %}
+                            I am a Skilled Karigar (Worker)
+                        {% endif %}
+                    </h3>
+
+                    <p class="mt-2 text-xs sm:text-sm text-neutral-600 leading-relaxed">
+                        Electrician, Plumber, House Maid, Cook, Carpenter, Painter, Mechanic, Construction Worker, Gardener, Driver.
+                    </p>
+
+                    <ul class="mt-6 space-y-2.5 text-xs sm:text-sm text-neutral-700">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mr-2.5 flex-shrink-0 stroke-[2.5]"></i> Pick 1 to 4 vocational trades</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mr-2.5 flex-shrink-0 stroke-[2.5]"></i> Gemini AI dynamic safety screening</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mr-2.5 flex-shrink-0 stroke-[2.5]"></i> Hyperlocal gigs within 500m - 10km</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mr-2.5 flex-shrink-0 stroke-[2.5]"></i> 100% direct pay, ₹0 brokerage</li>
+                    </ul>
+                </div>
+
+                <div class="mt-8 pt-5 border-t border-neutral-200/70 flex items-center justify-between text-xs sm:text-sm font-bold text-neutral-950 group-hover:text-emerald-700 transition-colors">
+                    <span>Continue as Karigar</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300"></i>
+                </div>
+            </a>
+
+            <!-- Option 2: Employer Option Card -->
+            <a id="card-option-hirer" href="{% url 'register_employer' %}" 
+               class="group relative bg-white/95 backdrop-blur-md rounded-3xl border border-neutral-200/90 hover:border-neutral-950 p-8 sm:p-9 shadow-card hover:shadow-floating transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between text-left animate-card-hirer">
+                
+                <div>
+                    <!-- Icon Badge -->
+                    <div class="w-14 h-14 rounded-2xl bg-neutral-100 text-neutral-900 border border-neutral-200/80 flex items-center justify-center mb-6 group-hover:bg-neutral-950 group-hover:text-white transition-all duration-300 shadow-xs group-hover:scale-105">
+                        <i data-lucide="home" class="w-6 h-6 stroke-[2]"></i>
+                    </div>
+                    
+                    <div class="inline-block bg-neutral-100 text-neutral-800 text-xs font-semibold px-3 py-1 rounded-full mb-3 border border-neutral-200/70 shadow-xs">
+                        Homeowner / Hirer
+                    </div>
+
+                    <h3 class="text-xl font-extrabold text-neutral-950 leading-snug">
+                        {% if current_lang == 'hi' %}
+                            मैं गृहस्वामी हूँ (काम कराना है)
+                        {% else %}
+                            I am a Homeowner (Hirer)
+                        {% endif %}
+                    </h3>
+
+                    <p class="mt-2 text-xs sm:text-sm text-neutral-600 leading-relaxed">
+                        Direct individual hiring for your domestic repair, renovation and maintenance needs.
+                    </p>
+
+                    <ul class="mt-6 space-y-2.5 text-xs sm:text-sm text-neutral-700">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mr-2.5 flex-shrink-0 stroke-[2.5]"></i> Pre-sign contracts directly at job creation</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mr-2.5 flex-shrink-0 stroke-[2.5]"></i> Masked in-app chat for 100% privacy</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mr-2.5 flex-shrink-0 stroke-[2.5]"></i> Direct phone unlock upon mutual execution</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mr-2.5 flex-shrink-0 stroke-[2.5]"></i> No agency commissions or middleman markups</li>
+                    </ul>
+                </div>
+
+                <div class="mt-8 pt-5 border-t border-neutral-200/70 flex items-center justify-between text-xs sm:text-sm font-bold text-neutral-950 group-hover:text-blue-700 transition-colors">
+                    <span>Continue as Homeowner</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300"></i>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Strictly ONE background image at a time based purely on active hover
+    // Self-healing: Resets cleanly on page load, browser back navigation (bfcache), and mouseleave
+    (function initRegisterBackgroundMotion() {
+        const cardWorker = document.getElementById('card-option-worker');
+        const cardHirer = document.getElementById('card-option-hirer');
+        const bgWorker = document.getElementById('bg-translucent-worker');
+        const bgHirer = document.getElementById('bg-translucent-hirer');
+
+        if (!cardWorker || !cardHirer || !bgWorker || !bgHirer) return;
+
+        function showWorkerOnly() {
+            bgHirer.classList.remove('opacity-95');
+            bgHirer.classList.add('opacity-0');
+
+            bgWorker.classList.remove('opacity-0');
+            bgWorker.classList.add('opacity-95');
+        }
+
+        function showHirerOnly() {
+            bgWorker.classList.remove('opacity-95');
+            bgWorker.classList.add('opacity-0');
+
+            bgHirer.classList.remove('opacity-0');
+            bgHirer.classList.add('opacity-95');
+        }
+
+        function resetAllImages() {
+            bgWorker.classList.remove('opacity-95');
+            bgWorker.classList.add('opacity-0');
+
+            bgHirer.classList.remove('opacity-95');
+            bgHirer.classList.add('opacity-0');
+        }
+
+        // Attach strict hover events
+        cardWorker.addEventListener('mouseenter', showWorkerOnly);
+        cardWorker.addEventListener('mouseleave', resetAllImages);
+
+        cardHirer.addEventListener('mouseenter', showHirerOnly);
+        cardHirer.addEventListener('mouseleave', resetAllImages);
+
+        // Reset cleanly whenever page is shown (especially upon browser back/forward navigation)
+        window.addEventListener('pageshow', resetAllImages);
+        window.addEventListener('load', resetAllImages);
+        resetAllImages();
+    })();
+</script>
+{% endblock %}

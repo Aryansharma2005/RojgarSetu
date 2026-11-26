@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chat with {{ other_user.name }} - {{ T.brand_title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Boldonse&display=swap" rel="stylesheet">
+<style>
+    .boldonse-regular {
+        font-family: "Boldonse", system-ui, sans-serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+    .chat-canvas-bg {
+        background-color: #faf9f6;
+        background-image: radial-gradient(#d6d3cd 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    #chat-messages-stream::-webkit-scrollbar {
+        width: 5px;
+    }
+    #chat-messages-stream::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #chat-messages-stream::-webkit-scrollbar-thumb {
+        background: #d4d4d4;
+        border-radius: 9999px;
+    }
+    #chat-messages-stream::-webkit-scrollbar-thumb:hover {
+        background: #a3a3a3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-stone-100/70 via-neutral-50/50 to-white">
+<div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+    <!-- Back Link -->
+    <div class="mb-5">
+        {% if current_user.role == 'employer' %}
+        <a href="{% url 'job_applicants' job.id %}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-950 transition">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to Applicants</span>
+        </a>
+        {% else %}
+        <a href="{% url 'my_applications' %}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-950 transition">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to My Applications</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Chat Header & Privacy Card -->
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs p-6 sm:p-8 mb-6 relative overflow-hidden">
+        <div class="boldonse-regular absolute top-4 right-6 text-3xl sm:text-4xl text-neutral-950/[0.04] tracking-wider pointer-events-none select-none uppercase">
+            CHAT
+        </div>
+
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4 min-w-0">
+                <img src="{{ other_user.avatar_url }}" alt="{{ other_user.name }}" 
+                     class="w-14 h-14 rounded-full object-cover border border-neutral-200 shadow-2xs flex-shrink-0">
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h1 class="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight truncate">{{ other_user.name }}</h1>
+                        {% if other_user.is_aadhaar_verified %}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70" title="Aadhaar Verified">
+                            <i data-lucide="badge-check" class="w-3.5 h-3.5 text-blue-600"></i>
+                            <span>Verified</span>
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-neutral-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                        <span class="capitalize font-semibold text-neutral-700">{% if other_user.role == 'worker' %}Worker{% else %}Employer{% endif %}</span>
+                        <span class="text-neutral-300">•</span>
+                        <span class="font-semibold text-emerald-700">{{ dist_display }}</span>
+                        <span class="text-neutral-300">•</span>
+                        <span class="font-medium text-neutral-900 truncate">{{ job.title }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Live Status & Contract Pill -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/70">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Live</span>
+                </span>
+                {% if is_phone_unlocked %}
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-white">
+                    <i data-lucide="lock-open" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span>Executed</span>
+                </span>
+                {% elif contract %}
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-600"></i>
+                    <span>Signature Pending</span>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Privacy Shield / Direct Contact Unlock Banner -->
+        <div class="mt-6 pt-5 border-t border-neutral-100 relative z-10">
+            {% if is_phone_unlocked %}
+            <div class="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 font-bold text-sm text-emerald-950">
+                        <i data-lucide="phone-call" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Direct Contact Unlocked</span>
+                    </div>
+                    <p class="text-xs text-emerald-800 mt-0.5">
+                        Both parties have signed the agreement. You can call or message directly with zero brokerage.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <a href="tel:{{ other_user.phone }}" class="bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs px-4 py-2.5 rounded-full shadow-xs transition inline-flex items-center gap-1.5">
+                        <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                        <span>Call {{ other_user.phone }}</span>
+                    </a>
+                    <a href="https://wa.me/91{{ other_user.phone }}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-full transition inline-flex items-center gap-1.5">
+                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="bg-stone-50/90 border border-neutral-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                    <div class="text-neutral-600 leading-relaxed">
+                        <strong class="text-neutral-950 font-bold">Privacy Shield Active:</strong> Personal phone numbers remain masked (<span class="font-mono font-bold text-neutral-900">{{ other_user.masked_phone }}</span>) and exact home address stays protected until both parties sign the service agreement.
+                    </div>
+                </div>
+                {% if current_user.role == 'employer' and not contract %}
+                <a href="{% url 'forward_presigned_contract' room.id %}" class="bg-neutral-950 hover:bg-neutral-800 text-white font-bold px-5 py-2.5 rounded-full text-xs shadow-xs transition inline-flex items-center gap-1.5 flex-shrink-0 self-start sm:self-auto whitespace-nowrap">
+                    <i data-lucide="file-signature" class="w-3.5 h-3.5"></i>
+                    <span>Send Agreement to Worker</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Forwarded Service Agreement Card -->
+    {% if contract %}
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs p-6 sm:p-8 mb-6 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-950 text-white flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="file-check-2" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-neutral-950">Direct Vocational Service Agreement (P2P)</h3>
+                    <p class="text-[11px] text-neutral-400 font-mono">
+                        {% if digital_agreement %}REF: {{ digital_agreement.agreement_number }}{% else %}ID: #{{ contract.id|stringformat:".8s" }}{% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="sm:text-right">
+                <div class="text-lg font-black text-neutral-950">₹{{ contract.agreed_price|floatformat:0 }}</div>
+                <div class="text-[11px] text-neutral-500 font-medium">{{ contract.duration_agreed }}</div>
+            </div>
+        </div>
+
+        <!-- Party Signatures Status -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+            <div class="p-4 bg-stone-50/80 rounded-2xl border border-neutral-200/70">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">1st Party (Employer)</div>
+                <div class="font-bold text-neutral-950 mt-1 flex items-center gap-1.5">
+                    <span>{{ contract.employer.name }}</span>
+                    <span class="text-emerald-600">✓ Signed</span>
+                </div>
+                <div class="text-[11px] text-neutral-400 mt-1">Signed {{ contract.employer_signed_at|date:"M d, Y H:i" }}</div>
+            </div>
+
+            <div class="p-4 bg-stone-50/80 rounded-2xl border border-neutral-200/70">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">2nd Party (Worker)</div>
+                {% if contract.worker_signature %}
+                <div class="font-bold text-emerald-700 mt-1 flex items-center gap-1.5">
+                    <span>{{ contract.worker.name }}</span>
+                    <span>✓ Signed</span>
+                </div>
+                <div class="text-[11px] text-neutral-400 mt-1">Signed {{ contract.worker_signed_at|date:"M d, Y H:i" }}</div>
+                {% else %}
+                <div class="font-bold text-amber-700 mt-1">Awaiting Worker Signature</div>
+                <div class="text-[11px] text-neutral-500 mt-1">Review & draw signature to unlock contacts.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action Footer -->
+        {% if contract.status == 'pending_worker_signature' and current_user.role == 'worker' %}
+        <div class="pt-2 text-center">
+            {% if digital_agreement %}
+            <a href="{% url 'agreement_worker_review' digital_agreement.id %}" class="w-full bg-emerald-950 hover:bg-emerald-900 text-white font-bold py-3.5 px-6 rounded-full shadow-sm transition inline-flex items-center justify-center gap-2 text-xs sm:text-sm">
+                <i data-lucide="file-signature" class="w-4 h-4 text-emerald-400"></i>
+                <span>Review Legal Agreement & Draw Signature →</span>
+            </a>
+            {% else %}
+            <a href="{% url 'worker_sign_contract' contract.id %}" class="w-full bg-emerald-950 hover:bg-emerald-900 text-white font-bold py-3.5 px-6 rounded-full shadow-sm transition inline-flex items-center justify-center gap-2 text-xs sm:text-sm">
+                <i data-lucide="check-check" class="w-4 h-4"></i>
+                <span>Accept Terms & Sign Agreement</span>
+            </a>
+            {% endif %}
+        </div>
+        {% elif digital_agreement and digital_agreement.status == 'FULLY_EXECUTED' %}
+        <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <span class="text-xs text-emerald-800 font-bold flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                <span>Agreement #{{ digital_agreement.agreement_number }} Fully Executed</span>
+            </span>
+            <a href="{% url 'agreement_download_pdf' digital_agreement.id %}" class="inline-flex items-center justify-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 transition shadow-xs">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Download Official PDF</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Real-Time In-App Chat Workspace -->
+    <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-sm overflow-hidden">
+        <!-- Top Bar -->
+        <div class="px-6 py-4 bg-white border-b border-neutral-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span class="text-xs font-bold uppercase tracking-wider text-neutral-700">Private Conversation</span>
+            </div>
+            <span class="text-[11px] font-mono text-neutral-400">Encrypted WebSocket Channel</span>
+        </div>
+
+        <!-- Architectural Dot-Grid Chat Canvas -->
+        <div id="chat-messages-stream" data-room-id="{{ room.id }}" data-other-avatar="{{ other_user.avatar_url }}"
+             class="chat-canvas-bg p-5 sm:p-7 space-y-4 min-h-[280px] max-h-[440px] overflow-y-auto scroll-smooth">
+            {% for msg in messages_list %}
+            <div class="flex flex-col {% if msg.sender == current_user %}items-end{% else %}items-start{% endif %}">
+                {% if msg.is_system_notice %}
+                <div class="w-full text-center my-2">
+                    <span class="inline-block bg-white/95 backdrop-blur-xs text-neutral-700 text-[11px] font-semibold px-4 py-1.5 rounded-full border border-neutral-200/90 shadow-2xs">
+                        {{ msg.message }}
+                    </span>
+                </div>
+                {% elif msg.sender == current_user %}
+                <!-- My Message: Distinct Deep Emerald-Teal Bubble -->
+                <div class="max-w-[78%] sm:max-w-[70%]">
+                    <div class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white rounded-2xl rounded-tr-xs px-4 py-3 text-xs sm:text-sm shadow-sm">
+                        <div class="leading-relaxed">{{ msg.message }}</div>
+                    </div>
+                    <div class="flex items-center justify-end gap-1 mt-1 px-1 text-[10px] text-neutral-400 font-mono">
+                        <span>{{ msg.created_at|date:"H:i" }}</span>
+                        <i data-lucide="check-check" class="w-3 h-3 text-emerald-600"></i>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Other Party Message: Crisp Elevated White Card with Avatar -->
+                <div class="flex items-end gap-2.5 max-w-[82%] sm:max-w-[74%]">
+                    <img src="{{ other_user.avatar_url }}" alt="{{ msg.sender.name }}" class="w-7 h-7 rounded-full object-cover border border-neutral-200 flex-shrink-0 mb-4 shadow-2xs">
+                    <div>
+                        <div class="bg-white text-neutral-900 rounded-2xl rounded-tl-xs px-4 py-3 text-xs sm:text-sm shadow-xs border border-neutral-200/80">
+                            <div class="text-[10px] text-neutral-400 font-bold mb-0.5">{{ msg.sender.name }}</div>
+                            <div class="leading-relaxed">{{ msg.message }}</div>
+                        </div>
+                        <div class="mt-1 px-1 text-[10px] text-neutral-400 font-mono">{{ msg.created_at|date:"H:i" }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div id="chat-empty-state" class="text-center py-14">
+                <div class="w-11 h-11 rounded-full bg-white border border-neutral-200 text-neutral-400 flex items-center justify-center mx-auto mb-2.5 shadow-2xs">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                </div>
+                <div class="text-xs font-bold text-neutral-700">Start Coordinating</div>
+                <p class="text-[11px] text-neutral-400 mt-0.5">Messages appear instantly for both parties.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Quick-Reply Chips + Suggestive Employer Vetting Questions + Pill Composer -->
+        <div class="p-4 sm:p-5 bg-white border-t border-neutral-100 space-y-3">
+            {% if current_user.role == 'employer' and suggested_questions %}
+            <!-- Category-Specific Suggestive Vetting Questions for Employer -->
+            <div class="p-3 rounded-2xl bg-stone-50/90 border border-neutral-200/70 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
+                        <i data-lucide="sparkles" class="w-3 h-3 text-emerald-700"></i>
+                        <span>{% if current_lang == 'hi' %}{{ job.category }} से पूछने के लिए जरूरी सवाल{% else %}Helpful questions to ask ({{ job.category }}){% endif %}</span>
+                    </span>
+                    <span class="text-[10px] text-neutral-400">{% if current_lang == 'hi' %}भेजने के लिए चुनें{% else %}Tap to ask{% endif %}</span>
+                </div>
+                <div id="suggested-questions-chips" class="flex flex-wrap gap-1.5">
+                    {% for q in suggested_questions %}
+                    <button type="button" onclick="quickReply('{{ q|escapejs }}')"
+                            class="text-left text-[11px] font-medium px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 hover:text-emerald-950 hover:border-emerald-300 text-neutral-700 border border-neutral-200/80 transition cursor-pointer shadow-2xs">
+                        {{ q }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Replies -->
+            <div class="flex flex-wrap items-center gap-1.5">
+                {% if current_user.role == 'worker' %}
+                <button type="button" onclick="quickReply('Yes, I am available and ready to start.')" class="text-[11px] font-medium px-3 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-neutral-700 transition cursor-pointer">Yes, I am available</button>
+                <button type="button" onclick="quickReply('The offered compensation works for me.')" class="text-[11px] font-medium px-3 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-neutral-700 transition cursor-pointer">Rate confirmed</button>
+                <button type="button" onclick="quickReply('Please forward the agreement so I can review and sign.')" class="text-[11px] font-medium px-3 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-neutral-700 transition cursor-pointer">Please send agreement</button>
+                {% else %}
+                <button type="button" onclick="quickReply('Are you available for the scheduled time?')" class="text-[11px] font-medium px-3 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-neutral-700 transition cursor-pointer">Check availability</button>
+                <button type="button" onclick="quickReply('Please review and sign the agreement I just sent.')" class="text-[11px] font-medium px-3 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-neutral-700 transition cursor-pointer">Please sign agreement</button>
+                {% endif %}
+            </div>
+
+            <!-- Composer Bar -->
+            <form id="chat-send-form" method="POST" action="{% url 'send_chat_message' room.id %}" class="flex items-center gap-2 bg-stone-50 border border-neutral-200/90 focus-within:border-emerald-900 focus-within:bg-white rounded-full p-1.5 pl-5 transition">
+                {% csrf_token %}
+                <input id="chat-message-input" type="text" name="message" required autocomplete="off"
+                       placeholder="{% if current_lang == 'hi' %}संदेश लिखें...{% else %}Write your message...{% endif %}" 
+                       class="flex-1 bg-transparent text-xs sm:text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none">
+                <button id="chat-send-btn" type="submit" class="bg-emerald-950 hover:bg-emerald-900 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+                    <span>Send</span>
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script>
+    window.quickReply = function(text) {
+        var inp = document.getElementById('chat-message-input');
+        if (inp) {
+            inp.value = text;
+            inp.focus();
+        }
+    };
+
+    (function initRealtimeChatRoom() {
+        var stream = document.getElementById('chat-messages-stream');
+        var form = document.getElementById('chat-send-form');
+        var input = document.getElementById('chat-message-input');
+        var sendBtn = document.getElementById('chat-send-btn');
+        var roomId = stream ? stream.getAttribute('data-room-id') : '';
+        var otherAvatar = stream ? stream.getAttribute('data-other-avatar') : '';
+
+        function scrollToBottom() {
+            if (stream) {
+                stream.scrollTop = stream.scrollHeight;
+            }
+        }
+        scrollToBottom();
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str || ''));
+            return div.innerHTML;
+        }
+
+        function appendBubble(senderName, text, timestamp, isSelf) {
+            if (!stream) return;
+            var empty = document.getElementById('chat-empty-state');
+            if (empty) empty.remove();
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'flex flex-col ' + (isSelf ? 'items-end' : 'items-start');
+
+            if (isSelf) {
+                wrapper.innerHTML =
+                    '<div class="max-w-[78%] sm:max-w-[70%]">' +
+                        '<div class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white rounded-2xl rounded-tr-xs px-4 py-3 text-xs sm:text-sm shadow-sm">' +
+                            '<div class="leading-relaxed">' + escapeHtml(text) + '</div>' +
+                        '</div>' +
+                        '<div class="flex items-center justify-end gap-1 mt-1 px-1 text-[10px] text-neutral-400 font-mono">' +
+                            '<span>' + escapeHtml(timestamp || 'Now') + '</span>' +
+                            '<i data-lucide="check-check" class="w-3 h-3 text-emerald-600"></i>' +
+                        '</div>' +
+                    '</div>';
+            } else {
+                wrapper.innerHTML =
+                    '<div class="flex items-end gap-2.5 max-w-[82%] sm:max-w-[74%]">' +
+                        '<img src="' + escapeHtml(otherAvatar) + '" alt="" class="w-7 h-7 rounded-full object-cover border border-neutral-200 flex-shrink-0 mb-4 shadow-2xs">' +
+                        '<div>' +
+                            '<div class="bg-white text-neutral-900 rounded-2xl rounded-tl-xs px-4 py-3 text-xs sm:text-sm shadow-xs border border-neutral-200/80">' +
+                                '<div class="text-[10px] text-neutral-400 font-bold mb-0.5">' + escapeHtml(senderName) + '</div>' +
+                                '<div class="leading-relaxed">' + escapeHtml(text) + '</div>' +
+                            '</div>' +
+                            '<div class="mt-1 px-1 text-[10px] text-neutral-400 font-mono">' + escapeHtml(timestamp || 'Now') + '</div>' +
+                        '</div>' +
+                    '</div>';
+            }
+
+            stream.appendChild(wrapper);
+            if (window.lucide) lucide.createIcons();
+            scrollToBottom();
+        }
+
+        function refreshSuggestedQuestions() {
+            var chipsBox = document.getElementById('suggested-questions-chips');
+            if (!chipsBox || !roomId) return;
+            fetch('/chat/' + roomId + '/suggested-questions/')
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(data) {
+                    if (!data || !Array.isArray(data.questions) || !data.questions.length) return;
+                    chipsBox.innerHTML = '';
+                    data.questions.forEach(function(q) {
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'text-left text-[11px] font-medium px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 hover:text-emerald-950 hover:border-emerald-300 text-neutral-700 border border-neutral-200/80 transition cursor-pointer shadow-2xs';
+                        btn.textContent = q;
+                        btn.addEventListener('click', function() { window.quickReply(q); });
+                        chipsBox.appendChild(btn);
+                    });
+                })
+                .catch(function() {});
+        }
+
+        // Upgrade suggested questions asynchronously on load so page render is never blocked
+        {% if current_user.role == 'employer' %}
+        setTimeout(refreshSuggestedQuestions, 150);
+        {% endif %}
+
+        if (form && input) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var text = input.value.trim();
+                if (!text) return;
+
+                var formData = new FormData(form);
+                if (sendBtn) sendBtn.disabled = true;
+                input.value = '';
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (sendBtn) sendBtn.disabled = false;
+                    if (data.status === 'ok') {
+                        appendBubble(data.sender_name, data.message, data.timestamp, true);
+                        refreshSuggestedQuestions();
+                    }
+                    input.focus();
+                })
+                .catch(function() {
+                    if (sendBtn) sendBtn.disabled = false;
+                    form.submit();
+                });
+            });
+        }
+
+        window.addEventListener('rojgar:chat_message', function(e) {
+            var cm = e.detail || {};
+            if (cm.room_id === roomId) {
+                appendBubble(cm.sender_name, cm.message, cm.timestamp, false);
+                refreshSuggestedQuestions();
+            }
+        });
+
+        window.addEventListener('rojgar:contract_forwarded', function() {
+            window.location.reload();
+        });
+        window.addEventListener('rojgar:agreement_updated', function() {
+            window.location.reload();
+        });
+    })();
+</script>
+{% endblock %}
