@@ -103,7 +103,7 @@
 
         <!-- Main Form Wrapper -->
         <div class="max-w-2xl mx-auto w-full">
-            <form method="POST" id="form-employer-register" class="space-y-6">
+            <form method="POST" id="form-employer-register" class="space-y-6" autocomplete="off">
                 {% csrf_token %}
 
                 <!-- ============================================================= -->
@@ -175,7 +175,7 @@
                     </div>
 
                     <!-- Row 3: Hyperlocal Location (GPS One-Click) -->
-                    <div class="p-5 rounded-2xl bg-neutral-50/90 border border-neutral-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+                    <div id="employer-location-card" class="p-5 rounded-2xl bg-neutral-50/90 border border-neutral-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs transition-colors">
                         <div class="space-y-1">
                             <span class="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5">
                                 <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
@@ -475,32 +475,113 @@
         const btnStep1Next = document.getElementById('btn-step-1-next');
         const btnStep2Back = document.getElementById('btn-step-2-back');
 
+        function clearFieldErrors(scope) {
+            hideError();
+            const root = scope || document;
+            root.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+            root.querySelectorAll('.field-error-ring').forEach(el => {
+                el.classList.remove('field-error-ring', 'border-rose-500', 'ring-2', 'ring-rose-500/20');
+            });
+        }
+
+        function markFieldError(el, msg) {
+            showError(msg);
+            if (!el) return;
+            el.classList.add('field-error-ring', 'border-rose-500', 'ring-2', 'ring-rose-500/20');
+            const p = document.createElement('p');
+            p.className = 'field-error-msg text-xs text-rose-600 font-semibold mt-1.5';
+            p.textContent = msg;
+            if (el.id === 'employer-location-card') {
+                el.insertAdjacentElement('afterend', p);
+            } else {
+                el.parentElement.appendChild(p);
+            }
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (typeof el.focus === 'function' && el.tagName === 'INPUT') el.focus();
+
+            const clearOnFix = () => {
+                el.classList.remove('field-error-ring', 'border-rose-500', 'ring-2', 'ring-rose-500/20');
+                if (p.parentElement) p.remove();
+                hideError();
+                el.removeEventListener('input', clearOnFix);
+            };
+            if (el.tagName === 'INPUT') el.addEventListener('input', clearOnFix);
+        }
+
         if (btnStep1Next) {
-            btnStep1Next.addEventListener('click', function() {
+            btnStep1Next.addEventListener('click', async function() {
+                const step1El = document.getElementById('wizard-step-1');
+                clearFieldErrors(step1El);
+
                 const nameInp = document.querySelector('input[name="name"]');
+                const emailInp = document.querySelector('input[name="email"]');
                 const phoneInp = document.querySelector('input[name="phone"]');
                 const passInp = document.querySelector('input[name="password"]');
+                const latInp = document.querySelector('input[name="latitude"]');
+                const lngInp = document.querySelector('input[name="longitude"]');
+                const locCard = document.getElementById('employer-location-card');
 
-                if (!nameInp || !nameInp.value.trim()) {
-                    showError("Please enter your full name.");
-                    nameInp && nameInp.focus();
+                const nameVal = (nameInp ? nameInp.value : '').trim();
+                const emailVal = (emailInp ? emailInp.value : '').trim();
+                const cleanPhone = (phoneInp ? phoneInp.value : '').replace(/[\s-]+/g, '').trim();
+                if (phoneInp) phoneInp.value = cleanPhone;
+
+                if (nameVal.length < 2) {
+                    markFieldError(nameInp, "Please enter your full name (at least 2 characters).");
                     return;
                 }
 
-                const cleanPhone = (phoneInp ? phoneInp.value : '').replace(/\s+/g, '').replace(/-/g, '');
+                if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+                    markFieldError(emailInp, "Please enter a valid email address or leave it blank.");
+                    return;
+                }
+
                 if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-                    showError("Please enter a valid 10-digit Indian mobile number.");
-                    phoneInp && phoneInp.focus();
+                    markFieldError(phoneInp, "Please enter a valid 10-digit Indian mobile number starting with 6–9.");
                     return;
                 }
 
                 if (!passInp || passInp.value.length < 6) {
-                    showError("Password must be at least 6 characters.");
-                    passInp && passInp.focus();
+                    markFieldError(passInp, "Password must be at least 6 characters.");
                     return;
                 }
 
+                if (!latInp || !latInp.value || !lngInp || !lngInp.value) {
+                    markFieldError(locCard, "Please click 'Detect My Location' so we can match nearby workers.");
+                    return;
+                }
+
+                const origHtml = btnStep1Next.innerHTML;
+                btnStep1Next.disabled = true;
+                btnStep1Next.innerHTML = '<span>Checking details...</span>';
+                try {
+                    const res = await fetch(`/api/check-registration/?phone=${encodeURIComponent(cleanPhone)}&email=${encodeURIComponent(emailVal)}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (!data.ok) {
+                            btnStep1Next.disabled = false;
+                            btnStep1Next.innerHTML = origHtml;
+                            if (window.lucide) lucide.createIcons();
+                            markFieldError(data.field === 'email' ? emailInp : phoneInp, data.message);
+                            return;
+                        }
+                    }
+                } catch (err) {}
+                btnStep1Next.disabled = false;
+                btnStep1Next.innerHTML = origHtml;
+                if (window.lucide) lucide.createIcons();
+
                 goToStep(2, 'forward');
+            });
+        }
+
+        const empForm = document.getElementById('form-employer-register');
+        if (empForm) {
+            empForm.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName === 'INPUT' && currentStep === 1 && btnStep1Next) {
+                    e.preventDefault();
+                    btnStep1Next.click();
+                }
             });
         }
 

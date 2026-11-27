@@ -169,6 +169,26 @@ def home_view(request):
 # Registration & Authentication
 # ==============================================================================
 
+def check_registration_availability_api(request):
+    """Lightweight check used by Step 1 of Worker & Employer registration wizards."""
+    phone = (request.GET.get('phone') or '').strip().replace(' ', '').replace('-', '')
+    email = (request.GET.get('email') or '').strip()
+
+    if phone and UserAccount.objects.filter(phone=phone).exists():
+        return JsonResponse({
+            'ok': False,
+            'field': 'phone',
+            'message': 'This mobile number is already registered. Please log in instead.',
+        })
+    if email and UserAccount.objects.filter(email__iexact=email).exists():
+        return JsonResponse({
+            'ok': False,
+            'field': 'email',
+            'message': 'This email address is already registered. Please use another or log in.',
+        })
+    return JsonResponse({'ok': True})
+
+
 def register_view(request):
     """Landing registration screen allowing choice between Worker and Employer."""
     if _get_current_user(request):
@@ -588,10 +608,16 @@ def jobs_list_view(request):
     user = _get_current_user(request)
     category = request.GET.get('category', 'all')
 
-    user_lat = user.latitude if user and user.latitude else 28.6280
-    user_lng = user.longitude if user and user.longitude else 77.3649
-
-    jobs = get_hyperlocal_jobs(user_lat, user_lng, category=category, max_radius_km=10.0)
+    if user and user.latitude and user.longitude:
+        jobs = get_hyperlocal_jobs(user.latitude, user.longitude, category=category, max_radius_km=10.0)
+    else:
+        # Public preview: show active jobs across cities (city-only location, no exact locality)
+        qs = Job.objects.filter(is_active=True, status='active').select_related('employer').order_by('-created_at')
+        if category and category.lower() != 'all':
+            qs = qs.filter(category__iexact=category)
+        jobs = list(qs)
+        for j in jobs:
+            j.distance_display = j.city or "India"
     categories = Category.objects.all().order_by('name_en')
 
     # Get user's applied job IDs to show application state
@@ -1378,10 +1404,19 @@ def workers_list_view(request):
     user = _get_current_user(request)
     trade = request.GET.get('trade', 'all')
 
-    user_lat = user.latitude if user and user.latitude else 28.6280
-    user_lng = user.longitude if user and user.longitude else 77.3649
-
-    workers = get_hyperlocal_workers(user_lat, user_lng, trade=trade, max_radius_km=10.0)
+    if user and user.latitude and user.longitude:
+        workers = get_hyperlocal_workers(user.latitude, user.longitude, trade=trade, max_radius_km=10.0)
+    else:
+        # Public preview: show available verified workers across cities (city-only location)
+        qs = WorkerProfile.objects.filter(is_available=True).select_related('user').order_by('-rating_avg', '-updated_at')
+        workers = list(qs)
+        if trade and trade.lower() != 'all':
+            workers = [
+                p for p in workers
+                if any(t.lower() == trade.lower() for t in (p.trades or [])) or p.primary_trade.lower() == trade.lower()
+            ]
+        for w in workers:
+            w.distance_display = w.city or "India"
     categories = Category.objects.all().order_by('name_en')
 
     context = {

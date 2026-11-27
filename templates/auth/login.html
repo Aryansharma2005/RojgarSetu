@@ -1,75 +1,181 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ T.nav_login }} - {{ T.brand_title }}{% endblock %}
 
+{% block extra_head %}
+<style>
+    @keyframes loginFadeUp {
+        0% {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-login-header {
+        animation: loginFadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-login-card {
+        animation: loginFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards;
+        opacity: 0;
+    }
+
+    .mask-soft-dissolve-left {
+        -webkit-mask-image: radial-gradient(
+            ellipse 38% 42% at 45% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: radial-gradient(
+            ellipse 38% 42% at 45% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+    }
+
+    .mask-soft-dissolve-right {
+        -webkit-mask-image: radial-gradient(
+            ellipse 38% 42% at 55% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: radial-gradient(
+            ellipse 38% 42% at 55% 50%,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.95) 25%,
+            rgba(0, 0, 0, 0.70) 45%,
+            rgba(0, 0, 0, 0.35) 65%,
+            rgba(0, 0, 0, 0.10) 80%,
+            rgba(0, 0, 0, 0.02) 90%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="w-full min-h-[calc(100vh-4.5rem)] flex flex-col justify-between px-4 sm:px-8 py-8 max-w-xl mx-auto">
+<div class="relative w-full min-h-[calc(100vh-4.05rem)] bg-white overflow-hidden flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-10">
 
-    <!-- Header -->
-    <div class="text-center pt-4">
-        <div class="w-12 h-12 rounded-2xl bg-neutral-950 text-white flex items-center justify-center mx-auto mb-3 shadow-xs">
-            <i data-lucide="log-in" class="w-5 h-5"></i>
-        </div>
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950">{{ T.nav_login }}</h1>
-        <p class="text-xs text-neutral-400 mt-1">Access your Rojgar Setu verified dashboard</p>
+    <!-- Soft Feathered Side Portraits (Matching Registration Page Aesthetic) -->
+    <div class="hidden lg:block absolute -left-8 xl:left-0 top-1/2 -translate-y-1/2 w-[40%] max-w-[620px] h-[78vh] max-h-[720px] pointer-events-none select-none opacity-90">
+        <img src="{% static 'images/register_worker.jpg' %}" alt="" class="w-full h-full object-cover object-center mask-soft-dissolve-left">
+    </div>
+    <div class="hidden lg:block absolute -right-8 xl:right-0 top-1/2 -translate-y-1/2 w-[40%] max-w-[620px] h-[78vh] max-h-[720px] pointer-events-none select-none opacity-90">
+        <img src="{% static 'images/register_hirer.jpg' %}" alt="" class="w-full h-full object-cover object-center mask-soft-dissolve-right">
     </div>
 
-    <!-- Login Form (Open Canvas) -->
-    <div class="py-6 w-full">
-        <form method="POST" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">{% if current_lang == 'hi' %}फोन नंबर या ईमेल{% else %}Mobile Number or Email{% endif %}</label>
-                {{ form.phone }}
-                {% if form.phone.errors %}
-                    <p class="text-xs text-rose-500 mt-1">{{ form.phone.errors.0 }}</p>
+    <!-- Centered Minimalist Content -->
+    <div class="relative z-10 w-full max-w-md mx-auto space-y-7">
+
+        <!-- Header -->
+        <div class="text-center space-y-2 animate-login-header">
+            <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-neutral-950">
+                {% if current_lang == 'hi' %}वापस स्वागत है{% else %}Welcome back{% endif %}
+            </h1>
+            <p class="text-xs sm:text-sm text-neutral-500 max-w-sm mx-auto leading-relaxed">
+                {% if current_lang == 'hi' %}
+                    अपने रोजगार सेतु खाते में लॉगिन करें।
+                {% else %}
+                    Sign in to manage your jobs, direct chats, and agreements with zero middleman fees.
                 {% endif %}
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-800 mb-1.5">{% if current_lang == 'hi' %}पासवर्ड{% else %}Password{% endif %}</label>
-                {{ form.password }}
-                {% if form.password.errors %}
-                    <p class="text-xs text-rose-500 mt-1">{{ form.password.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <button type="submit" class="w-full bg-neutral-950 hover:bg-neutral-800 text-white font-semibold py-3.5 rounded-full transition shadow-xs text-xs sm:text-sm mt-3 cursor-pointer">
-                {{ T.nav_login }}
-            </button>
-        </form>
-
-        <!-- Demo Accounts Quick Click (Pill Buttons) -->
-        <div class="mt-6 pt-5 border-t border-neutral-100">
-            <div class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2.5 text-center">Quick Demo Accounts</div>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-                <button type="button" onclick="fillDemo('9870001111', 'password123')" 
-                        class="p-3 rounded-2xl border border-neutral-200/80 bg-neutral-50/80 hover:bg-neutral-100 hover:border-neutral-300 text-left transition shadow-xs cursor-pointer">
-                    <strong class="block text-neutral-900 text-xs">Karigar (Worker)</strong>
-                    <span class="text-neutral-400 text-[11px]">9870001111</span>
-                </button>
-                <button type="button" onclick="fillDemo('9811223344', 'password123')" 
-                        class="p-3 rounded-2xl border border-neutral-200/80 bg-neutral-50/80 hover:bg-neutral-100 hover:border-neutral-300 text-left transition shadow-xs cursor-pointer">
-                    <strong class="block text-neutral-900 text-xs">Employer</strong>
-                    <span class="text-neutral-400 text-[11px]">9811223344</span>
-                </button>
-            </div>
-            <div class="text-[11px] text-neutral-400 text-center mt-2">Password: <code class="font-mono bg-neutral-100 px-1 py-0.5 rounded">password123</code></div>
+            </p>
         </div>
-    </div>
 
-    <!-- Footer Note -->
-    <div class="text-center text-xs text-neutral-500 pb-4">
-        Don't have an account yet? 
-        <a href="{% url 'register' %}" class="font-semibold text-neutral-950 hover:underline">{{ T.nav_register }}</a>
-    </div>
+        <!-- Clean Minimalist Card -->
+        <div class="animate-login-card bg-white rounded-3xl border border-neutral-200/90 shadow-card p-7 sm:p-9 space-y-6">
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                        {% if current_lang == 'hi' %}फोन नंबर या ईमेल{% else %}Mobile Number or Email{% endif %}
+                    </label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <p class="text-xs text-rose-600 mt-1 font-medium">{{ form.phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
 
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                        {% if current_lang == 'hi' %}पासवर्ड{% else %}Password{% endif %}
+                    </label>
+                    <div class="relative">
+                        {{ form.password }}
+                        <button type="button" id="toggle-login-password"
+                                title="Show / Hide Password"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 flex items-center justify-center transition cursor-pointer">
+                            <i id="toggle-login-password-icon" data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <p class="text-xs text-rose-600 mt-1 font-medium">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="w-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold py-3.5 rounded-full transition shadow-sm text-xs sm:text-sm mt-2 inline-flex items-center justify-center gap-2 cursor-pointer">
+                    <span>{{ T.nav_login }}</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
+
+            <div class="pt-5 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500">
+                <span>{% if current_lang == 'hi' %}नया खाता बनाना है?{% else %}Don't have an account yet?{% endif %}</span>
+                <a href="{% url 'register' %}" class="inline-flex items-center gap-1 font-bold text-neutral-950 hover:text-emerald-700 transition">
+                    <span>{{ T.nav_register }}</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <script>
-    function fillDemo(phone, pass) {
-        document.querySelector('input[name="phone"]').value = phone;
-        document.querySelector('input[name="password"]').value = pass;
-    }
+    (function () {
+        var btn = document.getElementById('toggle-login-password');
+        var pwd = document.querySelector('input[name="password"]');
+        var icon = document.getElementById('toggle-login-password-icon');
+        if (pwd) pwd.style.paddingRight = '2.75rem';
+        if (btn && pwd) {
+            btn.addEventListener('click', function () {
+                var isHidden = pwd.type === 'password';
+                pwd.type = isHidden ? 'text' : 'password';
+                if (icon) {
+                    icon.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+                    if (window.lucide) lucide.createIcons();
+                }
+            });
+        }
+    })();
 </script>
 {% endblock %}
+
+{% block footer %}{% endblock %}

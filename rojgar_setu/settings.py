@@ -160,3 +160,7 @@ STORAGES = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Allow high-res profile photos, cropped WebP data URLs, and agreement signatures (15 MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024

@@ -15,6 +15,7 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('register/worker/', views.register_worker_view, name='register_worker'),
     path('register/employer/', views.register_employer_view, name='register_employer'),
+    path('api/check-registration/', views.check_registration_availability_api, name='check_registration_availability'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     

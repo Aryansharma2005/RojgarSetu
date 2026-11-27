@@ -127,15 +127,15 @@ class EmployerRegisterForm(forms.Form):
     )
     phone = forms.CharField(
         max_length=15,
-        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': '10-digit Mobile Number'})
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': '10-digit Mobile Number', 'autocomplete': 'off'})
     )
     email = forms.EmailField(
         required=False,
-        widget=forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'Email Address'})
+        widget=forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'Email Address', 'autocomplete': 'off'})
     )
     password = forms.CharField(
         min_length=6,
-        widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Password (min 6 chars)'})
+        widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Password (min 6 chars)', 'autocomplete': 'new-password'})
     )
     city = forms.CharField(max_length=80, initial='Noida', required=False, widget=forms.HiddenInput())
     locality = forms.CharField(max_length=120, initial='Sector 62', required=False, widget=forms.HiddenInput())

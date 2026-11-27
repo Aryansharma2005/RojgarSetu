@@ -54,6 +54,19 @@
             </a>
             {% endfor %}
         </div>
+
+        {% if not current_user %}
+        <div class="mt-5 p-3.5 sm:p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+            <div class="flex items-center gap-2.5 text-xs text-emerald-950">
+                <i data-lucide="map-pin" class="w-4 h-4 text-emerald-700 flex-shrink-0"></i>
+                <span>Showing active openings on Rojgar Setu. <strong>Log in</strong> or <strong>Register as Worker</strong> to see jobs near you and apply in 1 click.</span>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="{% url 'login' %}" class="px-4 py-1.5 rounded-full bg-white border border-emerald-300 text-emerald-900 font-bold text-xs hover:bg-emerald-100/60 transition">Log in</a>
+                <a href="{% url 'register_worker' %}" class="px-4 py-1.5 rounded-full bg-neutral-950 text-white font-bold text-xs hover:bg-neutral-800 transition">Register as Worker →</a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <!-- Job Cards Stream -->
@@ -154,9 +167,14 @@
                         </button>
                     </form>
                     {% endif %}
-                {% else %}
+                {% elif current_user %}
                     <a href="{% url 'job_detail' job.id %}" class="inline-flex items-center gap-1 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs px-5 py-2.5 rounded-full transition shadow-xs">
                         <span>Inspect</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="inline-flex items-center gap-1 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs px-5 py-2.5 rounded-full transition shadow-xs">
+                        <span>Sign in to Apply</span>
                         <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                     </a>
                 {% endif %}

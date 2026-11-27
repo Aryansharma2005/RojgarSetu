@@ -147,7 +147,7 @@
 
         <!-- Form Interactive Area -->
         <div class="max-w-2xl mx-auto w-full">
-            <form method="POST" id="karigar-wizard-form" action="{% url 'register_worker' %}">
+            <form method="POST" id="karigar-wizard-form" action="{% url 'register_worker' %}" autocomplete="off">
                 {% csrf_token %}
 
                 <!-- ============================================================= -->
@@ -207,7 +207,7 @@
                             <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                                 {% if current_lang == 'hi' %}10-अंकीय मोबाइल नंबर *{% else %}10-Digit Mobile Number *{% endif %}
                             </label>
-                            <input type="tel" name="phone" id="inp-phone" required pattern="[6-9][0-9]{9}" maxlength="10" placeholder="e.g. 9876543210"
+                            <input type="tel" name="phone" id="inp-phone" required pattern="[6-9][0-9]{9}" maxlength="10" placeholder="e.g. 9876543210" autocomplete="off"
                                    class="form-input text-sm font-mono rounded-xl bg-white border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 py-3.5 px-4 shadow-2xs" value="{{ form_data.phone|default:'' }}">
                             <p class="text-[11px] text-neutral-400 mt-1">
                                 {% if current_lang == 'hi' %}अनुबंध होने तक नंबर सुरक्षित और गोपनीय रहता है।{% else %}Your number stays private until contract agreement.{% endif %}
@@ -217,13 +217,13 @@
                             <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                                 {% if current_lang == 'hi' %}खाता पासवर्ड *{% else %}Account Password *{% endif %}
                             </label>
-                            <input type="password" name="password" id="inp-password" required minlength="6" placeholder="min 6 characters"
+                            <input type="password" name="password" id="inp-password" required minlength="6" placeholder="min 6 characters" autocomplete="new-password"
                                    class="form-input text-sm rounded-xl bg-white border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 py-3.5 px-4 shadow-2xs">
                         </div>
                     </div>
 
                     <!-- Row 3: Hyperlocal Location (Pure Button Experience - Screenshot 2 Match) -->
-                    <div class="p-5 rounded-2xl bg-neutral-50/90 border border-neutral-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+                    <div id="worker-location-card" class="p-5 rounded-2xl bg-neutral-50/90 border border-neutral-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs transition-colors">
                         <div class="space-y-1">
                             <span class="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5">
                                 <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
@@ -529,6 +529,39 @@
             errorBanner.classList.add('hidden');
         }
 
+        function clearFieldErrors(scope) {
+            hideError();
+            const root = scope || document;
+            root.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+            root.querySelectorAll('.field-error-ring').forEach(el => {
+                el.classList.remove('field-error-ring', 'border-rose-500', 'ring-2', 'ring-rose-500/20');
+            });
+        }
+
+        function markFieldError(el, msg) {
+            showError(msg);
+            if (!el) return;
+            el.classList.add('field-error-ring', 'border-rose-500', 'ring-2', 'ring-rose-500/20');
+            const p = document.createElement('p');
+            p.className = 'field-error-msg text-xs text-rose-600 font-semibold mt-1.5';
+            p.textContent = msg;
+            if (el.id === 'worker-location-card') {
+                el.insertAdjacentElement('afterend', p);
+            } else {
+                el.parentElement.appendChild(p);
+            }
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (typeof el.focus === 'function' && el.tagName === 'INPUT') el.focus();
+
+            const clearOnFix = () => {
+                el.classList.remove('field-error-ring', 'border-rose-500', 'ring-2', 'ring-rose-500/20');
+                if (p.parentElement) p.remove();
+                hideError();
+                el.removeEventListener('input', clearOnFix);
+            };
+            if (el.tagName === 'INPUT') el.addEventListener('input', clearOnFix);
+        }
+
         // =====================================================================
         // SILKY SMOOTH STEP TRANSITION (Subtle cross-fade & zero layout jumps)
         // =====================================================================
@@ -576,25 +609,79 @@
         // =====================================================================
         // STEP 1 VALIDATION & EVENTS
         // =====================================================================
-        document.getElementById('btn-step-1-next').addEventListener('click', function() {
-            const name = document.getElementById('inp-name').value.trim();
-            const phone = document.getElementById('inp-phone').value.trim();
-            const password = document.getElementById('inp-password').value;
+        const btnStep1Next = document.getElementById('btn-step-1-next');
+        btnStep1Next.addEventListener('click', async function() {
+            const step1El = document.getElementById('wizard-step-1');
+            clearFieldErrors(step1El);
 
-            if (!name) {
-                showError("Please enter your full name.");
+            const nameInp = document.getElementById('inp-name');
+            const emailInp = document.getElementById('inp-email');
+            const phoneInp = document.getElementById('inp-phone');
+            const passInp = document.getElementById('inp-password');
+            const latInp = document.getElementById('inp-latitude');
+            const lngInp = document.getElementById('inp-longitude');
+            const locCard = document.getElementById('worker-location-card');
+
+            const name = (nameInp.value || '').trim();
+            const email = (emailInp.value || '').trim();
+            const phone = (phoneInp.value || '').trim().replace(/[\s-]+/g, '');
+            phoneInp.value = phone;
+            const password = passInp.value || '';
+
+            if (name.length < 2) {
+                markFieldError(nameInp, "Please enter your full name (at least 2 characters).");
+                return;
+            }
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                markFieldError(emailInp, "Please enter a valid email address or leave it blank.");
                 return;
             }
             if (!/^[6-9]\d{9}$/.test(phone)) {
-                showError("Please enter a valid 10-digit Indian mobile number (starting with 6-9).");
+                markFieldError(phoneInp, "Please enter a valid 10-digit Indian mobile number starting with 6–9.");
                 return;
             }
             if (password.length < 6) {
-                showError("Password must be at least 6 characters long.");
+                markFieldError(passInp, "Password must be at least 6 characters long.");
+                return;
+            }
+            if (!latInp || !latInp.value || !lngInp || !lngInp.value) {
+                markFieldError(locCard, "Please click 'Detect My Location' so nearby employers can find you.");
                 return;
             }
 
+            // Check if mobile number or email is already registered before moving to Step 2
+            const origHtml = btnStep1Next.innerHTML;
+            btnStep1Next.disabled = true;
+            btnStep1Next.innerHTML = '<span>Checking details...</span>';
+            try {
+                const res = await fetch(`/api/check-registration/?phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!data.ok) {
+                        btnStep1Next.disabled = false;
+                        btnStep1Next.innerHTML = origHtml;
+                        if (window.lucide) lucide.createIcons();
+                        markFieldError(data.field === 'email' ? emailInp : phoneInp, data.message);
+                        return;
+                    }
+                }
+            } catch (err) {
+                // Allow proceeding if offline/network hiccup; server still validates on submit
+            }
+            btnStep1Next.disabled = false;
+            btnStep1Next.innerHTML = origHtml;
+            if (window.lucide) lucide.createIcons();
+
             goToStep(2, 'forward');
+        });
+
+        // Prevent Enter key from submitting before final step
+        document.getElementById('karigar-wizard-form').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT' && currentStep < 4) {
+                e.preventDefault();
+                const nextBtn = document.getElementById(`btn-step-${currentStep}-next`);
+                if (nextBtn) nextBtn.click();
+            }
         });
 
         // Instant GPS Detection Button (Screenshot 2 match)

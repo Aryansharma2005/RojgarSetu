@@ -238,20 +238,28 @@
 <!-- Prominently showcases real metrics, savings and architectural advantages -->
 <!-- Covers full screen (min-h-screen) with large punchy typography            -->
 <!-- ========================================================================= -->
-<section class="relative w-full min-h-screen flex flex-col justify-center bg-neutral-50/50 py-16 lg:py-24 border-b border-neutral-100">
+<section class="relative w-full min-h-screen flex flex-col justify-center bg-neutral-50/50 py-14 lg:py-20 border-b border-neutral-100 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         
-        <!-- Section Header -->
-        <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-            <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/70 px-4 py-1.5 rounded-full border border-emerald-200/80 shadow-xs">
-                Live Hyperlocal Ledger
-            </span>
-            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mt-4 leading-tight">
-                Empowering Local Economies With ₹0 Brokerage
-            </h2>
-            <p class="text-base sm:text-lg text-neutral-600 mt-3.5 leading-relaxed">
-                By eliminating third-party agencies that cut 20% to 30% from daily wages, Rojgar Setu keeps 100% of the value between the household and the artisan.
-            </p>
+        <!-- Section Header with Custom Rojgar Setu Mascot -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 mb-8 sm:mb-12">
+            <div class="lg:col-span-7 text-center lg:text-left">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 leading-tight">
+                    Empowering Local Economies With ₹0 Brokerage
+                </h2>
+                <p class="text-base sm:text-lg text-neutral-600 mt-4 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    By eliminating third-party agencies that cut 20% to 30% from daily wages, Rojgar Setu keeps 100% of the value between the household and the artisan.
+                </p>
+            </div>
+
+            <div class="lg:col-span-5 flex justify-center lg:justify-end relative">
+                <div class="relative w-64 sm:w-72 lg:w-80 flex items-end justify-center">
+                    <!-- Soft Ambient Emerald Glow -->
+                    <div class="absolute inset-4 rounded-full bg-emerald-200/40 blur-3xl pointer-events-none"></div>
+                    <img src="{% static 'images/rojgar_mascot.png' %}" alt="Rojgar Setu Mascot"
+                         class="relative z-10 w-full h-auto object-contain drop-shadow-md select-none">
+                </div>
+            </div>
         </div>
 
         <!-- 4 Large Punchy Metric Cards -->
@@ -265,12 +273,12 @@
                     <div class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 font-sans">
                         {{ total_jobs }}
                     </div>
-                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Active Openings</div>
-                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">Ready for 1-click application</div>
+                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Open Jobs</div>
+                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">Apply in just 1 click</div>
                 </div>
             </div>
 
-            <!-- Metric 2: Verified Karigars -->
+            <!-- Metric 2: Verified Workers -->
             <div class="bg-white p-7 sm:p-9 rounded-3xl shadow-card border border-neutral-200/80 hover:border-neutral-950 transition-all duration-300 flex flex-col justify-between">
                 <div class="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-900 flex items-center justify-center mb-5">
                     <i data-lucide="users" class="w-6 h-6 stroke-[2]"></i>
@@ -279,12 +287,12 @@
                     <div class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 font-sans">
                         {{ total_workers }}
                     </div>
-                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Verified Karigars</div>
-                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">Screened with Gemini Flash AI</div>
+                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Verified Workers</div>
+                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">ID and skill checked</div>
                 </div>
             </div>
 
-            <!-- Metric 3: Executed Contracts -->
+            <!-- Metric 3: Jobs Agreed -->
             <div class="bg-white p-7 sm:p-9 rounded-3xl shadow-card border border-neutral-200/80 hover:border-neutral-950 transition-all duration-300 flex flex-col justify-between">
                 <div class="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-900 flex items-center justify-center mb-5">
                     <i data-lucide="file-check-2" class="w-6 h-6 stroke-[2]"></i>
@@ -293,12 +301,12 @@
                     <div class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 font-sans">
                         {{ total_contracts }}
                     </div>
-                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Executed Contracts</div>
-                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">Digital pre-signed agreements</div>
+                    <div class="text-sm sm:text-base font-bold text-neutral-900 mt-2">Jobs Agreed</div>
+                    <div class="text-xs sm:text-sm text-neutral-500 mt-1">Both sides signed safely</div>
                 </div>
             </div>
 
-            <!-- Metric 4: Agency Fees Saved -->
+            <!-- Metric 4: Brokerage Saved -->
             <div class="bg-white p-7 sm:p-9 rounded-3xl shadow-card border-2 border-emerald-500/80 hover:border-emerald-600 transition-all duration-300 flex flex-col justify-between bg-gradient-to-b from-white to-emerald-50/30">
                 <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-5">
                     <i data-lucide="indian-rupee" class="w-6 h-6 stroke-[2.2]"></i>
@@ -307,21 +315,21 @@
                     <div class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-emerald-700 font-sans">
                         ₹{{ total_savings|floatformat:0 }}
                     </div>
-                    <div class="text-sm sm:text-base font-bold text-emerald-950 mt-2">Agency Fees Saved</div>
-                    <div class="text-xs sm:text-sm text-emerald-700 font-medium mt-1">Retained by local community</div>
+                    <div class="text-sm sm:text-base font-bold text-emerald-950 mt-2">Brokerage Saved</div>
+                    <div class="text-xs sm:text-sm text-emerald-700 font-medium mt-1">Goes straight to workers</div>
                 </div>
             </div>
         </div>
 
-        <!-- 3 Underlying Architecture Pillars -->
+        <!-- 3 Simple Trust Pillars -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
             <div class="flex items-start space-x-4 bg-white p-6 rounded-2xl border border-neutral-200/70">
                 <div class="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center shrink-0">
                     <i data-lucide="shield-check" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-neutral-900">Masked Phone Privacy</h3>
-                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Your personal phone number is never exposed publicly. Calls and chats unlock only after mutual agreement.</p>
+                    <h3 class="text-base font-bold text-neutral-900">Private Phone Numbers</h3>
+                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Your number stays hidden. Direct calls unlock only after both sides agree on the job.</p>
                 </div>
             </div>
 
@@ -330,8 +338,8 @@
                     <i data-lucide="map-pin" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-neutral-900">PostGIS Hyperlocal Radius</h3>
-                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Precision geographic indexing pairs gigs within a 500m to 5km radius, minimizing worker transit time.</p>
+                    <h3 class="text-base font-bold text-neutral-900">Nearby Workers & Jobs</h3>
+                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Find trusted help right in your neighbourhood (500m to 5km away), so workers arrive faster.</p>
                 </div>
             </div>
 
@@ -340,8 +348,8 @@
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-neutral-900">Gemini Flash AI Verification</h3>
-                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Every worker undergoes automated domain troubleshooting questions to establish verified proficiency.</p>
+                    <h3 class="text-base font-bold text-neutral-900">Skill-Checked Helpers</h3>
+                    <p class="text-xs sm:text-sm text-neutral-500 mt-1">Every worker answers practical job questions before joining, so you can hire with confidence.</p>
                 </div>
             </div>
         </div>
@@ -353,20 +361,30 @@
 <!-- SECTION 3: FULL-SCREEN 10 VOCATIONAL TRADES (Disciplines)                 -->
 <!-- Covers full screen (min-h-screen) with large cards and grey outline art   -->
 <!-- ========================================================================= -->
-<section class="relative w-full min-h-screen flex flex-col justify-center bg-white py-16 lg:py-24 border-b border-neutral-100">
+<section class="relative w-full min-h-screen flex flex-col justify-center bg-white py-14 lg:py-20 border-b border-neutral-100 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         
-        <!-- Section Header -->
-        <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-            <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-neutral-600 bg-neutral-100 px-4 py-1.5 rounded-full border border-neutral-200 shadow-xs">
-                10 Certified Disciplines
-            </span>
-            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mt-4 leading-tight">
-                Hyperlocal Skills in Your Vicinity
-            </h2>
-            <p class="text-base sm:text-lg text-neutral-600 mt-3.5 leading-relaxed">
-                Choose from 10 vetted vocational trades. Every karigar is tested by AI for practical troubleshooting, safety and equipment readiness.
-            </p>
+        <!-- Section Header with Alternating Left Mascot -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 mb-10 sm:mb-14">
+            <div class="lg:col-span-5 order-2 lg:order-1 flex justify-center lg:justify-start relative">
+                <div class="relative w-60 sm:w-72 lg:w-80 flex items-end justify-center">
+                    <div class="absolute inset-4 rounded-full bg-emerald-100/50 blur-3xl pointer-events-none"></div>
+                    <img src="{% static 'images/rojgar_mascot_skills.png' %}" alt="Rojgar Setu Skills Mascot"
+                         class="relative z-10 w-full h-auto object-contain drop-shadow-md select-none">
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 order-1 lg:order-2 text-center lg:text-left">
+                <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-neutral-600 bg-neutral-100 px-4 py-1.5 rounded-full border border-neutral-200 shadow-xs">
+                    10 Everyday Services
+                </span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mt-4 leading-tight">
+                    Skilled Help Right in Your Neighbourhood
+                </h2>
+                <p class="text-base sm:text-lg text-neutral-600 mt-3.5 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    Pick from 10 everyday services. Every worker passes a quick skill and safety check before joining.
+                </p>
+            </div>
         </div>
 
         <!-- 10 Disciplines Grid with Top-Right Grey Outlines -->
@@ -392,7 +410,7 @@
         <!-- Quick Action Prompt -->
         <div class="mt-12 text-center">
             <a href="{% url 'jobs_list' %}" class="inline-flex items-center gap-2 text-sm sm:text-base font-bold text-neutral-950 hover:text-emerald-700 transition-colors underline underline-offset-4">
-                <span>Browse all vocational disciplines</span>
+                <span>Browse all services & jobs</span>
                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </a>
         </div>
@@ -405,91 +423,142 @@
 <!-- Step-by-step digital safety rail with larger cards and prominent steps    -->
 <!-- Covers full screen (min-h-screen)                                         -->
 <!-- ========================================================================= -->
-<section class="relative w-full min-h-screen flex flex-col justify-center bg-neutral-50/60 py-16 lg:py-24 border-b border-neutral-100">
+<section class="relative w-full min-h-screen flex flex-col justify-center bg-neutral-50/60 py-14 lg:py-20 border-b border-neutral-100 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         
-        <!-- Section Header -->
-        <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-            <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-neutral-600 bg-white px-4 py-1.5 rounded-full border border-neutral-200/80 shadow-xs">
-                Privacy Shield & Digital Rail
-            </span>
-            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mt-4 leading-tight">
-                The 5-Stage Contract Handshake
-            </h2>
-            <p class="text-base sm:text-lg text-neutral-600 mt-3.5 leading-relaxed">
-                A transparent digital rail that keeps personal phone numbers completely masked until both parties mutually agree on terms.
-            </p>
+        <!-- Section Header with Right Shield Mascot -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 mb-10 sm:mb-12">
+            <div class="lg:col-span-7 text-center lg:text-left">
+                <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-200/80 shadow-xs">
+                    How Hiring Works
+                </span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mt-4 leading-tight">
+                    How You Hire Safely in 5 Simple Steps
+                </h2>
+                <p class="text-base sm:text-lg text-neutral-600 mt-3.5 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    Your phone number stays private while you talk, and only unlocks once both sides sign the work agreement.
+                </p>
+            </div>
+
+            <div class="lg:col-span-5 flex justify-center lg:justify-end relative">
+                <div class="relative w-60 sm:w-72 lg:w-80 flex items-end justify-center">
+                    <div class="absolute inset-4 rounded-full bg-emerald-200/40 blur-3xl pointer-events-none"></div>
+                    <img src="{% static 'images/rojgar_mascot_shield.png' %}" alt="Rojgar Setu Privacy Shield Mascot"
+                         class="relative z-10 w-full h-auto object-contain drop-shadow-md select-none">
+                </div>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
-            <!-- Step 1 -->
-            <div class="bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 shadow-card hover:border-neutral-950 transition-all flex flex-col justify-between">
-                <div>
-                    <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">1</div>
-                    <h4 class="font-bold text-base sm:text-lg text-neutral-950">Defined Terms</h4>
-                    <p class="text-xs sm:text-sm text-neutral-600 mt-2.5 leading-relaxed">
-                        Project duties and agreed rates are established upfront with a verified digital signature stamp.
-                    </p>
+        <!-- Connected 5-Step Journey -->
+        <div class="relative">
+            <!-- Subtle Horizontal Connector Line (Desktop) -->
+            <div class="hidden md:block absolute top-11 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-neutral-200 via-neutral-300 to-emerald-400 pointer-events-none"></div>
+
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-5">
+                <!-- Step 1 -->
+                <div class="group bg-white p-6 rounded-3xl border border-neutral-200/90 shadow-xs hover:shadow-card hover:border-neutral-950 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-sm flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">1</div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-600">Employer</span>
+                        </div>
+                        <h4 class="font-bold text-base sm:text-lg text-neutral-950">Post &amp; Pre-Sign</h4>
+                        <p class="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
+                            Write what work you need and the pay, then sign the simple agreement to publish your job.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-3.5 border-t border-neutral-100 flex items-center justify-between text-[11px] font-semibold text-neutral-400">
+                        <span>Step 1 of 5</span>
+                        <i data-lucide="file-signature" class="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 transition-colors"></i>
+                    </div>
                 </div>
-                <div class="mt-6 pt-4 border-t border-neutral-100 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-                    Step 1 of 5
+
+                <!-- Step 2 -->
+                <div class="group bg-white p-6 rounded-3xl border border-neutral-200/90 shadow-xs hover:shadow-card hover:border-neutral-950 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-sm flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">2</div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-600">Worker</span>
+                        </div>
+                        <h4 class="font-bold text-base sm:text-lg text-neutral-950">Nearby Workers Apply</h4>
+                        <p class="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
+                            ID and skill-checked workers within 500m–5km see your job and apply in 1 click.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-3.5 border-t border-neutral-100 flex items-center justify-between text-[11px] font-semibold text-neutral-400">
+                        <span>Step 2 of 5</span>
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 transition-colors"></i>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="group bg-white p-6 rounded-3xl border border-neutral-200/90 shadow-xs hover:shadow-card hover:border-neutral-950 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-sm flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">3</div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-600">Private</span>
+                        </div>
+                        <h4 class="font-bold text-base sm:text-lg text-neutral-950">Chat Safely First</h4>
+                        <p class="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
+                            Talk inside the app to confirm timing and work details. Your phone number stays hidden.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-3.5 border-t border-neutral-100 flex items-center justify-between text-[11px] font-semibold text-neutral-400">
+                        <span>Step 3 of 5</span>
+                        <i data-lucide="shield" class="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 transition-colors"></i>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="group bg-white p-6 rounded-3xl border border-neutral-200/90 shadow-xs hover:shadow-card hover:border-neutral-950 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-sm flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">4</div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-600">Agreement</span>
+                        </div>
+                        <h4 class="font-bold text-base sm:text-lg text-neutral-950">Worker Signs Terms</h4>
+                        <p class="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
+                            Send the agreement right inside chat. The worker reads the pay and rules, then signs.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-3.5 border-t border-neutral-100 flex items-center justify-between text-[11px] font-semibold text-neutral-400">
+                        <span>Step 4 of 5</span>
+                        <i data-lucide="file-check-2" class="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 transition-colors"></i>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="group bg-gradient-to-b from-white to-emerald-50/40 p-6 rounded-3xl border-2 border-emerald-500 shadow-card hover:border-emerald-600 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">5</div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">Unlocked</span>
+                        </div>
+                        <h4 class="font-bold text-base sm:text-lg text-emerald-950">Call &amp; Start Work</h4>
+                        <p class="text-xs sm:text-sm text-emerald-900/80 mt-2 leading-relaxed font-medium">
+                            Both phone numbers unlock right away for 1-click calling and WhatsApp. Zero commission.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-3.5 border-t border-emerald-100 flex items-center justify-between text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
+                        <span>Numbers Unlocked ✓</span>
+                        <i data-lucide="phone-call" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Step 2 -->
-            <div class="bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 shadow-card hover:border-neutral-950 transition-all flex flex-col justify-between">
-                <div>
-                    <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">2</div>
-                    <h4 class="font-bold text-base sm:text-lg text-neutral-950">Hyperlocal Match</h4>
-                    <p class="text-xs sm:text-sm text-neutral-600 mt-2.5 leading-relaxed">
-                        Direct discovery within a 500m–5km PostGIS radius backed by Gemini Flash AI skill evaluations.
-                    </p>
-                </div>
-                <div class="mt-6 pt-4 border-t border-neutral-100 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-                    Step 2 of 5
-                </div>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 shadow-card hover:border-neutral-950 transition-all flex flex-col justify-between">
-                <div>
-                    <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">3</div>
-                    <h4 class="font-bold text-base sm:text-lg text-neutral-950">Masked Chat</h4>
-                    <p class="text-xs sm:text-sm text-neutral-600 mt-2.5 leading-relaxed">
-                        1-on-1 private messaging opens. Personal phone numbers and emails stay 100% masked for safety.
-                    </p>
-                </div>
-                <div class="mt-6 pt-4 border-t border-neutral-100 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-                    Step 3 of 5
-                </div>
-            </div>
-
-            <!-- Step 4 -->
-            <div class="bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 shadow-card hover:border-neutral-950 transition-all flex flex-col justify-between">
-                <div>
-                    <div class="w-10 h-10 rounded-2xl bg-neutral-950 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">4</div>
-                    <h4 class="font-bold text-base sm:text-lg text-neutral-950">Mutual Agreement</h4>
-                    <p class="text-xs sm:text-sm text-neutral-600 mt-2.5 leading-relaxed">
-                        Pre-signed contract terms are forwarded directly into the chat feed for mutual review.
-                    </p>
-                </div>
-                <div class="mt-6 pt-4 border-t border-neutral-100 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-                    Step 4 of 5
-                </div>
-            </div>
-
-            <!-- Step 5 -->
-            <div class="bg-white p-6 sm:p-7 rounded-3xl border-2 border-emerald-500 shadow-card hover:border-emerald-600 transition-all flex flex-col justify-between bg-gradient-to-b from-white to-emerald-50/20">
-                <div>
-                    <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-bold text-base flex items-center justify-center mb-4 shadow-xs">5</div>
-                    <h4 class="font-bold text-base sm:text-lg text-emerald-950">Direct Connection</h4>
-                    <p class="text-xs sm:text-sm text-emerald-800 mt-2.5 leading-relaxed font-medium">
-                        Both parties execute the contract. Agreement becomes active, unlocking 1-click calls and WhatsApp.
-                    </p>
-                </div>
-                <div class="mt-6 pt-4 border-t border-emerald-100 text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
-                    Direct Deal Closed ✓
-                </div>
+        <!-- Privacy Shield Visual Summary Pill -->
+        <div class="mt-8 flex justify-center">
+            <div class="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-5 py-2.5 rounded-full bg-white border border-neutral-200/90 shadow-2xs text-xs text-neutral-600">
+                <span class="inline-flex items-center gap-1.5 font-semibold text-neutral-800">
+                    <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-600"></i>
+                    <span>Steps 1–4: Phone Masked (<span class="font-mono">+91 98XXX-XX210</span>)</span>
+                </span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-neutral-400"></i>
+                <span class="inline-flex items-center gap-1.5 font-bold text-emerald-700">
+                    <i data-lucide="lock-open" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span>Step 5: Both Sign &amp; Call Directly</span>
+                </span>
             </div>
         </div>
 
