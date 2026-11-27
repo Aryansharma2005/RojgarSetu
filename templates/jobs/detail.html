@@ -13,6 +13,25 @@
         font-weight: 400;
         font-style: normal;
     }
+    @keyframes jobDetailFadeUp {
+        0% {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .jd-animate {
+        opacity: 0;
+        animation: jobDetailFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .jd-d1 { animation-delay: 0.04s; }
+    .jd-d2 { animation-delay: 0.12s; }
+    .jd-d3 { animation-delay: 0.20s; }
+    .jd-d4 { animation-delay: 0.08s; }
+    .jd-d5 { animation-delay: 0.16s; }
 </style>
 {% endblock %}
 
@@ -97,7 +116,7 @@
         <div class="lg:col-span-8 space-y-6">
 
             <!-- 1. Hero Header Card -->
-            <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs p-6 sm:p-8 relative overflow-hidden">
+            <div class="jd-animate jd-d1 bg-white rounded-3xl border border-neutral-200/90 shadow-xs hover:shadow-card transition-shadow duration-300 p-6 sm:p-8 relative overflow-hidden">
                 <!-- Category Watermark Inside Card Top-Right -->
                 <div class="boldonse-regular absolute top-4 right-6 text-3xl sm:text-4xl lg:text-5xl text-neutral-950/[0.05] tracking-wider pointer-events-none select-none uppercase">
                     {{ job.category }}
@@ -153,7 +172,7 @@
             </div>
 
             <!-- 2. Scope of Work & Standard Terms -->
-            <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs p-6 sm:p-8 space-y-5">
+            <div class="jd-animate jd-d2 bg-white rounded-3xl border border-neutral-200/90 shadow-xs hover:shadow-card transition-shadow duration-300 p-6 sm:p-8 space-y-5">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-2">
                     <i data-lucide="clipboard-list" class="w-4 h-4 text-neutral-500"></i>
                     <span>Scope of Work & Key Terms</span>
@@ -197,7 +216,7 @@
             </div>
 
             <!-- 3. Legal Service Agreement Card -->
-            <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs p-6 sm:p-8 space-y-4">
+            <div class="jd-animate jd-d3 bg-white rounded-3xl border border-neutral-200/90 shadow-xs hover:shadow-card transition-shadow duration-300 p-6 sm:p-8 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-100">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-neutral-950 text-white flex items-center justify-center flex-shrink-0">
@@ -256,7 +275,12 @@
                             </a>
                             {% endif %}
                         {% elif current_user and current_user.role == 'worker' %}
-                            {% if agreement.worker == current_user or application and application.status == 'chat_initiated' or application and application.status == 'contract_forwarded' or application and application.status == 'contract_accepted' %}
+                            {% if agreement.status == 'FULLY_EXECUTED' or application and application.status == 'contract_accepted' %}
+                            <a href="{% url 'agreement_worker_review' agreement.id %}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 text-neutral-900 transition">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                <span>View Signed Agreement</span>
+                            </a>
+                            {% elif agreement.worker == current_user or application and application.status == 'chat_initiated' or application and application.status == 'contract_forwarded' %}
                             <a href="{% url 'agreement_worker_review' agreement.id %}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-neutral-950 hover:bg-neutral-800 text-white transition shadow-xs">
                                 <i data-lucide="file-signature" class="w-3.5 h-3.5"></i>
                                 <span>Review & Sign Agreement</span>
@@ -288,7 +312,7 @@
         <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
 
             <!-- 1. Compensation & Primary Action Card -->
-            <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-sm p-6 space-y-5">
+            <div class="jd-animate jd-d4 bg-white rounded-3xl border border-neutral-200/90 shadow-sm hover:shadow-card transition-shadow duration-300 p-6 space-y-5">
                 <div class="flex items-baseline justify-between border-b border-neutral-100 pb-4">
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-neutral-400">Offered Rate</span>
@@ -409,7 +433,7 @@
             </div>
 
             <!-- 2. Verified Employer Trust Card -->
-            <div class="bg-white rounded-3xl border border-neutral-200/90 shadow-xs p-6 space-y-4">
+            <div class="jd-animate jd-d5 bg-white rounded-3xl border border-neutral-200/90 shadow-xs hover:shadow-card transition-shadow duration-300 p-6 space-y-4">
                 <div class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Posted By</div>
                 
                 <div class="flex items-center gap-3.5">

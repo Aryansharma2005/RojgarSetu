@@ -77,6 +77,26 @@
             border-color: #0a0a0a;
             box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.06);
         }
+
+        /* Global appearing animation for Boldonse typographic watermarks across all pages */
+        @keyframes rsWatermarkReveal {
+            0% {
+                opacity: 0;
+                translate: 26px 0;
+                scale: 0.96;
+                filter: blur(4px);
+            }
+            100% {
+                opacity: 1;
+                translate: 0 0;
+                scale: 1;
+                filter: blur(0px);
+            }
+        }
+        .boldonse-regular {
+            animation: rsWatermarkReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+            will-change: opacity, translate, scale;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -257,72 +277,219 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Base Footer Block -->
+    <!-- Base Footer Block (Full-Width Editorial Half-Cut Wordmark Footer for All Sub-Pages; Home Page Overrides This) -->
     {% block footer %}
-    <footer class="bg-neutral-50 text-neutral-600 mt-24 border-t border-neutral-100 text-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
-                <div class="space-y-3">
-                    <div class="flex items-center space-x-2 text-neutral-950 font-bold text-base">
-                        <div class="w-6 h-6 rounded-full bg-neutral-950 text-white flex items-center justify-center">
-                            <i data-lucide="handshake" class="w-3.5 h-3.5"></i>
-                        </div>
-                        <span>{{ T.brand_title }}</span>
-                    </div>
-                    <p class="text-neutral-500 leading-relaxed text-xs">
-                        Direct Individual-to-Individual Hiring Platform. Eliminating recruitment agency brokerage fees with hyperlocal radius discovery & pre-signed contracts.
-                    </p>
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[11px] font-medium">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                        <span>Zero Brokerage Verified Rails</span>
-                    </div>
-                </div>
+    <style>
+        #rs-subpage-footer .rs-footer-shell {
+            opacity: 0;
+            transform: translateY(36px);
+            transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #rs-subpage-footer .rs-footer-cols {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.12s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
+        }
+        #rs-subpage-footer .rs-footer-wordmark {
+            opacity: 0;
+            transform: translateY(85%);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.18s, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.18s;
+        }
+        #rs-subpage-footer.is-visible .rs-footer-shell {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #rs-subpage-footer.is-visible .rs-footer-cols {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #rs-subpage-footer.is-visible .rs-footer-wordmark {
+            opacity: 1;
+            transform: translateY(28%);
+        }
+    </style>
+    <footer id="rs-subpage-footer" class="mt-20 w-full">
+        <div class="rs-footer-shell w-full bg-[#f4f4f3] text-neutral-900 rounded-t-[2.25rem] sm:rounded-t-[3rem] border-t border-neutral-200/80 overflow-hidden pt-10 sm:pt-14">
+            <div class="rs-footer-cols w-full px-6 sm:px-12 lg:px-20 xl:px-24">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 pb-8 sm:pb-12 items-start">
 
-                <div>
-                    <h4 class="text-neutral-950 font-semibold uppercase tracking-wider text-[11px] mb-3">
-                        {% if current_lang == 'hi' %}कारीगर श्रेणियां{% else %}Trades & Skills{% endif %}
-                    </h4>
-                    <ul class="space-y-2">
-                        <li><a href="{% url 'jobs_list' %}?category=Electrician" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}इलेक्ट्रीशियन{% else %}Electrician{% endif %}</a></li>
-                        <li><a href="{% url 'jobs_list' %}?category=Plumber" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}प्लंबर{% else %}Plumber{% endif %}</a></li>
-                        <li><a href="{% url 'jobs_list' %}?category=House Maid" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}घरेलू सहायिका{% else %}House Assistant{% endif %}</a></li>
-                        <li><a href="{% url 'jobs_list' %}?category=Mechanic" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}मैकेनिक{% else %}Mechanic{% endif %}</a></li>
-                        <li><a href="{% url 'jobs_list' %}?category=Construction Worker" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}निर्माण श्रमिक{% else %}Construction Craftsman{% endif %}</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="text-neutral-950 font-semibold uppercase tracking-wider text-[11px] mb-3">Direct Handshake</h4>
-                    <ul class="space-y-2">
-                        <li>1. Dynamic Job Posting with Pre-Signature</li>
-                        <li>2. Hyperlocal Proximity Discovery</li>
-                        <li>3. Masked In-App Chat Privacy</li>
-                        <li>4. In-Chat Contract Forwarding</li>
-                        <li>5. Dual Digital Counter-Signature</li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="text-neutral-950 font-semibold uppercase tracking-wider text-[11px] mb-3">Architecture</h4>
-                    <div class="space-y-2 font-mono text-[11px]">
-                        <div class="bg-white p-2.5 rounded-xl border border-neutral-200/80 shadow-xs">
-                            <div class="text-neutral-900 font-semibold">Supabase PostgreSQL 17</div>
-                            <div class="text-neutral-400">PostGIS GiST Spherical Indexing</div>
-                        </div>
-                        <div class="bg-white p-2.5 rounded-xl border border-neutral-200/80 shadow-xs">
-                            <div class="text-neutral-900 font-semibold">Google Gemini Flash</div>
-                            <div class="text-neutral-400">AI MCQ Screening Engine</div>
+                    <!-- Col 1: Brand Statement -->
+                    <div class="md:col-span-4 space-y-3">
+                        <p class="text-base sm:text-lg font-medium text-neutral-900 leading-snug max-w-xs">
+                            {% if current_lang == 'hi' %}
+                                रोजगार सेतु घरों और कुशल कारीगरों को बिना किसी दलाली के सीधे जोड़ता है।
+                            {% else %}
+                                Rojgar Setu connects local homes and skilled workers directly with ₹0 brokerage.
+                            {% endif %}
+                        </p>
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-neutral-500">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                            <span>© 2026 {{ T.brand_title }} • 100% Direct Pay</span>
                         </div>
                     </div>
+
+                    <!-- Col 2: Explore -->
+                    <div class="md:col-span-2 space-y-3">
+                        <h4 class="text-xs font-bold text-neutral-950">
+                            {% if current_lang == 'hi' %}खोजें{% else %}Explore{% endif %}
+                        </h4>
+                        <ul class="space-y-2 text-xs text-neutral-500 font-medium">
+                            <li><a href="{% url 'home' %}" class="hover:text-neutral-950 transition">{{ T.nav_home }}</a></li>
+                            <li><a href="{% url 'jobs_list' %}" class="hover:text-neutral-950 transition">{{ T.nav_jobs }}</a></li>
+                            {% if not current_user or current_user.role != 'worker' %}
+                            <li><a href="{% url 'workers_list' %}" class="hover:text-neutral-950 transition">{{ T.nav_workers }}</a></li>
+                            {% endif %}
+                            {% if current_user %}
+                            <li><a href="{% url 'agreements_dashboard' %}" class="hover:text-neutral-950 transition">{% if current_lang == 'hi' %}समझौते{% else %}Agreements{% endif %}</a></li>
+                            {% else %}
+                            <li><a href="{% url 'login' %}" class="hover:text-neutral-950 transition">{{ T.nav_login }}</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <!-- Col 3: Popular Services (Clean Minimalist Pills, Zero Icons) -->
+                    <div class="md:col-span-3 space-y-3">
+                        <h4 class="text-xs font-bold text-neutral-950">
+                            {% if current_lang == 'hi' %}लोकप्रिय सेवाएं{% else %}Popular Services{% endif %}
+                        </h4>
+                        <div class="flex flex-wrap gap-1.5 text-[11px] font-medium">
+                            <a href="{% url 'jobs_list' %}?category=Electrician" class="px-3.5 py-1.5 rounded-full bg-white text-neutral-800 border border-neutral-200/70 hover:border-neutral-950 hover:text-neutral-950 transition">
+                                {% if current_lang == 'hi' %}इलेक्ट्रीशियन{% else %}Electrician{% endif %}
+                            </a>
+                            <a href="{% url 'jobs_list' %}?category=Plumber" class="px-3.5 py-1.5 rounded-full bg-white text-neutral-800 border border-neutral-200/70 hover:border-neutral-950 hover:text-neutral-950 transition">
+                                {% if current_lang == 'hi' %}प्लंबर{% else %}Plumber{% endif %}
+                            </a>
+                            <a href="{% url 'jobs_list' %}?category=Driver" class="px-3.5 py-1.5 rounded-full bg-white text-neutral-800 border border-neutral-200/70 hover:border-neutral-950 hover:text-neutral-950 transition">
+                                {% if current_lang == 'hi' %}ड्राइवर{% else %}Driver{% endif %}
+                            </a>
+                            <a href="{% url 'jobs_list' %}?category=Cook" class="px-3.5 py-1.5 rounded-full bg-white text-neutral-800 border border-neutral-200/70 hover:border-neutral-950 hover:text-neutral-950 transition">
+                                {% if current_lang == 'hi' %}रसोइया{% else %}Cook{% endif %}
+                            </a>
+                            <a href="{% url 'jobs_list' %}?category=House%20Maid" class="px-3.5 py-1.5 rounded-full bg-white text-neutral-800 border border-neutral-200/70 hover:border-neutral-950 hover:text-neutral-950 transition">
+                                {% if current_lang == 'hi' %}घरेलू मदद{% else %}House Maid{% endif %}
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Col 4: Context-Aware Quick Action CTAs -->
+                    <div class="md:col-span-3 md:flex md:flex-col md:items-end">
+                        <div class="w-full max-w-[240px] space-y-4">
+                            <a href="{% if current_user and current_user.role == 'employer' %}{% url 'job_create' %}{% elif current_user %}{% url 'jobs_list' %}{% else %}{% url 'register_employer' %}{% endif %}"
+                               class="group block pb-3.5 border-b border-neutral-200/90">
+                                <div class="flex items-center justify-between gap-2 text-lg font-bold text-emerald-700 group-hover:text-emerald-800 transition">
+                                    <span>{% if current_user and current_user.role == 'worker' %}{{ T.nav_jobs }}{% else %}{{ T.nav_post_job }}{% endif %}</span>
+                                    <span class="w-5 h-5 rounded-full bg-emerald-600 text-white inline-flex items-center justify-center group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                                        <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                    </span>
+                                </div>
+                                <div class="text-xs text-neutral-500 mt-0.5">
+                                    {% if current_user and current_user.role == 'worker' %}
+                                        {% if current_lang == 'hi' %}पास के काम 1-क्लिक में देखें{% else %}Browse nearby openings{% endif %}
+                                    {% else %}
+                                        {% if current_lang == 'hi' %}आस-पास के सत्यापित कारीगर खोजें{% else %}Hire verified helpers near you{% endif %}
+                                    {% endif %}
+                                </div>
+                            </a>
+
+                            {% if current_user and current_user.role == 'worker' %}
+                                {% if request.resolver_match.url_name == 'worker_profile' %}
+                                <a href="{% url 'agreements_dashboard' %}" class="group block">
+                                    <div class="flex items-center justify-between gap-2 text-lg font-bold text-neutral-950 group-hover:text-neutral-700 transition">
+                                        <span>{% if current_lang == 'hi' %}मेरे समझौते{% else %}Agreements{% endif %}</span>
+                                        <span class="w-5 h-5 rounded-full bg-neutral-950 text-white inline-flex items-center justify-center group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-neutral-500 mt-0.5">
+                                        {% if current_lang == 'hi' %}हस्ताक्षरित अनुबंध और पीडीएफ देखें{% else %}View signed contracts &amp; PDFs{% endif %}
+                                    </div>
+                                </a>
+                                {% else %}
+                                <a href="{% url 'worker_profile' %}" class="group block">
+                                    <div class="flex items-center justify-between gap-2 text-lg font-bold text-neutral-950 group-hover:text-neutral-700 transition">
+                                        <span>{{ T.nav_profile }}</span>
+                                        <span class="w-5 h-5 rounded-full bg-neutral-950 text-white inline-flex items-center justify-center group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-neutral-500 mt-0.5">
+                                        {% if current_lang == 'hi' %}कमाई और आवेदन देखें{% else %}Track earnings &amp; applications{% endif %}
+                                    </div>
+                                </a>
+                                {% endif %}
+                            {% elif current_user and current_user.role == 'employer' %}
+                                {% if request.resolver_match.url_name == 'my_jobs' %}
+                                <a href="{% url 'agreements_dashboard' %}" class="group block">
+                                    <div class="flex items-center justify-between gap-2 text-lg font-bold text-neutral-950 group-hover:text-neutral-700 transition">
+                                        <span>{% if current_lang == 'hi' %}मेरे समझौते{% else %}Agreements{% endif %}</span>
+                                        <span class="w-5 h-5 rounded-full bg-neutral-950 text-white inline-flex items-center justify-center group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-neutral-500 mt-0.5">
+                                        {% if current_lang == 'hi' %}हस्ताक्षरित अनुबंध और पीडीएफ देखें{% else %}View signed contracts &amp; PDFs{% endif %}
+                                    </div>
+                                </a>
+                                {% else %}
+                                <a href="{% url 'my_jobs' %}" class="group block">
+                                    <div class="flex items-center justify-between gap-2 text-lg font-bold text-neutral-950 group-hover:text-neutral-700 transition">
+                                        <span>{{ T.nav_my_jobs }}</span>
+                                        <span class="w-5 h-5 rounded-full bg-neutral-950 text-white inline-flex items-center justify-center group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-neutral-500 mt-0.5">
+                                        {% if current_lang == 'hi' %}आवेदकों और काम का प्रबंधन करें{% else %}Manage postings &amp; applicants{% endif %}
+                                    </div>
+                                </a>
+                                {% endif %}
+                            {% else %}
+                                <a href="{% url 'register_worker' %}" class="group block">
+                                    <div class="flex items-center justify-between gap-2 text-lg font-bold text-neutral-950 group-hover:text-neutral-700 transition">
+                                        <span>{% if current_lang == 'hi' %}कारीगर बनें{% else %}Join as Worker{% endif %}</span>
+                                        <span class="w-5 h-5 rounded-full bg-neutral-950 text-white inline-flex items-center justify-center group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-neutral-500 mt-0.5">
+                                        {% if current_lang == 'hi' %}100% सीधी कमाई, 0% कमीशन{% else %}100% direct pay, 0% fee{% endif %}
+                                    </div>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="pt-6 border-t border-neutral-200/60 flex flex-col sm:flex-row justify-between items-center gap-2 text-neutral-400">
-                <div>© 2026 Rojgar Setu (रोजगार सेतु). Direct Informal Workforce Discovery.</div>
-                <div>Hyperlocal Direct Architecture</div>
+            <!-- Half-Cut Giant Wordmark at Bottom -->
+            <div class="w-full overflow-hidden select-none pointer-events-none pt-2">
+                <div class="rs-footer-wordmark text-center font-black uppercase text-neutral-950 tracking-[-0.04em] leading-[0.75] whitespace-nowrap"
+                     style="font-size: clamp(2.9rem, 13.8vw, 16rem);">
+                    ROJGAR SETU
+                </div>
             </div>
         </div>
     </footer>
+    <script>
+        (function () {
+            var footerEl = document.getElementById('rs-subpage-footer');
+            if (!footerEl) return;
+            if ('IntersectionObserver' in window) {
+                var obs = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            footerEl.classList.add('is-visible');
+                            obs.unobserve(footerEl);
+                        }
+                    });
+                }, { threshold: 0.12 });
+                obs.observe(footerEl);
+            } else {
+                footerEl.classList.add('is-visible');
+            }
+        })();
+    </script>
     {% endblock %}
 
     <script>

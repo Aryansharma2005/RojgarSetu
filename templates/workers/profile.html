@@ -146,7 +146,7 @@
                     <div class="relative z-10 text-[11px] uppercase tracking-wider text-neutral-500 font-bold">
                         Contracts Signed
                     </div>
-                    <div class="relative z-10 text-3xl font-black text-neutral-950 font-mono">{{ worker_stats.contracts_signed_count }}</div>
+                    <div class="relative z-10 text-3xl font-black text-neutral-950 font-sans">{{ worker_stats.contracts_signed_count }}</div>
                     <p class="relative z-10 text-xs text-neutral-500">Confirmed agreements with local employers</p>
                 </div>
 
@@ -155,7 +155,7 @@
                     <div class="relative z-10 text-[11px] uppercase tracking-wider text-emerald-800/80 font-bold">
                         Agreed Earnings
                     </div>
-                    <div class="relative z-10 text-3xl font-black text-emerald-700 font-mono">₹{{ worker_stats.total_contract_value|floatformat:0 }}</div>
+                    <div class="relative z-10 text-3xl font-black text-emerald-700 font-sans">₹{{ worker_stats.total_contract_value|floatformat:0 }}</div>
                     <p class="relative z-10 text-xs text-neutral-500">100% direct payout • 0% agency fee</p>
                 </div>
 
@@ -164,7 +164,7 @@
                     <div class="relative z-10 text-[11px] uppercase tracking-wider text-neutral-500 font-bold">
                         Active Chats
                     </div>
-                    <div class="relative z-10 text-3xl font-black text-neutral-950 font-mono">
+                    <div class="relative z-10 text-3xl font-black text-neutral-950 font-sans">
                         {{ worker_stats.active_chats_count }}
                         <span class="text-sm font-semibold text-neutral-400">/ {{ worker_stats.total_applied }} applied</span>
                     </div>
@@ -177,7 +177,7 @@
                     <div class="relative z-10 text-[11px] uppercase tracking-wider text-neutral-500 font-bold">
                         Verified Contracts
                     </div>
-                    <div class="relative z-10 text-3xl font-black text-neutral-950 font-mono">{{ worker_stats.contracts_signed_count }}</div>
+                    <div class="relative z-10 text-3xl font-black text-neutral-950 font-sans">{{ worker_stats.contracts_signed_count }}</div>
                     <p class="relative z-10 text-xs text-neutral-500">Digital agreements executed on Rojgar Setu</p>
                 </div>
 
@@ -186,7 +186,7 @@
                     <div class="relative z-10 text-[11px] uppercase tracking-wider text-neutral-500 font-bold">
                         Trade Quiz Score
                     </div>
-                    <div class="relative z-10 text-3xl font-black text-neutral-950 font-mono">{{ worker_stats.mcq_score }}</div>
+                    <div class="relative z-10 text-3xl font-black text-neutral-950 font-sans">{{ worker_stats.mcq_score }}</div>
                     <p class="relative z-10 text-xs text-neutral-500">Passed {{ profile.primary_trade }} safety & skill check</p>
                 </div>
 
@@ -281,7 +281,7 @@
                         Client Rating
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-3xl font-black text-neutral-950 font-mono">{{ profile.rating_avg }}</span>
+                        <span class="text-3xl font-black text-neutral-950 font-sans">{{ profile.rating_avg }}</span>
                         <div class="flex items-center text-amber-500">
                             <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
                         </div>
@@ -297,7 +297,7 @@
                         Safety Screening
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-3xl font-black text-neutral-950 font-mono">{{ worker_stats.mcq_score }}</span>
+                        <span class="text-3xl font-black text-neutral-950 font-sans">{{ worker_stats.mcq_score }}</span>
                     </div>
                     <p class="text-xs text-neutral-500">
                         Cleared vocational trade quiz
